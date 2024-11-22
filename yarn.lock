@@ -1077,9 +1077,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001579":
-  version: 1.0.30001680
-  resolution: "caniuse-lite@npm:1.0.30001680"
-  checksum: 10c0/11a4e7f6f5d5f965cfd4b7dc4aef34e12a26e99647f02b5ac9fd7f7670845473b95ada416a785473237e4b1b67281f7b043c8736c85b77097f6b697e8950b15f
+  version: 1.0.30001683
+  resolution: "caniuse-lite@npm:1.0.30001683"
+  checksum: 10c0/0ca7f4f2fbd0c71fde5a14ca2e29bb1dcb84c095d7a3d88e47371e062f276f1dc31da3f10931ec134ef7fb096259c0d67c9ffb843a9ec4a040a85eb2fea0bdec
   languageName: node
   linkType: hard
 
@@ -2871,7 +2871,6 @@ __metadata:
     eslint: "npm:^8"
     eslint-config-next: "npm:15.0.3"
     next: "npm:^15.0.3"
-    protoc-gen-ts: "npm:^0.8.7"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     react-redux: "npm:^9.1.2"
@@ -2917,15 +2916,6 @@ __metadata:
     object-assign: "npm:^4.1.1"
     react-is: "npm:^16.13.1"
   checksum: 10c0/59ece7ca2fb9838031d73a48d4becb9a7cc1ed10e610517c7d8f19a1e02fa47f7c27d557d8a5702bec3cfeccddc853579832b43f449e54635803f277b1c78077
-  languageName: node
-  linkType: hard
-
-"protoc-gen-ts@npm:^0.8.7":
-  version: 0.8.7
-  resolution: "protoc-gen-ts@npm:0.8.7"
-  bin:
-    protoc-gen-ts: protoc-gen-ts.js
-  checksum: 10c0/1af3ce3c31b81f374b3fc704a770715432ebf7f8caeb5b22e68fb6e378159a659afa3c88ca6d81540f324c3db31efec19877c41c800895cbbbf4926392c234a6
   languageName: node
   linkType: hard
 
@@ -3024,7 +3014,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reflect.getprototypeof@npm:^1.0.4":
+"reflect.getprototypeof@npm:^1.0.4, reflect.getprototypeof@npm:^1.0.6":
   version: 1.0.6
   resolution: "reflect.getprototypeof@npm:1.0.6"
   dependencies:
@@ -3576,8 +3566,8 @@ __metadata:
   linkType: hard
 
 "typed-array-byte-offset@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "typed-array-byte-offset@npm:1.0.2"
+  version: 1.0.3
+  resolution: "typed-array-byte-offset@npm:1.0.3"
   dependencies:
     available-typed-arrays: "npm:^1.0.7"
     call-bind: "npm:^1.0.7"
@@ -3585,7 +3575,8 @@ __metadata:
     gopd: "npm:^1.0.1"
     has-proto: "npm:^1.0.3"
     is-typed-array: "npm:^1.1.13"
-  checksum: 10c0/d2628bc739732072e39269389a758025f75339de2ed40c4f91357023c5512d237f255b633e3106c461ced41907c1bf9a533c7e8578066b0163690ca8bc61b22f
+    reflect.getprototypeof: "npm:^1.0.6"
+  checksum: 10c0/5da29585f96671c0521475226d3227000b3e01d1e99208b66bb05b75c7c8f4d0e9cc2e79920f3bfbc792a00102df1daa2608a2753e3f291b671d5a80245bde5b
   languageName: node
   linkType: hard
 
@@ -3646,22 +3637,22 @@ __metadata:
   linkType: hard
 
 "typescript@npm:^5.6.3":
-  version: 5.6.3
-  resolution: "typescript@npm:5.6.3"
+  version: 5.7.2
+  resolution: "typescript@npm:5.7.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/44f61d3fb15c35359bc60399cb8127c30bae554cd555b8e2b46d68fa79d680354b83320ad419ff1b81a0bdf324197b29affe6cc28988cd6a74d4ac60c94f9799
+  checksum: 10c0/a873118b5201b2ef332127ef5c63fb9d9c155e6fdbe211cbd9d8e65877283797cca76546bad742eea36ed7efbe3424a30376818f79c7318512064e8625d61622
   languageName: node
   linkType: hard
 
 "typescript@patch:typescript@npm%3A^5.6.3#optional!builtin<compat/typescript>":
-  version: 5.6.3
-  resolution: "typescript@patch:typescript@npm%3A5.6.3#optional!builtin<compat/typescript>::version=5.6.3&hash=8c6c40"
+  version: 5.7.2
+  resolution: "typescript@patch:typescript@npm%3A5.7.2#optional!builtin<compat/typescript>::version=5.7.2&hash=8c6c40"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/7c9d2e07c81226d60435939618c91ec2ff0b75fbfa106eec3430f0fcf93a584bc6c73176676f532d78c3594fe28a54b36eb40b3d75593071a7ec91301533ace7
+  checksum: 10c0/c891ccf04008bc1305ba34053db951f8a4584b4a1bf2f68fd972c4a354df3dc5e62c8bfed4f6ac2d12e5b3b1c49af312c83a651048f818cd5b4949d17baacd79
   languageName: node
   linkType: hard
 
