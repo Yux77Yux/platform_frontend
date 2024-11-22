@@ -10,11 +10,6 @@ export const getUserSelector = createSelector(
     (reducerState: UserState) => reducerState.userActive
 )
 
-export const getHintSelector = createSelector(
-    [selectUserReducer],
-    (reducerState: UserState) => reducerState.hint
-)
-
 export const getErrorSelector = createSelector(
     [selectUserReducer],
     (reducerState: UserState) => reducerState.error

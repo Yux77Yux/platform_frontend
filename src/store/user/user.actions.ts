@@ -1,90 +1,66 @@
 import {
     withMatcher,
     createAction,
-    Action,
-    ActionWithPayload,
-} from '../../utils/reducer/reducer.utils';
+} from '../reducer.types';
 
 import {
     USER_ACTION_TYPES,
-    UsernameAndPassword,
-    UserIncidental,
+    UserCredentials,
+    UserDefault,
 } from './user.types';
 
-export type SignInWithEmailStart = ActionWithPayload<USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_START, UsernameAndPassword>;
-export type SignInWithEmailSuccess = ActionWithPayload<USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_SUCCESS, UserIncidental>;
-export type SignInWithEmailFailure = ActionWithPayload<USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_FAILURE, Error>;
-
-export type SignUpWithEmailStart = ActionWithPayload<USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_START, UsernameAndPassword>;
-export type SignUpWithEmailSuccess = ActionWithPayload<USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_SUCCESS, string>;
-export type SignUpWithEmailFailure = ActionWithPayload<USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_FAILURE, string>;
-
-export type SignOutStart = Action<USER_ACTION_TYPES.SIGN_OUT_START>;
-export type SignOutSuccess = ActionWithPayload<USER_ACTION_TYPES.SIGN_OUT_SUCCESS, string>;
-export type SignOutFailure = ActionWithPayload<USER_ACTION_TYPES.SIGN_OUT_SUCCESS, string>;
-
-export type FetchUserStart = Action<USER_ACTION_TYPES.FETCH_USER_START>;
-export type FetchUserSuccess = ActionWithPayload<USER_ACTION_TYPES.FETCH_USER_SUCCESS, UserIncidental>;
-export type FetchUserFailure = ActionWithPayload<USER_ACTION_TYPES.FETCH_USER_FAILURE, Error>;
-
-export type AutoSignInStart = ActionWithPayload<USER_ACTION_TYPES.AUTO_SIGN_IN_START,string>;
+function createAsyncAction<T, S, F>(
+    startType: string,
+    successType: string,
+    failureType: string
+) {
+    return {
+        start: (payload: T) => createAction(startType, payload),
+        success: (payload: S) => createAction(successType, payload),
+        failure: (error: F) => createAction(failureType, error),
+    };
+}
 
 //Sign-In
-export const signInWithEmailStart = (payload: UsernameAndPassword): SignInWithEmailStart =>
-    createAction(USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_START, payload)
-
-export const signInWithEmailSuccess = withMatcher(
-    (payload: UserIncidental): SignInWithEmailSuccess =>
-        createAction(USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_SUCCESS, payload)
-)
-
-export const signInWithEmailFailure = withMatcher(
-    (error: Error): SignInWithEmailFailure =>
-        createAction(USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_FAILURE, error)
-)
+const signInActions = createAsyncAction<UserCredentials, UserDefault, Error>(
+    USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_START,
+    USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_SUCCESS,
+    USER_ACTION_TYPES.SIGN_IN_WITH_EMAIL_FAILURE
+);
+export const signInWithEmailStart = signInActions.start
+export const signInWithEmailSuccess = withMatcher(signInActions.success)
+export const signInWithEmailFailure = withMatcher(signInActions.failure)
 
 //Sign-Up
-export const signUpWithEmailStart = (payload: UsernameAndPassword): SignUpWithEmailStart =>
-    createAction(USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_START, payload)
-
-export const signUpWithEmailSuccess = withMatcher(
-    (hint: string): SignUpWithEmailSuccess =>
-        createAction(USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_SUCCESS, hint)
-)
-
-export const signUpWithEmailFailure = withMatcher(
-    (hint: string): SignUpWithEmailFailure =>
-        createAction(USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_FAILURE, hint)
-)
+const signUpActions = createAsyncAction<UserCredentials, string, string>(
+    USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_START,
+    USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_SUCCESS,
+    USER_ACTION_TYPES.SIGN_UP_WITH_EMAIL_FAILURE
+);
+export const signUpWithEmailStart = signUpActions.start
+export const signUpWithEmailSuccess = withMatcher(signUpActions.success)
+export const signUpWithEmailFailure = withMatcher(signUpActions.failure)
 
 //Sign-Out
-export const signOutStart = (): SignOutStart =>
-    createAction(USER_ACTION_TYPES.SIGN_OUT_START, null)
-
-export const signOutSuccess = withMatcher(
-    (payload: string): SignOutSuccess =>
-        createAction(USER_ACTION_TYPES.SIGN_OUT_SUCCESS, payload)
-)
-
-export const signOutFailure = withMatcher(
-    (payload: string): SignOutFailure =>
-        createAction(USER_ACTION_TYPES.SIGN_OUT_SUCCESS, payload)
-)
+const signOutActions = createAsyncAction<null, string, string>(
+    USER_ACTION_TYPES.SIGN_OUT_START,
+    USER_ACTION_TYPES.SIGN_OUT_SUCCESS,
+    USER_ACTION_TYPES.SIGN_OUT_SUCCESS
+);
+export const signOutStart = () =>signOutActions.start
+export const signOutSuccess = withMatcher(signOutActions.success)
+export const signOutFailure = withMatcher(signOutActions.failure)
 
 //fetch-User
-export const fetchUserStart = (): FetchUserStart =>
-    createAction(USER_ACTION_TYPES.FETCH_USER_START, null)
-
-export const fetchUserSuccess = withMatcher(
-    (payload: UserIncidental): FetchUserSuccess =>
-        createAction(USER_ACTION_TYPES.FETCH_USER_SUCCESS, payload)
-)
-
-export const fetchUserFailure = withMatcher(
-    (payload: Error): FetchUserFailure =>
-        createAction(USER_ACTION_TYPES.FETCH_USER_FAILURE, payload)
-)
+const fetchUserActions = createAsyncAction<null, string, string>(
+    USER_ACTION_TYPES.FETCH_USER_START,
+    USER_ACTION_TYPES.FETCH_USER_SUCCESS,
+    USER_ACTION_TYPES.FETCH_USER_FAILURE
+);
+export const fetchUserStart = () =>fetchUserActions.start
+export const fetchUserSuccess = withMatcher(fetchUserActions.success)
+export const fetchUserFailure = withMatcher(fetchUserActions.failure)
 
 //autoSignIn
-export const autoSignInStart = (payload:string): AutoSignInStart =>
+export const autoSignInStart = (payload: string) =>
     createAction(USER_ACTION_TYPES.AUTO_SIGN_IN_START, payload)

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { takeLatest, all, call, put, select } from 'typed-redux-saga/macro';
+import { takeLatest, all, call, put, select } from 'typed-redux-saga';
 import {
     USER_ACTION_TYPES,
     UserIncidental,
@@ -25,7 +25,7 @@ import {
     userSignOutAsync,
     fetchUserAsync,
     autoSignInAsync,
-} from '../../utils/processData/user.utils';
+} from '@/src/internal/user';
 
 export function* signInAsync({ payload }: SignInWithEmailStart) {
     try {

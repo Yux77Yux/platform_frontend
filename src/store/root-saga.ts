@@ -1,7 +1,7 @@
 import {
     call,
     all
-} from 'typed-redux-saga/macro';
+} from 'typed-redux-saga';
 
 import { userSaga } from './user/user.saga';
 

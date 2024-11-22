@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+// import AppProvider from "../components/Provider/AppProvider";
 
 export const metadata: Metadata = {
   title: "Platform creation",
@@ -14,8 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header></header>
-        {children}
+          <main>{children}</main>
       </body>
     </html>
   );

@@ -9,17 +9,14 @@ import {
     fetchUserSuccess,
     fetchUserFailure,
 } from './user.actions';
-import { UserIncidental } from './user.types';
-import { hintMerge } from '../../utils/hint';
+import { UserDefault } from './user.types';
 
 export interface UserState {
-    readonly hint: string,
-    readonly userActive: UserIncidental | null,
+    readonly userActive: UserDefault | null,
     readonly error: Error | null,
 }
 
 const USER_INITIAL_STATUS: UserState = {
-    hint: "",
     userActive: null,
     error: null,
 }
@@ -28,18 +25,14 @@ export const userReducer = (state = USER_INITIAL_STATUS, action = {} as AnyActio
     if (signInWithEmailSuccess.match(action)) {
         return {
             ...state,
-            hint: "",
             userActive: action.payload,
             error: null,
         }
     }
 
     if (signUpWithEmailSuccess.match(action)) {
-        hintMerge("注册成功！")
-
         return {
             ...state,
-            hint: "",
             error: null,
         }
     }
@@ -47,7 +40,6 @@ export const userReducer = (state = USER_INITIAL_STATUS, action = {} as AnyActio
     if (signOutSuccess.match(action)) {
         return {
             ...state,
-            hint: "",
             userActive: null,
             error: null,
         }
@@ -56,7 +48,6 @@ export const userReducer = (state = USER_INITIAL_STATUS, action = {} as AnyActio
     if (fetchUserSuccess.match(action)) {
         return {
             ...state,
-            hint: "",
             userActive: action.payload,
             error: null,
         }
@@ -65,7 +56,6 @@ export const userReducer = (state = USER_INITIAL_STATUS, action = {} as AnyActio
     if (signInWithEmailFailure.match(action)) {
         return {
             ...state,
-            hint: action.payload.message,
             userActive: null,
             error: action.payload,
         }
@@ -74,23 +64,18 @@ export const userReducer = (state = USER_INITIAL_STATUS, action = {} as AnyActio
     if (signUpWithEmailFailure.match(action)) {
         return {
             ...state,
-            hint: "",
         }
     }
 
     if (signOutFailure.match(action)) {
-        hintMerge(action.payload);
-
         return {
             ...state,
-            hint: "",
         }
     }
 
     if (fetchUserFailure.match(action)) {
         return {
             ...state,
-            hint: action.payload.message,
             userActive: null,
             error: action.payload,
         }
