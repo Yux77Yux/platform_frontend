@@ -1,0 +1,31 @@
+.bili-logo {
+    cursor: pointer;
+
+    @keyframes floatmove {
+        0% {
+            left: 168px;
+        }
+
+        50% {
+            left: 185px;
+        }
+
+        100% {
+            left: 168px;
+        }
+    }
+
+    & span {
+        position: absolute;
+        width: 80px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        /* background-color: pink; */
+        color: #fff;
+        background: url(/img/对话框1.png) no-repeat center center;
+        background-size: 100%;
+        animation: floatmove 2s infinite;
+        transition: all 0.3;
+    }
+}

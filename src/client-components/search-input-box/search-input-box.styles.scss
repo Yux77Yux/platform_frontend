@@ -1,0 +1,80 @@
+.search-input-box {
+    display: flex;
+    position: relative;
+    height: 38px;
+    width: 500px;
+    background-color: rgba(255, 255, 255, 0.88);
+    border-radius: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+
+    & .type-in-box {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        margin: auto;
+        height: 30px;
+        width: 89%;
+        background-color: rgb(255, 255, 255, 0);
+        border-radius: 6px;
+        color: black;
+        padding-right: 3%;
+
+        &:focus-within {
+            background-color: rgba(227, 229, 231, 0.6);
+        }
+
+        & input{
+            display: block;
+            position: relative;
+            height: 100%;
+            width: 100%;
+            font-size: 16px;
+
+            &:not(:placeholder-shown)+.cross-mark {
+                display: block;
+            }
+        }
+
+        & .cross-mark {
+            display: none;
+            position: relative;
+            margin: auto;
+            cursor: pointer;
+            height: 15px;
+            width: 15px;
+            background-image: url('../../assets/icons8-cross-mark-50.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            border-radius: 25px;
+    
+            &:hover {
+                background-image: url('../../assets/icons8-cross-mark-51.png');
+            }
+        }
+    }
+
+    & .search-input-magnifying-glass {
+        display: block;
+        position: relative;
+        right: 0;
+        margin: auto;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0);
+        background-image: url('../../assets/magnifying-glass.png');
+        background-size: 25px;
+        background-repeat: no-repeat;
+        background-position: center;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba(227, 229, 231, 0.6);
+        }
+    }
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 1);
+    }
+}

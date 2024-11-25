@@ -1,0 +1,13 @@
+.user-right {
+    display: flex;
+
+    & .user-detail {
+        width: 100px !important;
+        height: 100%;
+        background-color: #fb7299;
+        border-radius: 2px;
+        text-align: center;
+        line-height: 36px;
+        margin-left: 20px;
+    }
+}

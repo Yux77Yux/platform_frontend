@@ -17,13 +17,17 @@ export enum USER_ACTION_TYPES {
 }
 
 export interface UserCredentials {
-    username: string 
-    password: string
-    email?: string
+    username: string;  // 用户名，类型为 string，默认为可选
+    password: string;  // 密码，类型为 string，默认为可选
+    email?: string;     // 邮箱，类型为 string，默认为可选
 }
 
-export interface UserDefault{
-    userUuid : string
-    userName?: string
-    userAvator?: string
+export interface UserDefault {
+    user_uuid: string;  // 用户 UUID，类型为 string，默认为可选
+    user_name: string;  // 用户名，类型为 string，默认为可选
+}
+
+export interface UserLogin {
+    user_default: UserDefault;  // 可选字段，类型为 UserDefault
+    user_avator: string;        // 可选字段，类型为 string
 }
