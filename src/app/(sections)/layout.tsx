@@ -1,10 +1,10 @@
-import SectionsHeader from "@/src/server-components/sections-header/sections-header.component"
+import SectionsHeader from "@/src/server-components/sections-header/sections-header.component";
 
-export default function RootLayout({
+export default function SectionsLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <>
       <header><SectionsHeader /></header>

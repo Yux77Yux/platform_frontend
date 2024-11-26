@@ -3,36 +3,33 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import "./user-section-left.styles.scss";
 
-const NoAvatorOptions = () => {
+const NoAvatorOption = (props: { desctiption: string, name: string }) => {
+    const { name, desctiption } = props;
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
-        }}>
+        <>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100px',
+                width: '80%',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                color: 'rgb(111,111,111)',
+            }}>{desctiption}</div>
             <Link href="#" style={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: '40px',
+                height: '36px',
+                width: '80%',
                 marginTop: '6px',
-                backgroundColor: 'black',
+                backgroundColor: 'rgb(28, 111, 219)',
                 color: 'white',
                 fontSize: '16px',
                 borderRadius: '10px',
-            }}>立即登录</Link>
-            <Link href="#" style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '40px',
-                marginTop: '6px',
-                backgroundColor: 'black',
-                color: 'white',
-                fontSize: '16px',
-                borderRadius: '10px',
-            }}>立即注册</Link>
-        </div>
+            }}>{name}</Link>
+        </>
     );
 }
 
@@ -55,7 +52,20 @@ const UserSectionLeft = async () => {
                             </div>
                         </div>
                         : <div className="no-avator-card">
-                            <NoAvatorOptions />
+                            <NoAvatorOption desctiption="登录即可查看个人中心" name="立即登录" />
+                            <div style={{
+                                textDecoration: 'none',
+                                pointerEvents: 'none',
+                                fontSize: '14px',
+                                margin: '10px'
+                            }}>首次使用？
+                                <Link href="#" style={{
+                                    margin: '10px',
+                                    color: 'rgb(49, 128, 233)',
+                                    textDecoration: 'underline',
+                                    pointerEvents: 'auto',
+                                }}> 点我注册</Link>
+                            </div>
                         </div>
                     }
                 </div>
@@ -74,11 +84,75 @@ const UserSectionLeft = async () => {
                 }
             </div>
 
-            <Link href="#"><span>消息</span></Link>
-            <Link href="#"><span>动态</span></Link>
-            <Link href="#"><span>收藏</span></Link>
-            <Link href="#"><span>历史</span></Link>
-            <Link href="#"><span>创作中心</span></Link>
+            {/* 消息 */}
+            <div className="nav-option">
+                <div className="show">
+                    {isLoggedIn
+                        ? <div className="msg-option-container">
+                            <div className="msg-option-flex">
+                                <Link href="#" className="msg-card">回复我的</Link>
+                                <Link href="#" className="msg-card">@我的</Link>
+                                <Link href="#" className="msg-card">收到的赞</Link>
+                                <Link href="#" className="msg-card">系统消息</Link>
+                                <Link href="#" className="msg-card">我的消息</Link>
+                            </div>
+                        </div>
+                        : <div className="no-avator-card">
+                            <NoAvatorOption desctiption="登录即可查看消息" name="立即登录" />
+                        </div>
+                    }
+                </div>
+                <Link href="#">消息</Link>
+            </div>
+            {/* 动态 */}
+            <div className="nav-option">
+                <div className="show">
+                    {isLoggedIn
+                        ? <div className="dynamics-option-container">
+                            <div className="dynamics-option-flex">
+                            </div>
+                        </div>
+                        : <div className="no-avator-card">
+                            <NoAvatorOption desctiption="登录即可查看动态" name="立即登录" />
+                        </div>
+                    }
+                </div>
+                <Link href="#">动态</Link>
+            </div>
+            {/* 收藏 */}
+            <div className="nav-option">
+                <div className="show">
+                    {isLoggedIn
+                        ? <div className="collections-option-container">
+                            <div className="collections-option-flex">
+                            </div>
+                        </div>
+                        : <div className="no-avator-card">
+                            <NoAvatorOption desctiption="登录即可查看收藏" name="立即登录" />
+                        </div>
+                    }
+                </div>
+                <Link href="#">收藏</Link>
+            </div>
+            {/* 历史 */}
+            <div className="nav-option">
+                <div className="show">
+                    {isLoggedIn
+                        ? <div className="history-option-container">
+                            <div className="history-option-flex">
+                            </div>
+                        </div>
+                        : <div className="no-avator-card">
+                            <NoAvatorOption desctiption="登录即可查看历史" name="立即登录" />
+                        </div>
+                    }
+                </div>
+                <Link href="#">历史</Link>
+            </div>
+            {/* 创作中心 */}
+            <div className="nav-option">
+                <Link href="#">创作中心</Link>
+            </div>
         </div>
     );
 }

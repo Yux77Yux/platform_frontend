@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    position: relative;
 
     & a {
         font-size: 14px;
@@ -11,13 +12,35 @@
         margin: 0 12px;
     }
 
+    & .show {
+        transition: opacity 0.1s linear;
+        position: absolute;
+        visibility: hidden;
+        opacity: 0;
+        top: 40px;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    & .no-avator-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 400px;
+        box-sizing: border-box;
+        background-color: rgb(255, 255, 255);
+        border-radius: 8px;
+        padding-bottom: 15px;
+    }
+
     & .user-avator-box {
 
         & .no-avator,
         .user-avator {
             display: flex;
             position: relative;
-            transform: translate(-100%);
+            transform: translateX(-100%);
             justify-content: center;
             align-items: center;
             cursor: pointer;
@@ -39,14 +62,7 @@
         }
 
         & .show {
-            transition: opacity 0.1s linear;
-            position: absolute;
-            visibility: hidden;
-            top: 60px;
             transform: translateX(-50%);
-            opacity: 0;
-            pointer-events: none;
-            z-index: -1;
 
             & .avator-card-container {
                 display: flex;
@@ -99,18 +115,10 @@
                     }
                 }
             }
-
-            & .no-avator-card {
-                width: 350px;
-                box-sizing: border-box;
-                background-color: rgb(240, 4, 4);
-                border-radius: 8px;
-            }
         }
 
         &:hover {
             & .user-avator {
-                top: 20px;
                 transform: scale(2);
             }
 
@@ -125,9 +133,93 @@
                 content: '';
                 position: absolute;
                 height: 80px;
-                width: 100px;
+                width: 90px;
                 top: -10px;
                 transform: translateX(-50%);
+                z-index: 0;
+            }
+        }
+    }
+
+    & .nav-option {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        height: 40px;
+
+        & .show {
+            transform: translateX(0);
+
+            & .msg-option-container {
+                display: flex;
+                align-items: center;
+                width: 150px;
+                background-color: rgb(250, 250, 250);
+                border-radius: 8px;
+                padding-bottom: 10px;
+
+                & .msg-option-flex {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+
+                    & .msg-card {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        color: rgb(68, 64, 64);
+                        font-size: 14px;
+                        letter-spacing: 2px;
+                        margin: 0 3px;
+                        height: 45px;
+
+                        &:first-child{
+                            margin-top: 10px;
+                        }
+                        &:hover {
+                            background-color: rgb(222, 222, 222);
+                        }
+                    }
+                }
+            }
+
+            & .dynamics-option-container{
+                display: flex;
+                align-items: center;
+                width: 400px;
+                background-color: rgb(250, 250, 250);
+                border-radius: 8px;
+                padding: 20px 0;
+            }
+            
+            & .collections-option-container{
+                display: flex;
+                align-items: center;
+                width: 400px;
+                background-color: rgb(250, 250, 250);
+                border-radius: 8px;
+                padding: 20px 0;
+            }
+
+            & .history-option-container{
+                display: flex;
+                align-items: center;
+                right: 0;
+                width: 400px;
+                background-color: rgb(250, 250, 250);
+                border-radius: 8px;
+                padding: 20px 0;
+            }
+
+        }
+
+        &:hover {
+            & .show {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
                 z-index: 0;
             }
         }

@@ -11,16 +11,16 @@ const NavContainer = () => {
                 position: 'relative',
             }}>
                 <div className="first-nav">
-                    <Link href="/">首页</Link>
+                    <Link href="/" style={{
+                        fontSize: '18px',
+                        color: 'white'
+                    }}>首页</Link>
                 </div>
             </div>
 
             {/* 搜索框 */}
             <div style={{
-                position: 'absolute',
-                top: '10px',
-                left: '50%',
-                transform: 'translateX(-50%)',
+                position: 'relative',
             }}>
                 <SearchInputBox />
             </div>

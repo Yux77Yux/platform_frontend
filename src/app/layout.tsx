@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/public/globals.css";
 import AppProvider from "./app-provider";
+import NavContainer from "../server-components/nav-container/nav-container.component";
 
 export const metadata: Metadata = {
   title: "Platform",
@@ -13,9 +14,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html>
       <body>
         <AppProvider>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            width: '100%',
+            zIndex: 999,
+          }}>
+            <NavContainer />
+          </div>
           {children}
         </AppProvider>
       </body>

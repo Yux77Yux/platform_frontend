@@ -1,5 +1,5 @@
-import UserSectionLeft from "../user-section-left/user-section-left.component";
-import UserSectionRight from "../user-section-right/user-section-right.component";
+import UserSectionLeft from "@/src/server-components/user-section-left/user-section-left.component";
+import UserSectionRight from "@/src/server-components/user-section-right/user-section-right.component";
 import "./user-section.styles.scss";
 
 const UserSection = () => {

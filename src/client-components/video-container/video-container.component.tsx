@@ -40,6 +40,7 @@ const VideoContainer = () => {
                 autoPlay
                 muted
                 src="/video/headbanner.webm"
+                width="100%"
             ></video>
         </div>
     );

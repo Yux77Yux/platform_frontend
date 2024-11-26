@@ -1,9 +1,6 @@
-import "./sections-header.styles.scss"
-
-import NavContainer from "../nav-container/nav-container.component";
 import VideoContainer from "@/src/client-components/video-container/video-container.component";
 import LogoContainer from "@/src/client-components/logo-container/logo-container.components";
-
+import "./sections-header.styles.scss"
 
 const SectionsHeader = () => {
     return (
@@ -12,19 +9,10 @@ const SectionsHeader = () => {
             <div style={{
                 position: 'relative',
                 top: 0,
-                width: '108vw',
+                width: '108%',
             }}
             >
                 <VideoContainer />
-            </div>
-
-            {/* 导航部分 */}
-            <div style={{
-                position: 'absolute',
-                top: 0,
-                width: '100%',
-            }}>
-                <NavContainer />
             </div>
 
             {/* Logo 和提示 */}
@@ -39,4 +27,4 @@ const SectionsHeader = () => {
     );
 }
 
-export default SectionsHeader
+export default SectionsHeader;
