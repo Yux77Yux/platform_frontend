@@ -17,7 +17,7 @@ const NoAvatorOption = (props: { desctiption: string, name: string }) => {
                 fontSize: '14px',
                 color: 'rgb(111,111,111)',
             }}>{desctiption}</div>
-            <Link href="#" style={{
+            <Link href="/auth" style={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -59,7 +59,7 @@ const UserSectionLeft = async () => {
                                 fontSize: '14px',
                                 margin: '10px'
                             }}>首次使用？
-                                <Link href="#" style={{
+                                <Link href="/auth" style={{
                                     margin: '10px',
                                     color: 'rgb(49, 128, 233)',
                                     textDecoration: 'underline',
@@ -80,7 +80,7 @@ const UserSectionLeft = async () => {
                             alt=""
                         />
                     </div>
-                    : <Link href="#" className="no-avator">登录</Link>
+                    : <Link href="/auth" className="no-avator">登录</Link>
                 }
             </div>
 

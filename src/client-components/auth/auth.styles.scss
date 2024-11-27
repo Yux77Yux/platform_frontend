@@ -1,0 +1,70 @@
+.auth-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 800px;
+    background-color: #fff;
+    border-radius: 16px;
+
+    & .form-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 60px auto 0 auto;
+
+        & .data-msg-box {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgb(212, 212, 212);
+            border-radius: 6px;
+
+            & .data-msg {
+                display: flex;
+                align-items: center;
+                border-top: 1px solid rgb(212, 212, 212);
+                height: 50px;
+                width: 380px;
+                font-size: 18px;
+
+                &:first-child {
+                    border-top: 0;
+                }
+
+                & label {
+                    position: relative;
+                    left: 18px;
+                }
+
+                & input {
+                    margin-left: 18px;
+                    font-size: 18px;
+                }
+            }
+        }
+
+        & .submit-box {
+            display: flex;
+            flex-direction: row-reverse;
+
+            & button {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                margin: 30px;
+                height: 45px;
+                width: 120px;
+                background-color: rgb(206, 196, 233);
+                color: white;
+                font-size: 20px;
+                font-weight: 1000;
+                border-radius: 8px;
+
+                &:hover {
+                    background-color: rgb(186, 167, 238);
+                }
+            }
+        }
+    }
+}

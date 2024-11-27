@@ -1,6 +1,12 @@
-#vid{
+.video-container {
     display: block;
     position: relative;
-    left: -4vw;
-    width: 108vw;
+    width: 100vw;
+    overflow: hidden;
+    scrollbar-width: none;
+
+    & #vid {
+        position: relative;
+        left: -4vw;
+    }
 }

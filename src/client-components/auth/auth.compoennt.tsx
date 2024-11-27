@@ -39,27 +39,63 @@ const Auth = () => {
     }, []);
 
     return (
-        <form ref={form} method="POST">
-            <label htmlFor="username">账号：</label>
-            <input type="text" name="username" id="user_username" placeholder="请输入账号" />
-            <label htmlFor="password">密码：</label>
-            <input type="password" name="password" id="user_password" placeholder="请输入密码" />
-            <label htmlFor="email">邮箱：</label>
-            <input type="text" name="email" id="user_email" placeholder="可选，请输入邮箱" />
+        <div className="auth-box">
+            <form ref={form} method="POST" className="form-box">
+                <div className="data-msg-box">
+                    <div className="data-msg">
+                        <label htmlFor="username">账号
+                            <input type="text"
+                                name="username"
+                                id="user_username"
+                                placeholder="请输入账号"
+                                autoComplete='off'
+                                autoCapitalize='off'
+                                autoCorrect='off'
+                            />
+                        </label>
+                    </div>
+                    <div className="data-msg">
+                        <label htmlFor="password">密码
+                            <input type="password"
+                                name="password"
+                                id="user_password"
+                                placeholder="请输入密码"
+                                autoComplete='off'
+                                autoCapitalize='off'
+                                autoCorrect='off'
+                            />
+                        </label>
+                    </div>
+                    <div className="data-msg">
+                        <label htmlFor="email">邮箱
+                            <input type="text"
+                                name="email"
+                                id="user_email"
+                                placeholder="可选，请输入邮箱"
+                                autoComplete='off'
+                                autoCapitalize='off'
+                                autoCorrect='off'
+                            />
+                        </label>
+                    </div>
+                </div>
 
-            <button
-                type="button"
-                onClick={(e) => handleSubmit(e, login)}
-            >
-                登录
-            </button>
-            <button
-                type="button"
-                onClick={(e) => handleSubmit(e, register)}
-            >
-                注册
-            </button>
-        </form>
+                <div className="submit-box">
+                    <button
+                        type="button"
+                        onClick={(e) => handleSubmit(e, login)}
+                    >
+                        登录
+                    </button>
+                    <button
+                        type="button"
+                        onClick={(e) => handleSubmit(e, register)}
+                    >
+                        注册
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 }
 
