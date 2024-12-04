@@ -1,25 +1,49 @@
-// pages/api/login/route.ts (Edge Function / API)
-// import { NextResponse } from 'next/server';
 import { UserCredentials } from '@/src/store/user/user.types';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-    const { username, password } = await req.json();
+    try {
+        // 确保请求体是 JSON 格式
+        const { username, password, email } = await req.json();
 
-    // 验证用户，并获取用户信息
-    const credentials: UserCredentials = {
-        username: username,
-        password: password,
-    } as UserCredentials;
+        if (!username || !password) {
+            return NextResponse.json(
+                { error: "Username and password are required" },
+                { status: 400 }
+            );
+        }
 
-    const user = fetch('http://localhost:8080/api/register',{
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-    })
-    console.log(user)
+        const credentials: UserCredentials = {
+            username: username,
+            password: password,
+            email: email === '' ? void 0 : email,
+        }
 
+        const response = await fetch('http://localhost:8080/api/user/register', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(credentials)
+        });
 
-    return null;
+        if (!response.ok) {
+            console.error('Request failed', await response.text());
+            console.log(await response.json());
+        } else {
+            const data = await response.json();
+            console.log('User registered:', data);
+        }
+
+        return NextResponse.json(
+            { message: "Register successful", credentials },
+            { status: 202 }
+        );
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
 }
