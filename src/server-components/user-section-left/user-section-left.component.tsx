@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import "./user-section-left.styles.scss";
+import LogoutLink from "./logout.link";
 
 const NoAvatorOption = (props: { desctiption: string, name: string }) => {
     const { name, desctiption } = props;
@@ -34,7 +35,7 @@ const NoAvatorOption = (props: { desctiption: string, name: string }) => {
 }
 
 const UserSectionLeft = async () => {
-    const userCookie = (await cookies()).get('userLogin');
+    const userCookie = (await cookies()).get('loginState');
     const isLoggedIn = userCookie ? true : false;
 
     return (
@@ -48,7 +49,7 @@ const UserSectionLeft = async () => {
                                 <Link href="#" className="avator-card">个人投稿</Link>
                                 <Link href="#" className="avator-card">投稿管理</Link>
                                 <Link href="#" className="avator-card">推荐服务</Link>
-                                <Link href="#" className="avator-card">退出登录</Link>
+                                <LogoutLink />
                             </div>
                         </div>
                         : <div className="no-avator-card">
