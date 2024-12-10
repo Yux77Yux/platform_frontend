@@ -9,7 +9,7 @@ const SectionsHeader = () => {
             <div style={{
                 position: 'relative',
                 top: 0,
-                width: '108%',
+                width: '100%',
             }}
             >
                 <VideoContainer />

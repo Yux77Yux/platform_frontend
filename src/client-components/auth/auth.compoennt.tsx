@@ -26,6 +26,7 @@ const Auth = () => {
 
         const formData = new FormData(form.current);
         const data = Object.fromEntries(formData.entries());
+        data.userRole = "USER";
 
         try {
             const response = await fetch('http://localhost:8080/api/user/register', {
@@ -71,17 +72,13 @@ const Auth = () => {
                 setCookie('loginState', JSON.stringify({}), {
                     maxAge: 604800,  // 设置 token 过期时间 (例如 1 小时)
                     path: '/',
-                    secure: process.env.NODE_ENV === 'production',  // 生产环境时使用 HTTPS
                     httpOnly: false,
                     sameSite: 'strict',  // 防止 CSRF 攻击
                 });
-                setCookie('refreshToken', result.tokens.refreshToken.value, {
-                    maxAge: 604800,  // 7天
-                    path: '/',
-                    secure: process.env.NODE_ENV === 'production',  // 生产环境时使用 HTTPS
-                    httpOnly: false,
-                    sameSite: 'strict', 
-                });
+                localStorage.setItem('refreshToken', JSON.stringify({
+                    value: result.tokens.refreshToken.value,
+                    expiresAt: result.tokens.refreshToken.expiresAt
+                }));
                 localStorage.setItem('accessToken', JSON.stringify({
                     value: result.tokens.accessToken.value,
                     expiresAt: result.tokens.accessToken.expiresAt
@@ -133,7 +130,7 @@ const Auth = () => {
                     <div className="data-msg">
                         <label htmlFor="email">邮箱
                             <input type="text"
-                                name="email"
+                                name="userEmail"
                                 id="user_email"
                                 placeholder="可选，请输入邮箱"
                                 autoComplete='off'
