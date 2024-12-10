@@ -12,6 +12,9 @@ const NavContainer = () => {
             }}>
                 <div className="first-nav">
                     <Link href="/" style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                         fontSize: '18px',
                         color: 'white'
                     }}>首页</Link>

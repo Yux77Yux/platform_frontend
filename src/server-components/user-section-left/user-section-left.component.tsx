@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import "./user-section-left.styles.scss";
 import LogoutLink from "./logout.link";
+import UserAvator from "./avator";
 
 const NoAvatorOption = (props: { desctiption: string, name: string }) => {
     const { name, desctiption } = props;
@@ -37,6 +37,11 @@ const NoAvatorOption = (props: { desctiption: string, name: string }) => {
 const UserSectionLeft = async () => {
     const userCookie = (await cookies()).get('loginState');
     const isLoggedIn = userCookie ? true : false;
+    let user;
+    if (isLoggedIn) {
+        const userData = userCookie!.value;
+        user = JSON.parse(userData);
+    }
 
     return (
         <div className="user-section-left">
@@ -72,14 +77,7 @@ const UserSectionLeft = async () => {
                 </div>
                 {isLoggedIn
                     ? <div className="user-avator">
-                        <Image src="/img/slience.jpg"
-                            id="user-avator"
-                            layout="responsive"
-                            width={40}
-                            height={40}
-                            quality={100}
-                            alt=""
-                        />
+                        <UserAvator avator={user.avator} id={user.id} />
                     </div>
                     : <Link href="/auth" className="no-avator">登录</Link>
                 }

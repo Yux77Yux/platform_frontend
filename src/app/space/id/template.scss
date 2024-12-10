@@ -1,0 +1,34 @@
+.space-template {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    margin: 0 auto;
+    width: 1440px;
+
+    & .space-top {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        height: 260px;
+        margin-bottom: 12px;
+
+        & .avator-top{
+            display: block;
+            position: relative;
+            height: 195px;
+            background-image: url('/space-top.png');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        & .space-options{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+            height: 65px;
+            background-color: rgb(247, 247, 247);
+        }
+    }
+}

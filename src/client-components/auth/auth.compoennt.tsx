@@ -69,7 +69,12 @@ const Auth = () => {
 
             if (response.ok) {
                 const result = await response.json();  // 解析 JSON 响应
-                setCookie('loginState', JSON.stringify({}), {
+                setCookie('loginState', JSON.stringify({
+                    id: result.userLogin.userDefault.userId,
+                    name: result.userLogin.userDefault.userName,
+                    avator: result.userLogin.userAvator,
+                    role: result.userLogin.userRole
+                }), {
                     maxAge: 604800,  // 设置 token 过期时间 (例如 1 小时)
                     path: '/',
                     httpOnly: false,
@@ -83,7 +88,7 @@ const Auth = () => {
                     value: result.tokens.accessToken.value,
                     expiresAt: result.tokens.accessToken.expiresAt
                 }));
-
+                
                 window.location.reload();
             } else {
                 console.error("Error response:", response.status, response.statusText);
