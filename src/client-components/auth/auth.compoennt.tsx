@@ -11,8 +11,8 @@ const Auth = () => {
     const router = useRouter();
 
     useEffect(() => {
-        const loginState = getCookie('loginState');
-        if (loginState) {
+        const loginUser = getCookie('loginUser');
+        if (loginUser) {
             router.back();
         } else {
             setIsLoading(false); // 没有登录状态时，允许渲染页面内容
@@ -69,25 +69,32 @@ const Auth = () => {
 
             if (response.ok) {
                 const result = await response.json();  // 解析 JSON 响应
-                setCookie('loginState', JSON.stringify({
+                setCookie('loginUser', JSON.stringify({
                     id: result.userLogin.userDefault.userId,
                     name: result.userLogin.userDefault.userName,
                     avator: result.userLogin.userAvator,
                     role: result.userLogin.userRole
                 }), {
-                    maxAge: 604800,  // 设置 token 过期时间 (例如 1 小时)
+                    maxAge: 604800,  // 设置 token 过期时间 (例如 7天)
                     path: '/',
                     httpOnly: false,
                     sameSite: 'strict',  // 防止 CSRF 攻击
                 });
-                localStorage.setItem('refreshToken', JSON.stringify({
-                    value: result.tokens.refreshToken.value,
-                    expiresAt: result.tokens.refreshToken.expiresAt
-                }));
-                localStorage.setItem('accessToken', JSON.stringify({
-                    value: result.tokens.accessToken.value,
-                    expiresAt: result.tokens.accessToken.expiresAt
-                }));
+                setCookie('refreshToken', result.tokens.refreshToken.value, {
+                    maxAge: 604800,  // 设置 token 过期时间 (例如 7天)
+                    path: '/',
+                    httpOnly: false,
+                    sameSite: 'strict',  // 防止 CSRF 攻击
+                });
+                setCookie('accessToken', result.tokens.accessToken.value, {
+                    maxAge: 1800,  // 设置 token 过期时间 (30 minutes)
+                    path: '/',
+                    httpOnly: false,
+                    sameSite: 'strict',  // 防止 CSRF 攻击
+                });
+
+                localStorage.setItem('refreshToken', result.tokens.refreshToken.expiresAt);
+                localStorage.setItem('accessToken', result.tokens.accessToken.expiresAt);
                 
                 window.location.reload();
             } else {

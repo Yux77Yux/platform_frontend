@@ -35,7 +35,7 @@ const NoAvatorOption = (props: { desctiption: string, name: string }) => {
 }
 
 const UserSectionLeft = async () => {
-    const userCookie = (await cookies()).get('loginState');
+    const userCookie = (await cookies()).get('loginUser');
     const isLoggedIn = userCookie ? true : false;
     let user;
     if (isLoggedIn) {
