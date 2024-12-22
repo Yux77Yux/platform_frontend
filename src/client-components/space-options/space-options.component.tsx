@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import "./space-options.stylee.scss";
+import { usePathname } from "next/navigation";
 
 interface PropsType {
     master: boolean;
@@ -10,16 +11,25 @@ interface PropsType {
 
 const SpaceOptions = (props: PropsType) => {
     const { master, id } = props;
+    const path = usePathname();
+    const links = [
+        { href: `/space/${id}`, label: '主页', show: true },
+        { href: `/space/${id}/creations`, label: '投稿', show: true },
+        { href: `/space/${id}/collections`, label: '收藏', show: master },
+        { href: `/space/${id}/setting`, label: '设置', show: master },
+    ];
 
     return <div className="space-options">
-        <Link href={`/space/${id}`} className="space-option">主页</Link>
-        <Link href={`/space/${id}/videos`} className="space-option">投稿</Link>
-        <Link href={`/space/${id}/collections`} className="space-option" style={{
-            display: master?"flex":"none"
-        }}>收藏</Link>
-        <Link href={`/space/${id}/setting`} className="space-option" style={{
-            display: master?"flex":"none"
-        }}>设置</Link>
+        {links.map((link, index) =>
+            link.show && (
+                <Link key={index}
+                    href={link.href}
+                    className={link.href === path ? "space-option-active" : "space-option"}
+                >
+                    {link.label}
+                </Link>
+            )
+        )}
     </div>
 }
 

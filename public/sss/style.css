@@ -1,0 +1,125 @@
+/* 全局样式 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* 顶部导航栏 */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #00a1d6;
+    color: white;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar .search-bar {
+    flex: 1;
+    display: flex;
+    margin: 0 20px;
+}
+
+.navbar .search-bar input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+}
+
+.navbar .search-bar button {
+    padding: 8px;
+    background-color: #0084b4;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    color: white;
+    cursor: pointer;
+}
+
+.navbar .user-options button {
+    margin-left: 10px;
+    padding: 8px 12px;
+    background: none;
+    border: 1px solid white;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+/* 主内容区 */
+.content {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* 视频卡片布局 */
+.results {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.video-card {
+    width: 200px;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.video-card:hover {
+    transform: scale(1.05);
+}
+
+.video-card img {
+    width: 100%;
+    height: auto;
+}
+
+.video-info {
+    padding: 10px;
+}
+
+.video-info h3 {
+    font-size: 16px;
+    margin: 0 0 8px;
+    color: #333;
+}
+
+.video-info p {
+    font-size: 14px;
+    color: #888;
+}
+
+/* 分页器 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination button.active {
+    background-color: #00a1d6;
+    color: white;
+    border-color: #00a1d6;
+}

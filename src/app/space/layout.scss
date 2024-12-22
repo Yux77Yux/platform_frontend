@@ -1,13 +1,14 @@
-.space-layout {
+.space-root-layout {
     display: block;
     position: relative;
     width: 100vw;
     background-color: rgb(232, 235, 235);
 
-    & .space-header {
+    & .space-root-header {
         display: block;
-        background-color: rgb(15, 180, 172);
+        background-color: rgb(114, 124, 123);
         border-bottom: 1px solid rgb(163, 161, 161);
         height: 56px;
+        width: 100%;
     }
 }

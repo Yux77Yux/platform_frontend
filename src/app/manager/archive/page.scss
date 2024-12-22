@@ -1,0 +1,74 @@
+.archive-page {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    width: calc(100vw - 180px);
+    height: calc(100vh - 56px);
+    background-color: rgb(200, 200, 200);
+
+    & .archive {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 400px;
+        height: 500px;
+        border-radius: 8px;
+        margin: 20px 50px;
+        border: 1px solid rgb(111, 111, 111);
+
+        & .buttons {
+            display: flex;
+            position: absolute;
+            flex-direction: row;
+            bottom: 10px;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+
+            & .archive-option {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 40px;
+                padding: 0 20px;
+                border-radius: 4px;
+                background-color: rgb(68, 68, 64);
+                color: white;
+                font-size: 15px;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: rgb(36, 37, 39);
+                    color: rgb(0, 181, 241);
+                }
+            }
+        }
+    }
+
+    & .choosing,& .unchoose{
+        position: relative;
+        display: flex;
+        height: 50px;
+        width: 400px;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 1000;
+        letter-spacing: 5px;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+    & .choosing{
+        color: black;
+        background-color: rgb(51, 226, 17);
+    }
+    & .unchoose{
+        color: white;
+        background-color: rgb(27, 27, 26);
+    }
+}

@@ -1,11 +1,15 @@
 import { cookies } from "next/headers";
-import SpaceUser from "@/src/client-components/space-user/space-user.component";
+import { redirect } from 'next/navigation'
+
+import { SpaceProvider } from "./context";
+
+import SpaceUser from "@/src/server-components/space-user/space-user.component";
 import SpaceOptions from "@/src/client-components/space-options/space-options.component";
 import "./layout.scss"
 
 const fetchSpace = async (userIdInt64: string) => {
-    let accessToken:string;
-    
+    let accessToken: string;
+
     const accessTokenCookie = (await cookies()).get('accessToken');
     if (!accessTokenCookie) {
         accessToken = "none";
@@ -34,11 +38,14 @@ export default async function SpaceLayout({
 }) {
     const userId = (await params).userId;
     const data = await fetchSpace(userId);
+    if (!data) {
+        redirect("/");
+        return null;
+    }
     const { user, master } = data;
-    console.log(data)
 
     return (
-        <div className="space-template">
+        <div className="space-layout">
             <div className="space-top">
                 <div className="avator-box">
                     <SpaceUser user={user} master={master} />
@@ -48,7 +55,9 @@ export default async function SpaceLayout({
                 </div>
             </div>
             <div>
-                {children}
+                <SpaceProvider space={data}>
+                    {children}
+                </SpaceProvider>
             </div>
         </div>
     );

@@ -7,18 +7,30 @@
     width: 98%;
     margin: 0 auto;
 
-    & .space-option {
+    & .space-option,
+    & .space-option-active {
         display: flex;
         position: relative;
         align-items: center;
         height: 100%;
         margin: 0 20px;
         letter-spacing: 4px;
+        padding: 0 10px;
         font-size: 16px;
-        color: rgb(66, 60, 60);
+    }
+
+    & .space-option {
+        color: rgb(60, 60, 60);
 
         &:hover {
-            color: rgb(141, 115, 115);
+            color: rgb(149, 96, 199);
         }
+    }
+
+    & .space-option-active {
+        color: rgb(149, 96, 199);
+        border-bottom: 3px solid rgb(149, 96, 199);
+        border-radius: 2px;
+        pointer-events: none;
     }
 }

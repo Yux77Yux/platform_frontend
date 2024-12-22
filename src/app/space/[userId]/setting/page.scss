@@ -1,0 +1,29 @@
+.setting-page{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    & .title{
+        display: block;
+        position: relative;
+        font-weight: 500;
+    }
+
+    & .avator-update-box{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 80%;
+        margin-top: 50px;
+    }
+
+    & .setting-box{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 80%;
+        margin-top: 50px;
+    }
+}

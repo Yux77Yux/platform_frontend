@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import "./user-section-left.styles.scss";
 import LogoutLink from "./logout.link";
-import UserAvator from "./avator";
+import UserAvatar from "./avatar";
 
 const NoAvatorOption = (props: { desctiption: string, name: string }) => {
     const { name, desctiption } = props;
@@ -51,7 +51,7 @@ const UserSectionLeft = async () => {
                         ? <div className="avator-card-container">
                             <div className="avator-card-flex">
                                 <Link href="#" className="avator-card"></Link>
-                                <Link href="#" className="avator-card">个人投稿</Link>
+                                <Link href={`/space/${user.id}`} className="avator-card">个人投稿</Link>
                                 <Link href="#" className="avator-card">投稿管理</Link>
                                 <Link href="#" className="avator-card">推荐服务</Link>
                                 <LogoutLink />
@@ -77,7 +77,7 @@ const UserSectionLeft = async () => {
                 </div>
                 {isLoggedIn
                     ? <div className="user-avator">
-                        <UserAvator avator={user.avator} id={user.id} />
+                        <UserAvatar id={user.id} />
                     </div>
                     : <Link href="/auth" className="no-avator">登录</Link>
                 }
@@ -104,7 +104,7 @@ const UserSectionLeft = async () => {
                 <Link href="#">消息</Link>
             </div>
             {/* 动态 */}
-            <div className="nav-option">
+            {/* <div className="nav-option">
                 <div className="show">
                     {isLoggedIn
                         ? <div className="dynamics-option-container">
@@ -117,7 +117,7 @@ const UserSectionLeft = async () => {
                     }
                 </div>
                 <Link href="#">动态</Link>
-            </div>
+            </div> */}
             {/* 收藏 */}
             <div className="nav-option">
                 <div className="show">
@@ -147,10 +147,6 @@ const UserSectionLeft = async () => {
                     }
                 </div>
                 <Link href="#">历史</Link>
-            </div>
-            {/* 创作中心 */}
-            <div className="nav-option">
-                <Link href="#">创作中心</Link>
             </div>
         </div>
     );

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilibili Search</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="navbar">
+        <div class="logo">Bilibili</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search...">
+            <button>🔍</button>
+        </div>
+        <div class="user-options">
+            <button>消息</button>
+            <button>登录</button>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="content">
+        <!-- 搜索结果 -->
+        <div class="results">
+            <!-- 单个视频卡片 -->
+            <div class="video-card">
+                <img src="https://via.placeholder.com/200" alt="Video Thumbnail">
+                <div class="video-info">
+                    <h3>视频标题示例</h3>
+                    <p>观看次数: 1.2万次</p>
+                </div>
+            </div>
+            <div class="video-card">
+                <img src="https://via.placeholder.com/200" alt="Video Thumbnail">
+                <div class="video-info">
+                    <h3>另一个视频示例</h3>
+                    <p>观看次数: 3.4万次</p>
+                </div>
+            </div>
+            <!-- 更多视频卡片... -->
+        </div>
+
+        <!-- 分页器 -->
+        <div class="pagination">
+            <button>&laquo;</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>&raquo;</button>
+        </div>
+    </main>
+</body>
+</html>

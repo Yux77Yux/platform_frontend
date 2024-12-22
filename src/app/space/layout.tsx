@@ -1,13 +1,13 @@
 import "./layout.scss"
 
-export default function SpaceLayout({
+export default async function SpaceLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
-        <div className="space-layout">
-            <header className="space-header"></header>
+        <div className="space-root-layout">
+            <header className="space-root-header"></header>
             <main>
                 {children}
             </main>

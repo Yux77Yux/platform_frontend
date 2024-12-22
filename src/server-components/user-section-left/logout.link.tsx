@@ -12,6 +12,7 @@ export default function LogoutLink() {
 
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("accessToken");
+        localStorage.removeItem("avatar");
 
         setTimeout(() => window.location.reload(), 600);
     }, []);
@@ -32,7 +33,7 @@ export default function LogoutLink() {
                 body: JSON.stringify({ value: refreshToken })
             });
             if (!response.ok) {
-                console.error('Failed to refresh Access Token');
+                console.log('Failed to refresh Access Token');
             }
 
             const result = await response.json()
@@ -45,7 +46,7 @@ export default function LogoutLink() {
             });
 
         } catch (error) {
-            console.error('Error refreshing Access Token:', error);
+            console.log('Error refreshing Access Token:', error);
         }
     }, []);
 

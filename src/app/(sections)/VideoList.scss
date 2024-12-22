@@ -1,0 +1,55 @@
+.VideoList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    & .VideoCard {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        margin: 40px;
+        overflow: hidden;
+
+        & .videoThumbnailWrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin: 10px;
+        }
+
+        & .videoTitle {
+            display: -webkit-box;
+            margin: 4px;
+            font-size: 16px;
+            -webkit-line-clamp: 2;
+            /* 限制为2行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+        }
+
+        & .videoAuthor {
+            color: rgb(131, 122, 122);
+            font-size: 14px;
+            margin: 4px;
+            white-space: nowrap;
+            /* 保持单行 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 24ch;
+            /* 限制字符数为12个字符 */
+        }
+
+        & .videoTitle,
+        & .videoAuthor {
+            cursor: pointer;
+
+            &:hover {
+                color: rgb(0, 182, 241);
+            }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+.choose-file-box {
+    display: block;
+    padding: 0 40px;
+    border-right: 1px solid rgb(222, 222, 222);
+
+    & .choose-label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        border-radius: 6px;
+        height: 56px;
+        font-size: 14px;
+        padding: 10px 20px;
+        margin: 18px;
+        color: rgb(90, 98, 103);
+        background-color: rgb(188, 189, 192);
+
+        &:hover {
+            background-color: rgb(229, 233, 239);
+        }
+    }
+}
+
+.avator-circle{
+    display: block;
+    margin: 0 100px;
+
+    height: 180px;
+    width: 180px;
+    clip-path: circle(50%);
+}

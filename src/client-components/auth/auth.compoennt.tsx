@@ -41,12 +41,12 @@ const Auth = () => {
                 const result = await response.json();  // 解析 JSON 响应
                 console.log("Response:", result);
             } else {
-                console.error("Error response:", response.status, response.statusText);
+                console.log("Error response:", response.status, response.statusText);
                 const error = await response.text();  // 你可以先尝试解析为文本来查看错误消息
                 console.log("Error message:", error);
             }
         } catch (error) {
-            console.error("Request failed", error);
+            console.log("Request failed", error);
         }
     }, []);
 
@@ -95,15 +95,16 @@ const Auth = () => {
 
                 localStorage.setItem('refreshToken', result.tokens.refreshToken.expiresAt);
                 localStorage.setItem('accessToken', result.tokens.accessToken.expiresAt);
-                
+                localStorage.setItem('avatar', result.userLogin.userAvator);
+
                 window.location.reload();
             } else {
-                console.error("Error response:", response.status, response.statusText);
+                console.log("Error response:", response.status, response.statusText);
                 const error = await response.text();
                 console.log("Error message:", error);
             }
         } catch (error) {
-            console.error("Request failed", error);
+            console.log("Request failed", error);
         }
     }, []);
 
