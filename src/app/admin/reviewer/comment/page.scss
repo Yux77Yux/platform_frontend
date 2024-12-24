@@ -1,0 +1,32 @@
+.review-video {
+    display: block;
+    position: relative;
+    width: 100%;
+
+    & .status {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        width: 100%;
+
+        & .set-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: transparent;
+            font-size: 14px;
+            color: rgb(46, 46, 46);
+            cursor: pointer;
+
+            &:hover {
+                color: rgb(0, 181, 241);
+            }
+        }
+
+        & .active {
+            color: rgb(0, 181, 241);
+            pointer-events: none;
+        }
+    }
+}

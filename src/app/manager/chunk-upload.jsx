@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import Image from "next/image";
@@ -8,7 +7,7 @@ import { useState, useCallback } from "react";
 const ChunkUploadBox = () => {
     const [info, setInfo] = useState({
         file: null,
-        progress: 40,
+        progress: 0,
         title: "",
         description: "",
         category: void 0,// 存储分区
@@ -52,40 +51,42 @@ const ChunkUploadBox = () => {
         const file = event.target.files[0];
         handleChange("file", file);
 
-        const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
-        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        const MAX_CHUNKS = 10; // 限制最多分成 10 个分片
+        const CHUNK_SIZE = Math.ceil(file.size / MAX_CHUNKS);
 
-        // for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-        //     const start = chunkIndex * CHUNK_SIZE;
-        //     const end = Math.min(start + CHUNK_SIZE, file.size);
-        //     const chunk = file.slice(start, end);
+        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+            const start = chunkIndex * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            if (start >= file.size) break; // 避免多余的循环
+            
+            const chunk = file.slice(start, end);
 
-        //     const formData = new FormData();
-        //     formData.append('chunk', chunk);
-        //     formData.append('filename', file.name);
-        //     formData.append('chunkIndex', `${chunkIndex}`);
-        //     formData.append('totalChunks', `${totalChunks}`);
+            const formData = new FormData();
+            formData.append('chunk', chunk);
+            formData.append('filename', file.name);
+            formData.append('chunkIndex', `${chunkIndex}`);
+            formData.append('totalChunks', `${Math.ceil(file.size / CHUNK_SIZE)}`);
 
-        //     try {
-        //         await fetch('/api/upload', {
-        //             method: 'POST',
-        //             body: formData,
-        //         });
+            try {
+                await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
 
-        //         // Update progress
-        //         setProgress(((chunkIndex + 1) / totalChunks) * 100);
-        //     } catch (error) {
-        //         console.log('Upload failed for chunk', chunkIndex, error);
-        //         return;
-        //     }
-        // }
+                // Update progress
+                setProgress(((chunkIndex + 1) / MAX_CHUNKS) * 100);
+            } catch (error) {
+                console.log('Upload failed for chunk', chunkIndex, error);
+                return;
+            }
+        }
 
-        // alert('File uploaded successfully!');
+        alert('File uploaded successfully!');
     };
 
     return (
         <>
-            {/* <div className={`upload-video-box ${info.file && "hide"}`}>
+            <div className={`upload-video-box ${info.file && "hide"}`}>
                 <label style={{
                     display: "flex",
                     justifyContent: "center",
@@ -110,8 +111,8 @@ const ChunkUploadBox = () => {
                         onChange={handleFileChange}
                     />
                 </label>
-            </div> */}
-            {!info.file && (
+            </div>
+            {info.file && (
                 <div className="jichuxinxi">
                     {/* 进度条 */}
                     <div className="biaodan-option">

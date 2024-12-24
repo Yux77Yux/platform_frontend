@@ -18,7 +18,7 @@ export default async function RootLayout(props: {
           position: 'absolute',
           top: 0,
           width: '100%',
-          zIndex: 999,
+          zIndex: 100,
         }}>
           <NavContainer />
         </div>

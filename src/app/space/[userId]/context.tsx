@@ -16,7 +16,6 @@ export const SpaceProvider = ({
 }: PropsWithChildren<{ space: any }>) => {
     const [space, setSpace] = useState<any>(initial);
 
-
     return (
         <SpaceContext.Provider value={{ space, setSpace }}>
             {children}

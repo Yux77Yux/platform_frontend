@@ -1,0 +1,95 @@
+.review-video {
+    display: block;
+    position: relative;
+    width: 100%;
+
+    & .status {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        width: 100%;
+
+        & .set-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: transparent;
+            font-size: 14px;
+            color: rgb(46, 46, 46);
+            cursor: pointer;
+
+            &:hover {
+                color: rgb(0, 181, 241);
+            }
+        }
+
+        & .active {
+            color: rgb(0, 181, 241);
+            pointer-events: none;
+        }
+    }
+
+    & .content {
+        display: grid;
+        width: 100%;
+        min-height: 56px;
+        max-height: 200px;
+        grid-template-columns: 160px 350px 400px 160px 160px 100px 80px;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+
+        & .content-id {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            grid-column: 1;
+            letter-spacing: 1px;
+        }
+
+        & .content-cover {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            grid-column: 2;
+            padding: 16px 0;
+        }
+
+        & .content-title {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            grid-column: 3;
+            text-wrap: wrap;
+        }
+
+        & .content-user {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 4;
+        }
+
+        & .content-created {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 5;
+        }
+
+        & .content-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 6;
+        }
+
+        & .content-addition {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 7;
+            color: rgb(0, 181, 244);
+            cursor: pointer;
+        }
+    }
+}

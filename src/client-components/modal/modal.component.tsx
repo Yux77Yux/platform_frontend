@@ -9,34 +9,35 @@ export function Modal({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   return (
-    createPortal(
+    <div style={{
+      display: 'flex',
+      top:'0',
+      left:'0',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      width: '100vw',
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100vw',
+        position: 'relative'
       }}>
-        <div style={{
-          position:'relative'
-        }}>
-          <button onClick={() => router.back()}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'absolute',
-              backgroundColor: 'transparent',
-              right: '20px',
-              fontSize: '50px',
-              cursor: 'pointer',
-            }}
-          >
-            &#215;
-          </button>
-          {children}
-        </div>
-      </div>,
-      document.getElementById('modal-root')!)
+        <button onClick={() => router.back()}
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            backgroundColor: 'transparent',
+            right: '50px',
+            fontSize: '50px',
+            cursor: 'pointer',
+            zIndex: 999,
+          }}
+        >
+          &#215;
+        </button>
+        {children}
+      </div>
+    </div>
   )
 }

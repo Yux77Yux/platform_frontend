@@ -10,8 +10,7 @@ const UserAvatar = (props: { id: number }) => {
 
     useEffect(() => {
         const avatar = localStorage.getItem("avatar");
-        if (!avatar) return;
-        const avatarUrl = avatar === "" ? "/img/slience.jpg" : avatar
+        const avatarUrl = !avatar || avatar === "" ? "/img/slience.jpg" : avatar
         setUrl(() => avatarUrl)
     }, [setUrl]);
 

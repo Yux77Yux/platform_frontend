@@ -116,7 +116,8 @@ const AvatarUpdate = () => {
                         src={avatar.imageSrc}
                         alt="Avatar"
                         fill
-                        style={{ objectFit: 'cover' }}
+                        objectFit="cover"
+                        objectPosition="center"
                         quality={100}
                     />
                 ) : (

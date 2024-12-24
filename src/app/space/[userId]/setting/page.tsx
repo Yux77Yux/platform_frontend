@@ -1,6 +1,6 @@
 import SettingOptions from "@/src/client-components/setting-options/setting-options.component";
 import "./page.scss";
-import AvatorUpdate from "@/src/client-components/avator-update/avator-update.component";
+import AvatarUpdate from "@/src/client-components/avatar-update/avatar-update.component";
 
 const Page = async () => {
 
@@ -10,8 +10,8 @@ const Page = async () => {
                 个人资料
             </h2>
 
-            <div className="avator-update-box">
-                <AvatorUpdate />
+            <div className="avatar-update-box">
+                <AvatarUpdate />
             </div>
 
             <div className="setting-box">

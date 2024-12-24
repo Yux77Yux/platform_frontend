@@ -11,13 +11,15 @@ const NavContainer = () => {
                 position: 'relative',
             }}>
                 <div className="first-nav">
-                    <Link href="/" style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        fontSize: '18px',
-                        color: 'white'
-                    }}>首页</Link>
+                    <Link href="/"
+                        target="_blank"
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            fontSize: '18px',
+                            color: 'white'
+                        }}>首页</Link>
                 </div>
             </div>
 

@@ -5,7 +5,7 @@ import "./space-user.styles.scss";
 interface PropsType {
     user: {
         userDefault: { userName: string, userId: string };
-        userAvator: string;
+        userAvatar: string;
         userBio: string;
     };
     master: boolean
@@ -13,17 +13,17 @@ interface PropsType {
 
 const SpaceUser = (props: PropsType) => {
     const { user, master } = props;
-    const { userAvator, userDefault, userBio } = user;
+    const { userAvatar, userDefault, userBio } = user;
     const { userName, userId } = userDefault;
 
-    const avator = userAvator === '' ? "/img/slience.jpg" : userAvator
+    const avatar = userAvatar === "" ? "/img/slience.jpg" : userAvatar
     return (
         <>
-            <Link href={`/space/${userId}/setting`} className="space-avator" style={{
+            <Link href={`/space/${userId}/setting`} className="space-avatar" style={{
                 pointerEvents: master ? "auto" : "none",
             }}>
-                <Image src={avator}
-                    id="user-avator"
+                <Image src={avatar}
+                    id="user-avatar"
                     fill
                     style={{ objectFit: 'cover' }}
                     quality={100}

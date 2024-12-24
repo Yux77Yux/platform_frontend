@@ -47,7 +47,7 @@ export default async function SpaceLayout({
     return (
         <div className="space-layout">
             <div className="space-top">
-                <div className="avator-box">
+                <div className="avatar-box">
                     <SpaceUser user={user} master={master} />
                 </div>
                 <div className="space-options-box">

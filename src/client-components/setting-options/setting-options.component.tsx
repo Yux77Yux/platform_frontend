@@ -20,10 +20,8 @@ const SettingOptions = () => {
         userId: '',
         userName: '',
         userBio: '',
-        userEmail: '',
         userGender: '',
         userBday: '', // 初始值为 null
-        hasEmail: false,
         master: false,
     });
 
@@ -31,8 +29,6 @@ const SettingOptions = () => {
         const { userId,
             userName,
             userBio,
-            hasEmail,
-            userEmail,
             userGender,
             userBday,
         } = userInfo;
@@ -50,7 +46,6 @@ const SettingOptions = () => {
                     userName: userName,
                 },
                 userBio: userBio,
-                userEmail: hasEmail ? "" : userEmail,
                 userGender: userGender,
                 userBday: userBday === "" ? void 0 : new Date(userBday).toISOString(),
             },
@@ -86,7 +81,7 @@ const SettingOptions = () => {
     useEffect(() => {
         const { master } = data.space;
         const { user } = data.space;
-        const { userBio, userDefault, userEmail, userGender, userBday } = user;
+        const { userBio, userDefault, userGender, userBday } = user;
         const { userId, userName } = userDefault;
 
         setUserInfo(prevState => ({
@@ -94,10 +89,8 @@ const SettingOptions = () => {
             userId: userId,
             userName: userName,
             userBio: userBio,
-            userEmail: userEmail,
             userGender: userGender,
             userBday: !userBday ? null : userBday.split("T")[0],
-            hasEmail: userEmail !== "",
             master: master,
         }));
 
@@ -120,15 +113,6 @@ const SettingOptions = () => {
                     <span className="option-key">昵称：</span>
                     <span className="option-value">
                         <input type="text" name="userName" value={userInfo.userName} onChange={e => { handleChange("userName", e.target.value) }} />
-                    </span>
-                </div>
-                <div className="setting-option ">
-                    <span className="option-key">邮箱：</span>
-                    <span className="option-value">
-                        {!userInfo.hasEmail
-                            ? <input type="text" name="userEmail" value={userInfo.userEmail} onChange={e => { handleChange("userEmail", e.target.value) }} />
-                            : <span>{userInfo.userEmail}</span>
-                        }
                     </span>
                 </div>
                 <div className="setting-option ">

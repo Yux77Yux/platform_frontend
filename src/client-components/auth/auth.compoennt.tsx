@@ -72,7 +72,7 @@ const Auth = () => {
                 setCookie('loginUser', JSON.stringify({
                     id: result.userLogin.userDefault.userId,
                     name: result.userLogin.userDefault.userName,
-                    avator: result.userLogin.userAvator,
+                    avatar: result.userLogin.userAvatar,
                     role: result.userLogin.userRole
                 }), {
                     maxAge: 604800,  // 设置 token 过期时间 (例如 7天)
@@ -95,7 +95,7 @@ const Auth = () => {
 
                 localStorage.setItem('refreshToken', result.tokens.refreshToken.expiresAt);
                 localStorage.setItem('accessToken', result.tokens.accessToken.expiresAt);
-                localStorage.setItem('avatar', result.userLogin.userAvator);
+                localStorage.setItem('avatar', result.userLogin.userAvatar ?? "");
 
                 window.location.reload();
             } else {

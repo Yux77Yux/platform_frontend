@@ -22,7 +22,7 @@
         z-index: -1;
     }
 
-    & .no-avator-card {
+    & .no-avatar-card {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -34,10 +34,10 @@
         padding-bottom: 15px;
     }
 
-    & .user-avator-box {
+    & .user-avatar-box {
 
-        & .no-avator,
-        .user-avator {
+        & .no-avatar,
+        .user-avatar {
             display: flex;
             position: relative;
             transform: translateX(-100%);
@@ -50,13 +50,13 @@
             clip-path: circle(50%);
         }
 
-        & .no-avator {
+        & .no-avatar {
             background-color: rgb(28, 111, 219);
             color: white;
             font-size: 14px;
         }
 
-        & .user-avator {
+        & .user-avatar {
             transform-origin: right top;
             transition: transform 0.2s linear;
         }
@@ -64,7 +64,7 @@
         & .show {
             transform: translateX(-50%);
 
-            & .avator-card-container {
+            & .avatar-card-container {
                 display: flex;
                 align-items: center;
                 width: 280px;
@@ -72,12 +72,12 @@
                 border-radius: 8px;
                 padding-bottom: 20px;
 
-                & .avator-card-flex {
+                & .avatar-card-flex {
                     display: flex;
                     flex-direction: column;
                     width: 100%;
 
-                    & .avator-card {
+                    & .avatar-card {
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -118,7 +118,7 @@
         }
 
         &:hover {
-            & .user-avator {
+            & .user-avatar {
                 transform: scale(2);
             }
 

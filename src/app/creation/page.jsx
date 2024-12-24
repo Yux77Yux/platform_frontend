@@ -46,7 +46,7 @@ const Page = async () => {
                     <span className="time">2024-11-15 11:22:42</span>
                 </div>
                 <div className="video-player">
-                    <video className="video-element" controls autoPlay loop>
+                    <video className="video-element" autoPlay={false} controls>
                         <source src="https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media/%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5/%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2/1-%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2-480P%20%E6%B8%85%E6%99%B0-AVC.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
