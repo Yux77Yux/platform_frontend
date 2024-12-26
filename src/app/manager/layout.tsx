@@ -18,6 +18,7 @@ const ManagerLayout = async ({ children }: Props) => {
             <div className="manager-layout-fix">
                 {links.map((link, index) => (
                     <Link key={index}
+                        target="_blank"
                         href={link.href}
                         className="manager-option"
                     >
