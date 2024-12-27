@@ -1,9 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+'use client';
+
 import "./page.scss";
 
-import Image from "next/image";
+import { Comments } from './comments'
 
-const Page = async () => {
+import Image from "next/image";
+import Link from "next/link";
+import { useCallback, useState } from "react";
+
+const Page = () => {
+    const [info, setInfo] = useState({
+        content: '',
+        root: 0,    // 楼层id
+        parent: 0,  // 对话对象
+        dialog: 0,  // 第一个二级评论
+        like: false,
+        saves: false,
+    })
+
+    const [reply, setReply] = useState({
+        content: '',
+        root: -1,    // 楼层id
+        parent: -1,  // 对话对象
+        dialog: -1,  // 第一个二级评论
+    })
+
     const recommends = [
         {
             src: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5%2F%5B+%5D%2F1-CATACLYSM+-+%E6%9A%97%E5%BD%B1%E6%A0%BC%E6%96%97+2+%5BEdit+GMV%5D-480P+%E6%B8%85%E6%99%B0-AVC.Cover.jpg",
@@ -27,6 +49,60 @@ const Page = async () => {
         },
     ]
 
+    const handleField = useCallback((key, value) => setInfo((prev) => ({
+        ...prev,
+        [key]: value,
+    })), [])
+    const handleReplyField = useCallback((key, value) => setReply((prev) => ({
+        ...prev,
+        [key]: value,
+    })), [])
+
+    // 发表评论
+    const publishComment = useCallback(async (content, root, parent, dialog) => {
+        try {
+            const response = await fetch("http://localhost:8080/api/comment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
+            });
+        } catch (error) {
+            console.log(error)
+        }
+    }, []);
+
+    // 删除评论
+    const deleteComment = useCallback(async (commentId, root, parent, dialog) => {
+        try {
+            const response = await fetch("http://localhost:8080/api/comment", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
+            });
+        } catch (error) {
+            console.log(error)
+        }
+    }, []);
+
+    // 举报
+    const reportInfo = useCallback(async (type, id, detail, userId) => {
+        try {
+            const response = await fetch("http://localhost:8080/api/review", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
+            });
+        } catch (error) {
+            console.log(error)
+        }
+    }, []);
+
     const videoInfo = {
         title: '只是个胜利结算动画而已',
         src: 'https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media/%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5/%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2/1-%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2-480P%20%E6%B8%85%E6%99%B0-AVC.mp4',
@@ -40,10 +116,10 @@ const Page = async () => {
     return (
         <>
             <div className="creation-left">
-                <div className="creation-left-title">只是个胜利结算动画而已</div>
+                <div className="creation-left-title">{videoInfo.title}</div>
                 <div className="creation-additional-info">
-                    <span className="views">播放数：56</span>
-                    <span className="time">2024-11-15 11:22:42</span>
+                    <span className="views">播放数：{videoInfo.views}</span>
+                    <span className="time">{videoInfo.time}</span>
                 </div>
                 <div className="video-player">
                     <video className="video-element" autoPlay={false} controls>
@@ -61,40 +137,101 @@ const Page = async () => {
                         <span style={{ position: 'relative', marginLeft: "20px" }}>1178</span>
                     </span>
                 </div>
-                <div ><span className="bio">番名：想要成为影之实力者</span></div>
+                <div ><span className="bio">{videoInfo.bio}</span></div>
                 <div className="comment-box">
                     <div className="h2">
                         <h2 style={{ display: 'inline-block' }}>评论</h2>
                         <span style={{ margin: '5px 0 0 8px', color: 'rgb(162, 166, 172)', }}>15</span>
                     </div>
-                    <div className="user-self-speak"></div>
-                    <div className="comments-list">
-                        <div className="first-level">
-                            <div className="user-first-level-speak-box">
-                                <div className="avatar"></div>
-                                <div className="first-level-speak-comment">
-                                    <div className="user-name"></div>
-                                    <div className="content"></div>
-                                    <div className="time-and-replybtn"></div>
-                                </div>
-                            </div>
 
-                            {/* 二级三级评论 */}
-                            <div className="second-level-list">
-                                <div className="second-level">
-                                    <div className="avatar"></div>
-                                    <div className="second-level-speak-comment">
-                                        <div className="user-name"></div>
-                                        <div className="content"></div>
-                                        <div className="time-and-replybtn"></div>
-                                    </div>
-                                </div>
+                    {/* 评论区开始 */}
+                    <div className="comments-domain" style={{ marginTop: '20px', borderBottom: '0' }}>
+                        <div className="comment-one" style={{ pointerEvents: 'none' }}>
+                            <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+                        </div>
+                        <div className="comment-two">
+                            <div
+                                contentEditable="true"
+                                dangerouslySetInnerHTML={{ __html: info.content }}
+                                onInput={(event) => handleField("content", event.target.value)}
+                                className="editor-comment"></div>
+                            <div className="publish-btn">
+                                <button className="btn">发布</button>
                             </div>
                         </div>
-
                     </div>
+                    {Comments.filter(value => value.parent === value.root && value.root === 0).map((commentOne, i) => (
+                        <div className="comments-domain" key={i}>
+                            <div className="comment-one">
+                                <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+                            </div>
+                            <div className="comment-two" >
+                                <div className="name"><span>{commentOne.name}</span></div>
+                                <div className="content">{commentOne.content}</div>
+                                <div className="additional">
+                                    <span className="time">{commentOne.time}</span>
+                                    <button className="reply"
+                                        onClick={
+                                            () => {
+                                                handleReplyField("root", commentOne.id);
+                                                handleReplyField("parent", commentOne.id);
+                                                handleReplyField("dialog", -1);
+                                            }}
+                                    >回复</button>
+                                    <button className="option">···</button>
+                                </div>
+
+                                {/* 二级评论 */}
+                                {Comments.filter(val => val.root === commentOne.id).map((comment, j) => (
+                                    <div className="comments-second-domain" key={j}>
+                                        <div className="comment-second-one">
+                                            <Avatar src="/img/slience.jpg" height="36px" width="36px" />
+                                        </div>
+                                        <div className="comment-second-two">
+                                            <div className="second-speak">
+                                                <span className="name">
+                                                    <Link href="/" target="_blank"
+                                                        style={{ cursor: 'pointer', fontSize: 'inherit',color:'black' }}>
+                                                        {comment.name}
+                                                    </Link>
+
+                                                    {comment.parent !== comment.root &&
+                                                        <>
+                                                            <span href="/" target="_blank"
+                                                                style={{ fontSize: '15px', margin: '0 6px 0 8px', color: 'black' }}>
+                                                                回复
+                                                            </span>
+                                                            <Link href="/" target="_blank" className="link">
+                                                                @{Comments.find(val => val.id === comment.parent).name}
+                                                            </Link>
+                                                            <span style={{ position: 'relative', marginLeft: '4px', fontSize: '15px', color: 'black' }}>:</span>
+                                                        </>
+                                                    }
+                                                </span>
+                                                <span className="content">{comment.content}</span>
+                                            </div>
+                                            <div className="additional">
+                                                <span className="time">{comment.time}</span>
+                                                <button className="reply"
+                                                    onClick={
+                                                        () => {
+                                                            handleReplyField("root", comment.root);
+                                                            handleReplyField("parent", comment.id);
+                                                            handleReplyField("dialog", comment.dialog);
+                                                        }}
+                                                >回复</button>
+                                                <button className="option">···</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {commentOne.id === reply.root && <SelfSpeak reply={reply} handleReplyField={handleReplyField} />}
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            </div>
+            </div >
             <div className="creation-right">
                 <div className="creation-right-avatar-box">
                     <span className="avatar-circle">
@@ -106,7 +243,7 @@ const Page = async () => {
                     </div>
                 </div>
                 <ul className="creation-right-list-box">
-                    <h3 style={{position:'relative',marginBottom:'20px'}}>相似视频</h3>
+                    <h3 style={{ position: 'relative', marginBottom: '20px' }}>相似视频</h3>
                     {recommends.map((value, i) => (
                         <li className="creation-right-item" key={i}>
                             <div className="item-cover">
@@ -127,5 +264,34 @@ const Page = async () => {
         </>
     );
 }
+
+const SelfSpeak = ({ reply, handleReplyField }) => (
+    <div className="self-reply">
+        <div className="comment-one" style={{ pointerEvents: 'none' }}>
+            <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+        </div>
+        <div className="comment-two">
+            <div
+                contentEditable="true"
+                dangerouslySetInnerHTML={{ __html: reply.content }}
+                onInput={(event) => handleReplyField("content", event.target.value)}
+                className="editor-comment"></div>
+            <div className="publish-btn">
+                <button className="btn">发布</button>
+            </div>
+        </div>
+    </div>
+)
+
+const Avatar = ({ src, height, width }) => <Link href="/" target="_blank" style={{
+    display: 'block',
+    cursor: 'pointer',
+    position: 'relative',
+    height: height,
+    width: width,
+    clipPath: 'circle(50%)',
+}}>
+    <Image src={src} quality={100} fill objectFit="cover" alt="" />
+</Link>
 
 export default Page;

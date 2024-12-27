@@ -61,9 +61,196 @@
         border-bottom: 1px solid rgb(92, 93, 95);
     }
 
-    & .h2{
-        display: flex;
-        align-items: center;
+    & .comment-box {
+        position: relative;
+        width: 96%;
+
+        & .h2 {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        & .comments-domain {
+            display: grid;
+            grid-template-columns: 80px minmax(0, 1fr);
+            position: relative;
+            width: 100%;
+            padding: 30px 0;
+            border-bottom: 1px solid rgb(212, 212, 212);
+
+            & .comment-one {
+                position: relative;
+                grid-column: 1;
+                width: 100%;
+            }
+
+            & .comment-two {
+                display: block;
+                position: relative;
+                grid-column: 2;
+                width: 100%;
+
+                & .editor-comment {
+                    display: block;
+                    position: relative;
+                    text-wrap: wrap;
+                    padding: 12px;
+                    border-radius: 6px;
+                    max-width: 100%;
+                    max-width: 100%;
+                    min-height: 56px;
+                    max-height: 120px;
+                    font-size: 18px;
+                    overflow: auto;
+                    background-color: rgb(206, 206, 206);
+                    transition: background-color 200ms linear;
+
+                    &:focus,
+                    &:hover {
+                        outline: 1px solid rgb(201, 204, 208);
+                        background-color: white;
+                    }
+                }
+
+                & .publish-btn {
+                    display: block;
+                    position: relative;
+                    height: 56px;
+                    width: 100%;
+
+                    & .btn {
+                        position: absolute;
+                        cursor: pointer;
+                        height: 36px;
+                        right: 0;
+                        top: 20px;
+                        padding: 0 20px;
+                        background-color: rgb(0, 81, 255);
+                        border-radius: 8px;
+                        font-size: 16px;
+                        letter-spacing: 2px;
+                        color: white;
+                    }
+
+                    &:hover {
+                        display: block;
+                    }
+                }
+
+                & .name,
+                & .content,
+                & .additional {
+                    margin-bottom: 10px;
+                }
+
+                & .name {
+                    font-size: 14px;
+                    color: rgb(251, 114, 179);
+                }
+
+                & .content {
+                    position: relative;
+                    font-size: 16px;
+                    color: rgb(0, 0, 0);
+                }
+
+                & .additional {
+                    font-size: 14px;
+                    color: rgb(148, 153, 160);
+
+                    & .reply {
+                        cursor: pointer;
+                        position: relative;
+                        color: rgb(148, 153, 160);
+                        margin-left: 20px;
+                    }
+
+                    & .option {
+                        opacity: 0;
+                        font-size: 20px;
+                        writing-mode: vertical-rl;
+                        cursor: pointer;
+                        color: rgb(148, 153, 160);
+                        position: absolute;
+                        right: 0;
+                    }
+                }
+
+                &:hover .option {
+                    opacity: 1;
+                }
+
+                & .comments-second-domain {
+                    display: grid;
+                    grid-template-columns: 50px minmax(0, 1fr);
+                    position: relative;
+                    width: 100%;
+                    padding-top: 4px;
+                    padding-bottom: 8px;
+
+                    & .comment-second-one {
+                        position: relative;
+                        grid-column: 1;
+                        width: 100%;
+                    }
+
+                    & .comment-second-two {
+                        display: block;
+                        position: relative;
+                        width: 100%;
+                        grid-column: 2;
+
+                        & .second-speak {
+                            display: flex;
+                            flex-direction: row;
+                            position: relative;
+                            width: 100%;
+
+                            & .name {
+                                font-size: 15px;
+                                margin-bottom: 8px;
+
+                                & .link {
+                                    cursor: pointer;
+                                    font-size: inherit;
+                                    color: inherit;
+
+                                    &:hover {
+                                        color: rgb(0, 170, 230);
+                                    }
+                                }
+                            }
+
+                            & .content {
+                                font-size: 15px;
+                                margin-bottom: 0px;
+                                margin-left: 6px;
+                            }
+
+                            & .option {
+                                opacity: 0;
+                            }
+                        }
+
+                        &:hover {
+                            & .option {
+                                opacity: 1;
+                            }
+                        }
+                    }
+                }
+
+                & .self-reply {
+                    display: grid;
+                    grid-template-columns: 80px minmax(0, 1fr);
+                    position: relative;
+                    margin-top: 20px;
+                    width: 100%;
+                }
+            }
+        }
     }
 }
 
