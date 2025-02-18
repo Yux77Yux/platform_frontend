@@ -1,0 +1,38 @@
+/* 基础样式 */
+.pagination {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+    width: 1000px;
+
+
+
+    & .page-item {
+        margin: auto 10px;
+        min-width: 36px;
+        padding: 8px 12px;
+        font-size: 16px;
+        border-radius: 9px;
+        border: 1px solid rgb(155, 222, 248);
+        background-color: rgb(246, 247, 248);
+        color: #000;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgb(155, 222, 248);
+        }
+    }
+
+    & .focus {
+        background-color: rgb(0, 174, 236);
+        color: white;
+
+        &:hover {
+            background-color: rgb(0, 174, 236) !important;
+            color: white !important;
+        }
+    }
+}

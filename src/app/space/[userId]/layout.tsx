@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { getLoginUserId } from "@/src/tool/getLoginUser";
 import { redirect } from 'next/navigation'
 
 import { SpaceProvider } from "./context";
@@ -8,15 +8,9 @@ import SpaceOptions from "@/src/client-components/space-options/space-options.co
 import "./layout.scss"
 
 const fetchSpace = async (userIdInt64: string) => {
-    let accessToken: string;
+    const loginId = await getLoginUserId()
 
-    const accessTokenCookie = (await cookies()).get('accessToken');
-    if (!accessTokenCookie) {
-        accessToken = "none";
-    } else {
-        accessToken = accessTokenCookie.value
-    }
-    const url = 'http://localhost:8080/api/space/' + userIdInt64 + '/' + accessToken;
+    const url = 'http://localhost:8080/api/user/' + userIdInt64;
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -24,9 +18,17 @@ const fetchSpace = async (userIdInt64: string) => {
         }
     });
     if (!response.ok) {
+        console.error("fetchSpace failed")
         return null;
     }
-    return await response.json();
+
+    const userResponse = await response.json()
+
+    const result = {
+        user : userResponse.user,
+        master : loginId === userIdInt64,
+    }
+    return result;
 }
 
 export default async function SpaceLayout({
@@ -40,7 +42,6 @@ export default async function SpaceLayout({
     const data = await fetchSpace(userId);
     if (!data) {
         redirect("/");
-        return null;
     }
     const { user, master } = data;
 

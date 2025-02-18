@@ -34,6 +34,8 @@ const SpaceUser = (props: PropsType) => {
             <span className="space-name">{userName === "" ? "今州皇帝" : userName}</span>
             <span className="space-bio">{userBio === "" ? "userBio" : userBio}</span>
             {!master && <button className="space-follow">关注</button>}
+            {!master && <button className="space-review-box">···</button>}
+            {!master && <button className="space-review">举报</button>}
         </>
     );
 }

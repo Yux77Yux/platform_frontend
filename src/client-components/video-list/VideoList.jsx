@@ -3,11 +3,13 @@
 import "./VideoList.scss"
 import Image from 'next/image';
 import Link from "next/link";
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 const VideoCard = ({ video }) => {
   const videoRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
+
+  const openCreation = useCallback(() => window.open(`/creation`, "_blank"), [])
 
   const handleMouseEnter = async () => {
     if (videoRef.current) {
@@ -42,7 +44,6 @@ const VideoCard = ({ video }) => {
             fill
             style={{
               objectFit: 'cover',
-              borderRadius: '10px',
             }}
           />
         ) : (
@@ -52,10 +53,11 @@ const VideoCard = ({ video }) => {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              borderRadius: '10px',
+              cursor: "pointer",
             }}
             muted
             preload="auto"
+            onClick={openCreation}
           >
             <source src={video.url} type="video/mp4" />
           </video>
@@ -69,11 +71,12 @@ const VideoCard = ({ video }) => {
         {video.title}
       </Link>
       <Link
-        href="/creation"
+        href={video.authorId ? `/space/${video.authorId}` : ""}
         className="videoAuthor"
         target="_blank"
       >
-        UP: &nbsp;&nbsp;{video.author}
+        {video.author && <span className="name">UP: &nbsp;&nbsp;{video.author}</span>}
+        <span className="timeAt">12-12</span>
       </Link>
     </div>
   );

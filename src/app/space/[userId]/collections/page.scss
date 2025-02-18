@@ -1,4 +1,4 @@
-.person-page {
+.collections-page {
     display: flex;
     position: relative;
     flex-direction: row;
@@ -13,8 +13,8 @@
         align-items: center;
         min-height: 600px;
         padding: 8px 16px;
-        width: 1050px;
-        gap: 15px 0;
+        width: 100%;
+        gap: 10px;
 
         & .title-box {
             display: flex;
@@ -28,22 +28,39 @@
                 padding: 12px 20px;
             }
 
-            & .type {
+            & .search {
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                font-size: 14px;
-                margin: auto 10px;
-                height: 36px;
-                padding: 10px;
-                border-radius: 6px;
-                cursor: pointer;
-                background-color: rgb(244, 244, 244);
-                color: rgb(111, 111, 111);
-                transition: color 0.2s linear;
+                position: absolute;
+                height: 40px;
+                width: 250px;
+                right: 90px;
+                bottom: 5px;
 
-                &:hover {
-                    color: rgb(37, 155, 255);
+                & input[type="text"] {
+                    background-color: rgb(222, 222, 222);
+                    width: 80%;
+                    border-radius: 9px;
+                    border-bottom-right-radius: 0;
+                    border-top-right-radius: 0;
+                    padding: 4px 12px;
+                }
+
+                & button {
+                    height: 100%;
+                    display: flex;
+                    position: relative;
+                    justify-content: center;
+                    align-items: center;
+                    min-width: 40px;
+                    border-radius: 9px;
+                    border-bottom-left-radius: 0;
+                    border-top-left-radius: 0;
+                    background-color: rgb(222, 222, 222);
+                    background-image: url('../../../../assets/magnifying-glass.png');
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    background-size: 26px;
+                    cursor: pointer;
                 }
             }
         }

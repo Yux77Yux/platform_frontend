@@ -5,11 +5,66 @@ import "./page.scss";
 
 import { Comments } from './comments'
 
+import { getAddress } from "@/src/tool/getIp"
+
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+/* 仍未完成交互
+观看 点赞 收藏
+发评论
+删除评论
+举报
+相似列表获取
+视频获取
+评论获取
+关注
+ */
+
+/* 此处作品需要返回
+creation_id
+author_id
+views
+likes
+saves
+commentCount
+
+authorName
+authorAvatar
+authorBio
+
+authorFollowers
+
+/// 还有推荐视频列表
+///
+///
+
+此处的评论结构需要
+id    评论id
+root  评论所属的一级评论id
+parent 对话对象的评论id
+dialog 评论所属的二级评论id
+
+content // 对话内容
+time // 发布时间
+name // 发言人名称
+avatar // 发言人头像
+
+userId // 发言人的id
+ */
 
 const Page = () => {
+    const videoInfo = {
+        title: '只是个胜利结算动画而已',
+        src: 'https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media/%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5/%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2/1-%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2-480P%20%E6%B8%85%E6%99%B0-AVC.mp4',
+        views: "36.7万",
+        time: '2022-10-20 07:28:18',
+        likes: 3442,
+        saves: 488,
+        bio: '番名：想要成为影之实力者',
+    }
+
     const [info, setInfo] = useState({
         content: '',
         root: 0,    // 楼层id
@@ -17,6 +72,7 @@ const Page = () => {
         dialog: 0,  // 第一个二级评论
         like: false,
         saves: false,
+        isHover: false, // 楼主层的举报或删除按钮所在
     })
 
     const [reply, setReply] = useState({
@@ -24,6 +80,8 @@ const Page = () => {
         root: -1,    // 楼层id
         parent: -1,  // 对话对象
         dialog: -1,  // 第一个二级评论
+
+        parentName: '',
     })
 
     const recommends = [
@@ -57,6 +115,30 @@ const Page = () => {
         ...prev,
         [key]: value,
     })), [])
+
+    const fetchCreation = useCallback(async () => {
+        const ip = await getAddress()
+
+        console.log(ip)
+
+        const response = await fetch("http://localhost:8080/api/watch/1891539227536003072", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                'X-Forwarded-For': ip
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null) // 防止解析 JSON 失败
+            console.error("API Error:", errorData || `HTTP ${response.status} ${response.statusText}`)
+            return null
+        }
+
+        const result = await response.json()
+        console.log(result)
+
+    }, [])
 
     // 发表评论
     const publishComment = useCallback(async (content, root, parent, dialog) => {
@@ -103,15 +185,9 @@ const Page = () => {
         }
     }, []);
 
-    const videoInfo = {
-        title: '只是个胜利结算动画而已',
-        src: 'https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media/%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5/%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2/1-%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2-480P%20%E6%B8%85%E6%99%B0-AVC.mp4',
-        views: "36.7万",
-        time: '2023-10-20 07:28:18',
-        likes: 3442,
-        saves: 488,
-        bio: '番名：想要成为影之实力者',
-    }
+    useEffect(() => {
+        fetchCreation()
+    }, [fetchCreation])
 
     return (
         <>
@@ -141,7 +217,9 @@ const Page = () => {
                 <div className="comment-box">
                     <div className="h2">
                         <h2 style={{ display: 'inline-block' }}>评论</h2>
-                        <span style={{ margin: '5px 0 0 8px', color: 'rgb(162, 166, 172)', }}>15</span>
+                        <span style={{ margin: '5px 0 0 8px', color: 'rgb(162, 166, 172)', }}>
+                            {Comments.length}
+                        </span>
                     </div>
 
                     {/* 评论区开始 */}
@@ -152,83 +230,29 @@ const Page = () => {
                         <div className="comment-two">
                             <div
                                 contentEditable="true"
-                                dangerouslySetInnerHTML={{ __html: info.content }}
-                                onInput={(event) => handleField("content", event.target.value)}
-                                className="editor-comment"></div>
+                                ref={(div) => {
+                                    if (div && div.innerText !== info.content) {
+                                        div.innerText = info.content; // 保持内容同步
+                                    }
+                                }}
+                                onInput={(event) => {
+                                    const newContent = event.target.innerText;
+                                    handleField("content", newContent);
+                                    const trim = newContent.trim();
+                                    if (trim === '' && trim.length === 0) {
+                                        handleField("content", '');
+                                    }
+                                }}
+                                className="editor-comment"
+                                data-placeholder="快来发布评论吧！"
+                            ></div>
                             <div className="publish-btn">
                                 <button className="btn">发布</button>
                             </div>
                         </div>
                     </div>
                     {Comments.filter(value => value.parent === value.root && value.root === 0).map((commentOne, i) => (
-                        <div className="comments-domain" key={i}>
-                            <div className="comment-one">
-                                <Avatar src="/img/slience.jpg" height="56px" width="56px" />
-                            </div>
-                            <div className="comment-two" >
-                                <div className="name"><span>{commentOne.name}</span></div>
-                                <div className="content">{commentOne.content}</div>
-                                <div className="additional">
-                                    <span className="time">{commentOne.time}</span>
-                                    <button className="reply"
-                                        onClick={
-                                            () => {
-                                                handleReplyField("root", commentOne.id);
-                                                handleReplyField("parent", commentOne.id);
-                                                handleReplyField("dialog", -1);
-                                            }}
-                                    >回复</button>
-                                    <button className="option">···</button>
-                                </div>
-
-                                {/* 二级评论 */}
-                                {Comments.filter(val => val.root === commentOne.id).map((comment, j) => (
-                                    <div className="comments-second-domain" key={j}>
-                                        <div className="comment-second-one">
-                                            <Avatar src="/img/slience.jpg" height="36px" width="36px" />
-                                        </div>
-                                        <div className="comment-second-two">
-                                            <div className="second-speak">
-                                                <span className="name">
-                                                    <Link href="/" target="_blank"
-                                                        style={{ cursor: 'pointer', fontSize: 'inherit',color:'black' }}>
-                                                        {comment.name}
-                                                    </Link>
-
-                                                    {comment.parent !== comment.root &&
-                                                        <>
-                                                            <span href="/" target="_blank"
-                                                                style={{ fontSize: '15px', margin: '0 6px 0 8px', color: 'black' }}>
-                                                                回复
-                                                            </span>
-                                                            <Link href="/" target="_blank" className="link">
-                                                                @{Comments.find(val => val.id === comment.parent).name}
-                                                            </Link>
-                                                            <span style={{ position: 'relative', marginLeft: '4px', fontSize: '15px', color: 'black' }}>:</span>
-                                                        </>
-                                                    }
-                                                </span>
-                                                <span className="content">{comment.content}</span>
-                                            </div>
-                                            <div className="additional">
-                                                <span className="time">{comment.time}</span>
-                                                <button className="reply"
-                                                    onClick={
-                                                        () => {
-                                                            handleReplyField("root", comment.root);
-                                                            handleReplyField("parent", comment.id);
-                                                            handleReplyField("dialog", comment.dialog);
-                                                        }}
-                                                >回复</button>
-                                                <button className="option">···</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {commentOne.id === reply.root && <SelfSpeak reply={reply} handleReplyField={handleReplyField} />}
-                            </div>
-                        </div>
+                        <TopCommentList handleReplyField={handleReplyField} commentOne={commentOne} reply={reply} key={i} />
                     ))}
                 </div>
             </div >
@@ -265,23 +289,197 @@ const Page = () => {
     );
 }
 
-const SelfSpeak = ({ reply, handleReplyField }) => (
-    <div className="self-reply">
-        <div className="comment-one" style={{ pointerEvents: 'none' }}>
-            <Avatar src="/img/slience.jpg" height="56px" width="56px" />
-        </div>
-        <div className="comment-two">
-            <div
-                contentEditable="true"
-                dangerouslySetInnerHTML={{ __html: reply.content }}
-                onInput={(event) => handleReplyField("content", event.target.value)}
-                className="editor-comment"></div>
-            <div className="publish-btn">
-                <button className="btn">发布</button>
+// 一级评论列表
+const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
+    const [isHover, setIsHover] = useState(false);
+
+    return (
+        <div className="comments-domain">
+            <div className="comment-one"
+                onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+                <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+            </div>
+            <div className="comment-two" >
+                <div className="name"
+                    onMouseEnter={() => setIsHover(true)}
+                    onMouseLeave={() => setIsHover(false)}
+                >
+                    <span>{commentOne.name}</span></div>
+                <div className="content"
+                    onMouseEnter={() => setIsHover(true)}
+                    onMouseLeave={() => setIsHover(false)}
+                >
+                    {commentOne.content}</div>
+                <div className="additional"
+                    onMouseEnter={() => setIsHover(true)}
+                    onMouseLeave={() => setIsHover(false)}
+                >
+                    <span className="time">{commentOne.time}</span>
+                    <button className="reply"
+                        onClick={
+                            () => {
+                                handleReplyField("root", commentOne.id);
+                                handleReplyField("parent", commentOne.id);
+                                handleReplyField("dialog", -1);
+                                handleReplyField("parentName", commentOne.name)
+                                handleReplyField("content", '');
+                            }}
+                    >回复</button>
+                    <button className={`option ${isHover && "show"}`}>···</button>
+                </div>
+
+                {/* 二级评论列表 */}
+                <SecondCommentList commentOne={commentOne} handleReplyField={handleReplyField} />
+
+                {commentOne.id === reply.root && <SelfSpeak reply={reply} handleReplyField={handleReplyField} />}
             </div>
         </div>
-    </div>
-)
+    );
+}
+
+// 二级评论列表
+const SecondCommentList = ({ commentOne, handleReplyField }) => {
+    const secondComments = Comments.filter(val => val.root === commentOne.id);
+    const [open, setOpen] = useState(false);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const commentsPerPage = 10; // 每页显示的评论数量
+
+    // 计算当前页显示的评论
+    const startIndex = (currentPage - 1) * commentsPerPage;
+    const currentComments = secondComments.slice(startIndex, startIndex + commentsPerPage);
+
+    // 计算总页数
+    const totalPages = Math.ceil(secondComments.length / commentsPerPage);
+
+    return (
+        <>
+            {!open && <div style={{ color: 'rgb(148, 153, 160)', fontSize: '14px' }}>
+                共 {secondComments.length} 条回复，
+                <button onClick={() => setOpen(true)} style={{
+                    cursor: 'pointer',
+                    display: 'inline-block',
+                    position: 'relative',
+                    backgroundColor: 'transparent',
+                    color: 'inherit',
+                    fontSize: 'inherit',
+                }}>
+                    点击查看
+                </button>
+            </div>}
+            {open && currentComments.map((comment, j) => (
+                <SecondComment handleReplyField={handleReplyField} comment={comment} key={j} />
+            ))
+            }
+            {/* 分页器 */}
+            {open && totalPages > 1 && <div className="pagination">
+                <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                    上一页
+                </button>
+                <span>
+                    第 {currentPage} 页 / 共 {totalPages} 页
+                </span>
+                <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                    下一页
+                </button>
+            </div>}
+        </>
+    );
+}
+
+// 二级评论内容
+const SecondComment = ({ handleReplyField, comment }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    return (
+        <div className="comments-second-domain"
+            onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
+        >
+            <div className="comment-second-one">
+                <Avatar src="/img/slience.jpg" height="36px" width="36px" />
+            </div>
+            <div className="comment-second-two">
+                <div className="second-speak">
+                    <span className="name">
+                        <Link href="/" target="_blank"
+                            style={{ cursor: 'pointer', fontSize: 'inherit', color: 'black' }}>
+                            {comment.name}
+                        </Link>
+
+                        {comment.parent !== comment.root &&
+                            <>
+                                <span href="/" target="_blank"
+                                    style={{ fontSize: '15px', margin: '0 6px 0 8px', color: 'black' }}>
+                                    回复
+                                </span>
+                                <Link href="/" target="_blank" className="link">
+                                    @{Comments.find(val => val.id === comment.parent).name}
+                                </Link>
+                                <span style={{ position: 'relative', marginLeft: '4px', fontSize: '15px', color: 'black' }}>:</span>
+                            </>
+                        }
+                    </span>
+                    <span className="content">{comment.content}</span>
+                </div>
+                <div className="additional">
+                    <span className="time">{comment.time}</span>
+                    <button className="reply"
+                        onClick={
+                            () => {
+                                handleReplyField("root", comment.root);
+                                handleReplyField("parent", comment.id);
+                                handleReplyField("dialog", comment.dialog);
+                                handleReplyField("parentName", comment.name);
+                                handleReplyField("content", '');
+                            }}
+                    >回复</button>
+                    <button className={`option ${isHovered && "show"}`}>···</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// 回复框
+const SelfSpeak = ({ reply, handleReplyField }) => {
+    return (
+        <div className="self-reply">
+            <div className="comment-one" style={{ pointerEvents: 'none' }}>
+                <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+            </div>
+            <div className="comment-two">
+                <div
+                    contentEditable="true"
+                    ref={(div) => {
+                        if (div && div.innerText !== reply.content) {
+                            div.innerText = reply.content; // 保持内容同步
+                        }
+                    }}
+                    onInput={(event) => {
+                        const newContent = event.target.innerText;
+                        handleReplyField("content", newContent);
+                        const trim = newContent.trim();
+                        if (trim === '' && trim.length === 0) {
+                            handleReplyField("content", '');
+                        }
+                    }}
+                    className="editor-comment"
+                    data-placeholder={`回复 @${reply.parentName}:`}
+                >
+                </div>
+                <div className="publish-btn">
+                    <button className="btn">发布</button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 const Avatar = ({ src, height, width }) => <Link href="/" target="_blank" style={{
     display: 'block',

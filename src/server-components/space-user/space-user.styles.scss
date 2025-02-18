@@ -47,7 +47,7 @@
     color: rgb(244, 244, 244);
 }
 
-.space-follow{
+.space-follow {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -63,7 +63,59 @@
     background-color: rgb(242, 93, 142);
     cursor: pointer;
 
-    &:hover{
+    &:hover {
         background-color: rgb(255, 133, 173);
+    }
+}
+
+
+
+.space-review-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 38px;
+    padding: 10px 2px;
+    position: absolute;
+    right: 100px;
+    bottom: 15px;
+    font-size: 15px;
+    color: white;
+    border-radius: 6px;
+    letter-spacing: 2px;
+    writing-mode: vertical-lr;
+    font-size: 20px;
+    border: 1px solid white;
+    background-color: rgba(0, 0, 18, 0.4);
+    cursor: auto;
+
+    &:hover {
+        background-color: rgb(120, 120, 255, 0.2);
+
+        &+.space-review {
+            display: flex;
+        }
+    }
+}
+
+.space-review {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 38px;
+    width: 90px;
+    position: absolute;
+    right: 10px;
+    bottom: 15px;
+    font-size: 15px;
+    color: white;
+    border-radius: 6px;
+    border: 2.5px solid white;
+    background-color: rgb(242, 93, 142);
+    cursor: pointer;
+
+    &:hover {
+        display: flex;
+        background-color: rgba(95, 95, 95, 0.8);
     }
 }

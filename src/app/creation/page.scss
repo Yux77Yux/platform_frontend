@@ -77,7 +77,8 @@
             grid-template-columns: 80px minmax(0, 1fr);
             position: relative;
             width: 100%;
-            padding: 30px 0;
+            padding-top: 16px;
+            padding-bottom: 16px;
             border-bottom: 1px solid rgb(212, 212, 212);
 
             & .comment-one {
@@ -104,13 +105,19 @@
                     max-height: 120px;
                     font-size: 18px;
                     overflow: auto;
-                    background-color: rgb(206, 206, 206);
+                    background-color: rgb(231, 231, 231);
                     transition: background-color 200ms linear;
 
                     &:focus,
                     &:hover {
                         outline: 1px solid rgb(201, 204, 208);
                         background-color: white;
+                    }
+
+                    &:empty::before {
+                        content: attr(data-placeholder);
+                        color: #6d6d6d;
+                        pointer-events: none;
                     }
                 }
 
@@ -159,27 +166,35 @@
                 & .additional {
                     font-size: 14px;
                     color: rgb(148, 153, 160);
+                    position: relative;
 
                     & .reply {
                         cursor: pointer;
                         position: relative;
                         color: rgb(148, 153, 160);
                         margin-left: 20px;
+                        background-color: transparent;
                     }
 
                     & .option {
-                        opacity: 0;
+                        display: block;
                         font-size: 20px;
                         writing-mode: vertical-rl;
                         cursor: pointer;
                         color: rgb(148, 153, 160);
                         position: absolute;
                         right: 0;
-                    }
-                }
+                        top: -8px;
 
-                &:hover .option {
-                    opacity: 1;
+                        opacity: 0;
+                        z-index: -1;
+                        transition: opacity 160ms linear;
+                    }
+
+                    & .option.show {
+                        opacity: 1;
+                        z-index: 0;
+                    }
                 }
 
                 & .comments-second-domain {
@@ -210,7 +225,6 @@
 
                             & .name {
                                 font-size: 15px;
-                                margin-bottom: 8px;
 
                                 & .link {
                                     cursor: pointer;
@@ -229,25 +243,41 @@
                                 margin-left: 6px;
                             }
 
-                            & .option {
-                                opacity: 0;
-                            }
-                        }
-
-                        &:hover {
-                            & .option {
-                                opacity: 1;
+                            & .option.show {
+                                display: block;
                             }
                         }
                     }
                 }
+            }
 
-                & .self-reply {
-                    display: grid;
-                    grid-template-columns: 80px minmax(0, 1fr);
-                    position: relative;
-                    margin-top: 20px;
-                    width: 100%;
+            & .self-reply {
+                display: grid;
+                grid-template-columns: 80px minmax(0, 1fr);
+                position: relative;
+                margin-top: 20px;
+                width: 100%;
+            }
+        }
+
+        & .pagination {
+            display: flex;
+            align-items: center;
+            font-size: inherit;
+            color: rgb(148, 153, 160);
+
+            & button {
+                font-size: inherit;
+                margin: 0 10px;
+                padding: 5px 10px;
+                border: 0;
+                background-color: transparent;
+                color: inherit;
+                cursor: pointer;
+
+                &:disabled {
+                    pointer-events: none;
+                    opacity: 0.5;
                 }
             }
         }

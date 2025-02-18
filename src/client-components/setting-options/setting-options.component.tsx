@@ -33,7 +33,7 @@ const SettingOptions = () => {
             userBday,
         } = userInfo;
 
-        const url = "http://localhost:8080/api/user/" + userId;
+        const url = "http://localhost:8080/api/user/space";
         const accessToken = getCookie("accessToken");
         if (!accessToken) {
             console.log("no token in cookie");

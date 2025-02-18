@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
@@ -30,7 +31,7 @@ const AvatarUpdate = () => {
 
     const uploadAvatar = useCallback(async () => {
         const { userId } = data.space.user.userDefault;
-        const url = "http://localhost:8080/api/user/" + userId + "/avatar";
+        const url = "http://localhost:8080/api/user/avatar";
         const accessToken = getCookie("accessToken");
         if (!accessToken) {
             console.log("no token in cookie");
@@ -47,7 +48,6 @@ const AvatarUpdate = () => {
                 value: accessToken
             }
         };
-        console.log(JSON.stringify(body))
 
         const response = await fetch(url, {
             method: "PATCH",
@@ -61,7 +61,7 @@ const AvatarUpdate = () => {
             console.log("error occur response are not ok");
             return;
         }
-
+        console.log(await response.json())
     }, [data, avatar, uint8ArrayToBase64]);
 
     const changeHandler = useCallback((event: ChangeEvent<HTMLInputElement>) => {
