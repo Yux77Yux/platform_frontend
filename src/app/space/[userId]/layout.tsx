@@ -18,7 +18,7 @@ const fetchSpace = async (userIdInt64: string) => {
         }
     });
     if (!response.ok) {
-        console.error("fetchSpace failed")
+        console.log("fetchSpace failed")
         return null;
     }
 

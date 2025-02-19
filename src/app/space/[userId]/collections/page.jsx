@@ -191,7 +191,7 @@ export default function Page() {
 
 
         if (!response.ok) {
-            console.error(response.error)
+            console.log(response.error)
             return null
         }
         const result = await response.json()

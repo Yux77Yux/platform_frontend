@@ -206,7 +206,7 @@ export default function Page() {
         });
 
         if (!response.ok) {
-            console.error(`请求失败: ${result.status} ${result.statusText}`);
+            console.log(`请求失败: ${result.status} ${result.statusText}`);
             return null
         }
 

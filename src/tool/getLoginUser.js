@@ -29,7 +29,7 @@ export const getLoginUserId = async () => {
         const userId= payload.userId ? BigInt(payload.userId) : payload.user_id ? BigInt(payload.user_id) : -1n;
         return ""+userId
     } catch (error) {
-        console.error("JWT 解析失败:", error);
+        console.log("JWT 解析失败:", error);
         return -1;
     }
 };

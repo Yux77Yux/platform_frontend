@@ -97,7 +97,7 @@ const ChunkUploadBox = () => {
         const user = JSON.parse(loginUser);
         const accessToken = getCookie('accessToken');
         if (!accessToken) {
-            console.error('Refresh token is missing or empty');
+            console.log('Refresh token is missing or empty');
         }
         const status = info.submit === "PENDING" ? 1 : 0;
 

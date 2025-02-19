@@ -5,13 +5,13 @@ export const Comments = [
   
     // 一级评论下的二级评论
     { id: 4, root: 1, parent: 1, dialog: 4, content: "我是评论id为4的信息，回复评论id为1", time: "2023-04-20 16:35", name: "赵六" },
-    { id: 5, root: 1, parent: 1, dialog: 4, content: "我是评论id为5的信息，回复评论id为1", time: "2023-04-20 16:40", name: "周七" },
+    { id: 5, root: 1, parent: 1, dialog: 5, content: "我是评论id为5的信息，回复评论id为1", time: "2023-04-20 16:40", name: "周七" },
   
     { id: 6, root: 2, parent: 2, dialog: 6, content: "我是评论id为6的信息，回复评论id为2", time: "2023-04-20 16:45", name: "吴八" },
-    { id: 7, root: 2, parent: 2, dialog: 6, content: "我是评论id为7的信息，回复评论id为2", time: "2023-04-20 16:50", name: "郑九" },
+    { id: 7, root: 2, parent: 2, dialog: 7, content: "我是评论id为7的信息，回复评论id为2", time: "2023-04-20 16:50", name: "郑九" },
   
     { id: 8, root: 3, parent: 3, dialog: 8, content: "我是评论id为8的信息，回复评论id为3", time: "2023-04-20 16:55", name: "冯十" },
-    { id: 9, root: 3, parent: 3, dialog: 8, content: "我是评论id为9的信息，回复评论id为3", time: "2023-04-20 17:00", name: "陈十一" },
+    { id: 9, root: 3, parent: 3, dialog: 9, content: "我是评论id为9的信息，回复评论id为3", time: "2023-04-20 17:00", name: "陈十一" },
   
     // 二级评论下的三级评论
     { id: 10, root: 1, parent: 4, dialog: 4, content: "我是评论id为10的信息，回复评论id为4", time: "2023-04-20 17:05", name: "孙十二" },
