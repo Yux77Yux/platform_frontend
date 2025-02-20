@@ -6,6 +6,11 @@ export const Status = Object.freeze({
 
 export const reportInfo = async (target_type, target_id, detail) => {
     try {
+        console.log("d11etail")
+        if (detail.trim().length <= 0) {
+        console.log("detail")
+        return null
+        }
         let Type = ""
         switch (target_type) {
             case Status.CREATION:
@@ -27,22 +32,22 @@ export const reportInfo = async (target_type, target_id, detail) => {
                 msg: detail,
             }
         }
-        const response = await fetch("http://localhost:8080/api/review", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
-        });
-        if (!response.ok) {
-            console.log(response.error)
-            return null
-        }
+        // const response = await fetch("http://localhost:8080/api/review", {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
+        // });
+        // if (!response.ok) {
+        //     console.log(response.error)
+        //     return null
+        // }
 
-        const result = await response.json()
-        console.log(result)
+        // const result = await response.json()
+        // console.log(result)
 
-        return result
+        // return result
     } catch (error) {
         console.log(error)
     }

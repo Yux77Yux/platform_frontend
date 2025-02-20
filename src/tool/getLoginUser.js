@@ -1,5 +1,3 @@
-import { cookies } from "next/headers";
-
 export const getToken = async () => {
     if (typeof window !== "undefined") {
         // 浏览器端获取 Cookie
@@ -7,9 +5,10 @@ export const getToken = async () => {
         const accessTokenCookie = cookies.find(row => row.startsWith("accessToken="));
         return accessTokenCookie ? decodeURIComponent(accessTokenCookie.split("=")[1]) : "";
     } else {
-        // 服务器端获取 Cookie
+        // **服务器端** 获取 Cookie（动态引入 next/headers，避免 Next.js 解析时出错）
+        const { cookies } = await import("next/headers");
         const accessTokenCookie = (await cookies()).get('accessToken');
-        
+
         return accessTokenCookie ? accessTokenCookie.value : "";
     }
 };
@@ -26,8 +25,8 @@ export const getLoginUserId = async () => {
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const payload = JSON.parse(atob(base64));
 
-        const userId= payload.userId ? BigInt(payload.userId) : payload.user_id ? BigInt(payload.user_id) : -1n;
-        return ""+userId
+        const userId = payload.userId ? BigInt(payload.userId) : payload.user_id ? BigInt(payload.user_id) : -1n;
+        return "" + userId
     } catch (error) {
         console.log("JWT 解析失败:", error);
         return -1;

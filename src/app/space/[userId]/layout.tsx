@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 import { SpaceProvider } from "./context";
 
-import SpaceUser from "@/src/server-components/space-user/space-user.component";
+import SpaceUser from "@/src/client-components/space-user/space-user.component";
 import SpaceOptions from "@/src/client-components/space-options/space-options.component";
 import "./layout.scss"
 
@@ -25,8 +25,8 @@ const fetchSpace = async (userIdInt64: string) => {
     const userResponse = await response.json()
 
     const result = {
-        user : userResponse.user,
-        master : loginId === userIdInt64,
+        user: userResponse.user,
+        master: loginId === userIdInt64,
     }
     return result;
 }

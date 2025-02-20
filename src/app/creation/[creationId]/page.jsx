@@ -3,17 +3,26 @@
 
 import "./page.scss";
 import { getAddress } from "@/src/tool/getIp"
+import { getLoginUserId } from "@/src/tool/getLoginUser"
+import { Status, reportInfo } from "@/src/tool/review"
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 
 import CommentBox from "@/src/client-components/comment/comment"
+import MenuPortal from "@/src/client-components/menu-portal/menu-portal"
+import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
 const Page = () => {
+    const triggerRef = useRef()
     const creationParams = useParams()
     const creationId = creationParams.creationId
+
+
+    const [loginId, setLoginId] = useState()
+    const [isHover, setHover] = useState(false)
 
     const [videoInfo, setVideoInfo] = useState({
         title: '只是个胜利结算动画而已',
@@ -31,6 +40,16 @@ const Page = () => {
         userId: "",
         userAvatar: "/img/slience.jpg",
     })
+
+    // 举报
+    const [report, setReport] = useState({
+        detail: "",
+        id: creationId,
+        isOpen: false,
+    })
+    const setReportOpen = useCallback((state) => {
+        setReport((prev) => ({ ...prev, isOpen: state }))
+    }, [setReport])
 
     const [recommends, setRecommends] = useState([
         {
@@ -70,7 +89,7 @@ const Page = () => {
                 }
             });
             if (!response.ok) {
-                console.log(response.error)
+                console.log("error: " + response.status)
                 return null
             }
 
@@ -84,10 +103,16 @@ const Page = () => {
         }
     }, [])
 
+    const reportCreation = useCallback(async () => {
+        reportInfo(Status.CREATION, report.id, report.detail)
+    }, [report])
+
     useEffect(() => {
         fetCreation(creationId)
             .then((result) => {
+                if (!result) return;
                 const { creationInfo, creationUser } = result
+                if (!creationInfo || !creationUser) return;
                 const { creation, creationEngagement, category } = creationInfo
                 const { uploadTime, baseInfo } = creation
                 const { authorId, bio, src, thumbnail, title, status, duration } = baseInfo
@@ -121,15 +146,20 @@ const Page = () => {
                     userAvatar: userAvatar,
                 })
             })
-    }, [fetCreation, creationId])
+
+        getLoginUserId()
+            .then((loginId) => setLoginId(loginId))
+
+        setReport((prev) => ({ ...prev, id: creationId }))
+    }, [fetCreation, creationId, setLoginId])
 
     return (
         <>
             <div className="creation-left">
                 <div className="creation-left-title">{videoInfo.title}</div>
                 <div className="creation-additional-info">
-                    <span className="views">播放数：{videoInfo.views}</span>
-                    <span className="time">{videoInfo.uploadTime??videoInfo.time}</span>
+                    <span className="video-icon"></span><span className="views">{videoInfo.views}</span>
+                    <span className="time">{videoInfo.uploadTime ?? videoInfo.time}</span>
                 </div>
                 <div className="video-player">
                     <video key={videoInfo.src} className="video-element" autoPlay={false} controls>
@@ -146,6 +176,38 @@ const Page = () => {
                         <Image src="/img/save.png" height={40} width={40} quality={100} alt="" />
                         <span style={{ position: 'relative', marginLeft: "20px" }}>{videoInfo.saves}</span>
                     </span>
+                    {loginId === author.userId && <span className="master">
+                        <button className="modify">编辑稿件</button>
+                    </span>}
+                    <span className="more-symbol" ref={triggerRef}
+                        onMouseLeave={() => setHover(false)}
+                        onMouseEnter={() => setHover(true)}>
+                        {isHover && (
+                            <MenuPortal targetRef={triggerRef} >
+                                <div className="more-symbol-button-options">
+                                    <button className="btn" onClick={() => setReportOpen(true)}>举报稿件</button>
+                                </div>
+                            </MenuPortal>
+                        )}
+                    </span>
+                    {report.isOpen && <Modal setOpen={setReportOpen}>
+                        <div className="report-creation">
+                            <h4 className="title">作品信息举报</h4>
+                            <div className="detail">
+                                <textarea
+                                    value={report.detail}
+                                    onChange={(e) => setReport((prev) => ({ ...prev, detail: e.target.value }))}
+                                    placeholder="请输入举报理由，请简要描述"
+                                />
+                            </div>
+
+                            <div className="btns">
+                                <button className="btn cancel" onClick={() => setReportOpen(false)}>取消</button>
+                                <button className="btn confirm" disabled={report.detail.trim().length <= 0} onClick={reportCreation}>确定</button>
+                            </div>
+                        </div>
+                    </Modal>}
+
                 </div>
                 <div ><span className="bio">{videoInfo.bio}</span></div>
                 <CommentBox />

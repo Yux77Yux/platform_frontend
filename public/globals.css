@@ -12,11 +12,14 @@
     --foreground: #ededed;
   }
 }
-html, body {
+
+html,
+body {
   margin: 0;
   padding: 0;
   max-width: 100%;
 }
+
 body {
   background: #fcfcfc;
 }
@@ -25,6 +28,14 @@ input {
   outline: none;
   border: 0px;
   background-color: transparent;
+  background-color: #fff;
+}
+
+input:-webkit-autofill {
+  background-color: #fff !important;
+  box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+  /* 确保文本颜色正常 */
 }
 
 * {
@@ -39,12 +50,12 @@ a {
   text-decoration: none;
 }
 
-input{
+input {
   outline: none;
   border: 0;
 }
 
-button{
+button {
   outline: none;
   border: 0;
 }

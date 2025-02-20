@@ -13,9 +13,25 @@
         color: rgb(162, 166, 172);
         margin-bottom: 20px;
 
+        & .video-icon {
+            display: inline-block;
+            position: relative;
+            top: 2px;
+            height: 14px;
+            width: 14px;
+            background-image: url(/img/video-icon.png);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 14px;
+        }
+
         & .views,
         & .time {
+            display: inline-block;
+            color: rgb(148, 153, 160);
+            font-size: 13px;
             margin-right: 20px;
+            margin-left: 5px;
         }
     }
 
@@ -38,8 +54,10 @@
         flex-direction: row;
         justify-content: start;
         align-items: center;
+        position: relative;
         width: 96%;
         border-bottom: 1px solid rgb(92, 93, 95);
+        background-color: #fff;
 
         & .saves,
         & .likes {
@@ -49,6 +67,52 @@
             height: 68px;
             margin-right: 150px;
             cursor: pointer;
+        }
+
+        & .master {
+            display: flex;
+            flex-direction: row;
+            position: relative;
+            height: 68px;
+            align-items: center;
+
+            & .modify {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 40px;
+                color: rgb(25, 26, 29);
+                background-color: rgb(246, 247, 248);
+                font-size: 16px;
+                padding: 4px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: rgb(227, 229, 231);
+                }
+            }
+        }
+
+        & .more-symbol {
+            display: flex;
+            position: absolute;
+            right: 10px;
+            height: 100%;
+            width: 80px;
+            cursor: pointer;
+
+            &::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 16px;
+                height: 16px;
+                background-image: url(/img/icons-more.png);
+                background-size: cover;
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
         }
     }
 
@@ -200,6 +264,190 @@
                     font-size: 14px;
                     color: rgb(148, 153, 160);
                 }
+            }
+        }
+    }
+}
+
+.more-symbol-button-options {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-radius: 6px;
+    padding: 10px 0;
+    width: 140px;
+    height: auto;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(244, 245, 245);
+    box-shadow: -4px 4px 5px rgba(0, 0, 0, 0.05);
+
+    & .btn {
+        width: 100%;
+        font-size: 14px;
+        padding: 6px 12px;
+        cursor: pointer;
+        background-color: inherit;
+        color: rgb(36, 38, 41);
+
+        &:hover {
+            background-color: rgb(244, 245, 245);
+        }
+    }
+}
+
+.report-creation {
+    display: block;
+    position: relative;
+    height: 300px;
+    width: 480px;
+    background-color: #fff;
+    padding: 30px 24px;
+    border-radius: 10px;
+
+    & .title {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        margin: 0 auto;
+        font-weight: 500;
+    }
+
+    & fieldset {
+        outline: none;
+        border: 0;
+        margin-top: 16px;
+
+        & legend {
+            color: rgb(97, 102, 109);
+            margin-top: 5px;
+            margin-left: 3px;
+            margin-bottom: 7px;
+        }
+
+        & ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            & li {
+                margin: 6px;
+
+                & label {
+                    font-size: 14px;
+                    cursor: pointer;
+
+                    & span {
+                        display: inline-block;
+                        width: 15px;
+                        height: 15px;
+                        border: 1px solid rgb(214, 226, 231);
+                        border-radius: 4px;
+                        position: relative;
+                        margin-right: 8px;
+                        cursor: pointer;
+                        top: 3px;
+                    }
+
+                    & input[type="checkbox"] {
+                        display: none;
+
+                        &:checked+span {
+                            border: 1px solid transparent;
+
+                            &::before {
+                                content: "";
+                                font-size: 14px;
+                                background-color: rgb(0, 174, 236);
+                                background-image: url('/img/white-check .png');
+                                background-position: center;
+                                background-repeat: no-repeat;
+                                background-size: 10px;
+                                color: #fff;
+                                position: absolute;
+                                width: 15px;
+                                height: 15px;
+                                top: -1px;
+                                left: -1px;
+                                text-align: center;
+                                line-height: 15px;
+                                border-radius: 4px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    & .detail {
+        display: block;
+        position: relative;
+        width: 400px;
+        margin-top: 50px;
+
+        & textarea {
+            height: 100px;
+            width: 100%;
+            background-color: white;
+            padding: 10px 20px;
+            font-size: 15px;
+            resize: none;
+            border: 1px solid rgb(220, 223, 230);
+            border-radius: 4px;
+            outline: 0;
+            transition: border-color 0.2s ease;
+
+            &:hover {
+                border-color: rgb(192, 196, 204);
+            }
+
+            &:focus {
+                border-color: rgb(64, 158, 255);
+            }
+        }
+    }
+
+    & .btns {
+        display: flex;
+        position: relative;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        margin-top: 32px;
+        height: 56px;
+        width: 100%;
+
+        & .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            margin: auto 14px;
+            height: 36px;
+            padding: 12px 74px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.2s linear;
+        }
+
+        & .cancel {
+            background-color: #fff;
+            border: 1px solid rgb(227, 229, 231);
+
+            &:hover {
+                background-color: rgb(227, 229, 231)
+            }
+        }
+
+        & .confirm {
+            color: #fff;
+            background-color: rgb(0, 174, 236);
+
+            &:hover {
+                background-color: rgb(64, 197, 241);
             }
         }
     }

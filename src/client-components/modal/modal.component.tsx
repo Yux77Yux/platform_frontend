@@ -1,6 +1,5 @@
 'use client';
 
-import { createPortal } from 'react-dom';
 import "./modal.styles.scss";
 
 import { useRouter } from 'next/navigation'
@@ -11,32 +10,26 @@ export function Modal({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       display: 'flex',
-      top:'0',
-      left:'0',
+      position: 'fixed',
+      top: '0',
+      left: '0',
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
       width: '100vw',
+      backgroundColor: 'rgba(23,24,25,0.5)',
     }}>
       <div style={{
         position: 'relative'
       }}>
-        <button onClick={() => router.back()}
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'absolute',
-            backgroundColor: 'transparent',
-            right: '50px',
-            fontSize: '50px',
-            cursor: 'pointer',
-            zIndex: 999,
-          }}
-        >
-          &#215;
-        </button>
-        {children}
+        <div style={{
+          position: 'relative'
+        }}>
+          <button onClick={() => router.back()}
+            className="modal-close-btn"
+          ></button>
+          {children}
+        </div>
       </div>
     </div>
   )

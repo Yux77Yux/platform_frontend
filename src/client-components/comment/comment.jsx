@@ -4,11 +4,14 @@ import { Comments } from './comments'
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import MenuPortal from "@/src/client-components/menu-portal/menu-portal"
+import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
 import { useParams } from "next/navigation";
 import { getCookie } from "cookies-next";
 
+import { getToken } from "@/src/tool/getLoginUser"
 import { reportInfo, Status } from "@/src/tool/review"
 
 // 发表评论
@@ -50,8 +53,15 @@ const publishComment = async (content, root, parent, dialog, creaitonId, token) 
 }
 
 // 删除评论
-const deleteComment = async (commentId) => {
+const deleteComment = async (comment_id, creation_id, token) => {
     try {
+        const body = {
+            commentId: comment_id,
+            creationId: creation_id,
+            accessToken: {
+                value: token
+            }
+        }
         const response = await fetch("http://localhost:8080/api/comment/delete", {
             method: "PATCH",
             headers: {
@@ -73,16 +83,12 @@ const deleteComment = async (commentId) => {
     }
 }
 
-// 举报
-const reportComment = (id, detail) => {
-    reportInfo(Status.COMMENT, id, detail)
-}
-
 const CommentBox = () => {
     const creation = useParams()
     const creationId = creation.creationId
 
-    const [count, setCount] = useState(0)
+    // 页总数
+    // const [pageCount, setCount] = useState(0)
 
     // 用于直接评论
     const [info, setInfo] = useState({
@@ -229,11 +235,56 @@ const CommentBox = () => {
 // 一级评论列表
 const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
     const [isHover, setIsHover] = useState(false);
+    const [isOpen, setOpen] = useState(false)
+    const triggerRef = useRef();
 
-    const root = commentOne.id
+    const param = useParams()
+
+    const id = commentOne.id
+    const root = id
     const parent = root
     const dialog = -1
     const parentName = commentOne.name
+
+    // 举报
+    const [report, setReport] = useState({
+        detail: "",
+        isOpen: false,
+    })
+
+    // 删除
+    const [delInfo, setDelInfo] = useState({
+        isOpen: false,
+    })
+
+    const setReplyFields = useCallback(() => {
+        handleReplyField({
+            root: root,
+            parent: parent,
+            dialog: dialog,
+            parentName: parentName,
+            content: null,
+        })
+    }, [handleReplyField, root, parent, dialog, parentName])
+
+    const setReportOpen = useCallback((state) => {
+        setReport((prev) => ({ ...prev, isOpen: state }))
+    }, [setReport])
+
+    const setDelOpen = useCallback((state) => {
+        setDelInfo((prev) => ({ ...prev, isOpen: state }))
+    }, [setDelInfo])
+
+    // 举报发送
+    const reportComment = useCallback(() => {
+        reportInfo(Status.COMMENT, id, report.detail)
+    }, [id, report])
+
+    // 删除评论
+    const delComment = useCallback(async () => {
+        const token = await getToken()
+        deleteComment(id, param.creationId, token)
+    }, [id, param])
 
     const getSecondComments = useCallback(async (creationId, root, page) => {
         try {
@@ -260,16 +311,6 @@ const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
         }
     }, [])
 
-    const setReplyFields = useCallback(() => {
-        handleReplyField({
-            root: root,
-            parent: parent,
-            dialog: dialog,
-            parentName: parentName,
-            content: null,
-        })
-    }, [handleReplyField, root, parent, dialog, parentName])
-
     return (
         <div className="comments-domain">
             <div className="comment-one"
@@ -295,7 +336,44 @@ const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
                     <button className="reply"
                         onClick={setReplyFields}
                     >回复</button>
-                    <button className={`option ${isHover && "show"}`}>···</button>
+                    <span className={`option ${isHover && "show"}`}
+                        ref={triggerRef}
+                        onClick={() => setOpen(true)}
+                        onMouseLeave={() => setOpen(false)}>
+                        ···
+                        {isOpen && <MenuPortal targetRef={triggerRef}>
+                            <div className="more-symbol-button-options">
+                                <button className="btn" onClick={() => setReportOpen(true)}>举报</button>
+                                <button className="btn" onClick={() => setDelOpen(true)}>删除</button>
+                            </div>
+                        </MenuPortal>}
+                    </span>
+                    {delInfo.isOpen && <Modal setOpen={setDelOpen}>
+                        <div className="report-comment">
+                            <h4 className="title">是否删除？</h4>
+                            <div className="btns">
+                                <button className="btn cancel" onClick={() => setDelOpen(false)}>取消</button>
+                                <button className="btn confirm" onClick={delComment}>确定</button>
+                            </div>
+                        </div>
+                    </Modal>}
+                    {report.isOpen && <Modal setOpen={setReportOpen}>
+                        <div className="report-comment">
+                            <h4 className="title">评论信息举报</h4>
+                            <div className="detail">
+                                <textarea
+                                    value={report.detail}
+                                    onChange={(e) => setReport((prev) => ({ ...prev, detail: e.target.value }))}
+                                    placeholder="请输入举报理由，请简要描述"
+                                />
+                            </div>
+
+                            <div className="btns">
+                                <button className="btn cancel" onClick={() => setReportOpen(false)}>取消</button>
+                                <button className="btn confirm" disabled={report.detail.trim().length <= 0} onClick={reportComment}>确定</button>
+                            </div>
+                        </div>
+                    </Modal>}
                 </div>
 
                 {/* 二级评论列表 */}
@@ -339,8 +417,8 @@ const SecondCommentList = ({ commentOne, handleReplyField }) => {
             </div>}
             {open && currentComments.map((comment, j) => (
                 <SecondComment handleReplyField={handleReplyField} comment={comment} key={j} />
-            ))
-            }
+            ))}
+
             {/* 分页器 */}
             {open && totalPages > 1 && <div className="pagination">
                 <button
@@ -366,7 +444,11 @@ const SecondCommentList = ({ commentOne, handleReplyField }) => {
 // 二级评论内容
 const SecondComment = ({ handleReplyField, comment }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const triggerRef = useRef()
+    const [isOpen, setOpen] = useState(false)
+    const param = useParams()
 
+    const id = comment.id
     const root = comment.root
     const parent = comment.id
     const dialog = comment.dialog
@@ -381,6 +463,36 @@ const SecondComment = ({ handleReplyField, comment }) => {
             content: null,
         })
     }, [handleReplyField, root, parent, dialog, parentName])
+
+    // 举报
+    const [report, setReport] = useState({
+        detail: "",
+        isOpen: false,
+    })
+
+    // 删除
+    const [delInfo, setDelInfo] = useState({
+        isOpen: false,
+    })
+
+    const setReportOpen = useCallback((state) => {
+        setReport((prev) => ({ ...prev, isOpen: state }))
+    }, [setReport])
+
+    const setDelOpen = useCallback((state) => {
+        setDelInfo((prev) => ({ ...prev, isOpen: state }))
+    }, [setDelInfo])
+
+    // 举报发送
+    const reportComment = useCallback(() => {
+        reportInfo(Status.COMMENT, id, report.detail)
+    }, [id, report])
+
+    // 删除评论
+    const delComment = useCallback(async () => {
+        const token = await getToken()
+        deleteComment(id, param.creationId, token)
+    }, [id, param])
 
     return (
         <div className="comments-second-domain"
@@ -417,7 +529,46 @@ const SecondComment = ({ handleReplyField, comment }) => {
                     <button className="reply"
                         onClick={setReplyFields}
                     >回复</button>
-                    <button className={`option ${isHovered && "show"}`}>···</button>
+                    <span className={`option ${isHovered && "show"}`}
+                        ref={triggerRef}
+                        onClick={() => setOpen(true)}
+                        onMouseLeave={() => setOpen(false)}>
+                        ···
+                        {isOpen && (
+                            <MenuPortal targetRef={triggerRef}>
+                                <div className="more-symbol-button-options">
+                                    <button className="btn" onClick={() => setReportOpen(true)}>举报</button>
+                                    <button className="btn" onClick={() => setDelOpen(true)}>删除</button>
+                                </div>
+                            </MenuPortal>
+                        )}
+                    </span>
+                    {delInfo.isOpen && <Modal setOpen={setDelOpen}>
+                        <div className="report-comment">
+                            <h4 className="title">是否删除？</h4>
+                            <div className="btns">
+                                <button className="btn cancel" onClick={() => setDelOpen(false)}>取消</button>
+                                <button className="btn confirm" onClick={delComment}>确定</button>
+                            </div>
+                        </div>
+                    </Modal>}
+                    {report.isOpen && <Modal setOpen={setReportOpen}>
+                        <div className="report-comment">
+                            <h4 className="title">评论信息举报</h4>
+                            <div className="detail">
+                                <textarea
+                                    value={report.detail}
+                                    onChange={(e) => setReport((prev) => ({ ...prev, detail: e.target.value }))}
+                                    placeholder="请输入举报理由，请简要描述"
+                                />
+                            </div>
+
+                            <div className="btns">
+                                <button className="btn cancel" onClick={() => setReportOpen(false)}>取消</button>
+                                <button className="btn confirm" disabled={report.detail.trim().length <= 0} onClick={reportComment}>确定</button>
+                            </div>
+                        </div>
+                    </Modal>}
                 </div>
             </div>
         </div>
