@@ -1,6 +1,5 @@
 'use client';
 import "./comment.scss"
-import { Comments } from './comments'
 
 import Image from "next/image";
 import Link from "next/link";
@@ -11,8 +10,9 @@ import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 import { useParams } from "next/navigation";
 import { getCookie } from "cookies-next";
 
-import { getToken } from "@/src/tool/getLoginUser"
-import { reportInfo, Status } from "@/src/tool/review"
+import { formatTimestamp } from "@/src/tool/formatTimestamp"
+import { getToken, getLoginUser } from "@/src/tool/getLoginUser"
+import { reportInfo, Status, } from "@/src/tool/review"
 
 // 发表评论
 const publishComment = async (content, root, parent, dialog, creaitonId, token) => {
@@ -86,13 +86,16 @@ const deleteComment = async (comment_id, creation_id, token) => {
 
 const CommentBox = () => {
     const creation = useParams()
-    const creationId = creation.creationId
+    const { creationId } = creation
+
+    const [loginUser, setUser] = useState(null)
 
     // 评论区相关
     const [area, setArea] = useState({})// 评论区信息，评论总数，评论区状态
     const [pageCount, setPageCount] = useState(0) // 一级评论总数
     const [page, setPage] = useState(1)// 页
     const [topComments, setTopComments] = useState([])// 一级评论
+    const [isLoading, setIsLoading] = useState(false)
 
     // 用于直接评论
     const [info, setInfo] = useState({
@@ -125,6 +128,12 @@ const CommentBox = () => {
         ...obj,
     })), [])
 
+    const scrollAddPage = useCallback(() => {
+        if (isLoading || page + 1 > pageCount) return;
+        setIsLoading(true)
+        setPage(page + 1)
+    }, [isLoading, page, pageCount])
+
     // 初始化评论
     const initialComments = useCallback(async (creationId) => {
         try {
@@ -142,10 +151,10 @@ const CommentBox = () => {
             const result = await response.json()
             const { area, comments, pageCount } = result
             setPageCount(pageCount)
-            setTopComments([...comments])
+            setTopComments(comments)
             setArea({
-                count: area.totalComments,
-                status: area.areaStatus,
+                count: area ? area.totalComments : 0,
+                status: area ? area.areaStatus : "DEFAULT",
             })
 
             return "OK"
@@ -177,24 +186,6 @@ const CommentBox = () => {
         }
     }, [])
 
-    const getMoreTopComments = useCallback(() => {
-        console.log("getMore")
-
-        if (page >= pageCount) return
-        getTopComments(creationId, page + 1)
-            .then((result) => {
-                if (!result) return;
-                const { msg, comments } = result
-                const status = msg.status;
-                if (status != "SUCCESS") return;
-
-                // 追加评论
-                setPage(page + 1)
-                setTopComments((prev) => ([...prev, ...comments]))
-            })
-            .catch((error) => console.log("error: getMoreTopComments " + error))
-    }, [creationId, pageCount, page, setPage, setTopComments, getTopComments])
-
     const publishTopComment = useCallback(async () => {
         const { root, parent, dialog, content, creationId, token } = info
         await publishComment(content, root, parent, dialog, creationId, token)
@@ -216,22 +207,62 @@ const CommentBox = () => {
     }, [creationId, initialComments])
 
     useEffect(() => {
-        console.log(topComments.length)
-        console.log(topComments)
-    }, [topComments])
+        if (page > pageCount || page <= 1) return
+        setIsLoading(true)
+        getTopComments(creationId, page)
+            .then((result) => {
+                if (!result) return;
+                const { msg, comments } = result
+                const status = msg.status;
+                if (status != "SUCCESS") return;
+
+                // 追加评论
+                setTopComments((prev) => ([...prev, ...comments]))
+            })
+            .catch((error) => console.log("error: getMoreTopComments " + error))
+        setTimeout(() => setIsLoading(false), 1500)
+    }, [creationId, pageCount, page, getTopComments])
+
+    useEffect(() => {
+        getLoginUser()
+            .then((result) => setUser(result))
+            .catch((error) => console.log("getLoginUser error " + error))
+    }, [])
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (isLoading || page > pageCount) return; // 避免多余的监听
+
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const windowHeight = window.innerHeight;
+            const fullHeight = document.documentElement.scrollHeight;
+
+            if (scrollTop + windowHeight >= fullHeight * 0.95) {
+                scrollAddPage();
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, [isLoading, page, pageCount, scrollAddPage]);
+
+    useEffect(() => console.log(topComments.length + " ; " + page), [topComments, page])
 
     return <div className="comment-box">
         <div className="h2">
             <h2 style={{ display: 'inline-block' }}>评论</h2>
-            <span style={{ margin: '5px 0 0 8px', color: 'rgb(162, 166, 172)', }}>
-                {area.count}
+            <span style={{ margin: '5px 0 0 12px', color: 'rgb(162, 166, 172)', fontSize: '19px' }}>
+                {area.count || 0}
             </span>
         </div>
 
         {/* 评论区开始 */}
         <div className="comments-domain" style={{ marginTop: '20px', borderBottom: '0' }}>
             <div className="comment-one" style={{ pointerEvents: 'none' }}>
-                <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+                <Avatar src={loginUser ? loginUser.avatar : '/img/slience.jpg'} height="56px" width="56px" />
             </div>
             <div className="comment-two">
                 <div
@@ -257,42 +288,35 @@ const CommentBox = () => {
                 </div>
             </div>
         </div>
-        {Comments.filter(value => value.parent === value.root && value.root === 0).map((commentOne, i) => (
-            <TopCommentList handleReplyField={handleReplyField} commentOne={commentOne} reply={reply} key={i} />
+        {topComments.map((commentTop, i) => (
+            <TopCommentList handleReplyField={handleReplyField} commentTop={commentTop} reply={reply} key={i} />
         ))}
-        <div style={{ color: 'rgb(148, 153, 160)', fontSize: '14px' }}>
-            <button onClick={getMoreTopComments}
-                style={{
-                    cursor: 'pointer',
-                    display: 'inline-block',
-                    position: 'relative',
-                    backgroundColor: 'transparent',
-                    color: 'inherit',
-                    fontSize: 'inherit',
-                    margin: '8px',
-                    letterSpacing: '2px',
-                    fontSize: '16px',
-                    pointerEvents: page < pageCount ? 'auto' : 'none'
-                }}>
-                {page < pageCount ? "更多评论" : "已到底"}
-            </button>
-        </div>
+        {page >= pageCount && <div className="nomore">
+            没有更多评论
+        </div>}
     </div >
 }
 
 // 一级评论列表
-const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
+const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
+    const { commentUser, topComment } = commentTop;
+    const { comment } = topComment
+    const { commentId, userId, content, createdAt } = comment
+    const { userDefault, userAvatar } = commentUser
+    const { userName } = userDefault
+
     const [isHover, setIsHover] = useState(false);
     const [isOpen, setOpen] = useState(false)
     const triggerRef = useRef();
 
-    const param = useParams()
+    const creation = useParams()
+    const { creationId } = creation
 
-    const id = commentOne.id
+    const id = commentId
     const root = id
     const parent = root
     const dialog = -1
-    const parentName = commentOne.name
+    const parentName = userName
 
     // 举报
     const [report, setReport] = useState({
@@ -331,31 +355,37 @@ const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
     // 删除评论
     const delComment = useCallback(async () => {
         const token = await getToken()
-        deleteComment(id, param.creationId, token)
-    }, [id, param])
+        deleteComment(id, creationId, token)
+    }, [id, creationId])
 
     return (
         <div className="comments-domain">
             <div className="comment-one"
-                onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
-                <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+                onMouseEnter={() => setIsHover(true)}
+                onMouseLeave={() => setIsHover(false)}
+            >
+                <Avatar src={userAvatar || "/img/slience.jpg"}
+                    height="56px" width="56px"
+                    userId={userId}
+                />
             </div>
             <div className="comment-two" >
                 <div className="name"
                     onMouseEnter={() => setIsHover(true)}
                     onMouseLeave={() => setIsHover(false)}
                 >
-                    <span>{commentOne.name}</span></div>
+                    <span style={{ color: 'rgb(111,116,122)' }}>{userName}</span>
+                </div>
                 <div className="content"
                     onMouseEnter={() => setIsHover(true)}
                     onMouseLeave={() => setIsHover(false)}
                 >
-                    {commentOne.content}</div>
+                    {content}</div>
                 <div className="additional"
                     onMouseEnter={() => setIsHover(true)}
                     onMouseLeave={() => setIsHover(false)}
                 >
-                    <span className="time">{commentOne.time}</span>
+                    <span className="time">{formatTimestamp(createdAt)}</span>
                     <button className="reply"
                         onClick={setReplyFields}
                     >回复</button>
@@ -400,57 +430,31 @@ const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
                 </div>
 
                 {/* 二级评论列表 */}
-                <SecondCommentList commentOne={commentOne} handleReplyField={handleReplyField} />
+                <SecondCommentList commentTop={commentTop} handleReplyField={handleReplyField} />
 
-                {commentOne.id === reply.root && <SelfSpeak reply={reply} handleReplyField={handleReplyField} />}
+                {id === reply.root && <SelfSpeak reply={reply} handleReplyField={handleReplyField} />}
             </div>
         </div>
     );
 }
 
 // 二级评论列表
-const SecondCommentList = ({ commentOne, handleReplyField }) => {
-    const [pageCount, setPageCount] = useState(0) // 一级评论总数
-    const [page, setPage] = useState(1)// 页
-    const [topComments, setTopComments] = useState([])// 一级评论
+const SecondCommentList = ({ commentTop, handleReplyField }) => {
+    const { topComment } = commentTop;
+    const { comment, subCount } = topComment
+    const { commentId } = comment
 
-    const secondComments = Comments.filter(val => val.root === commentOne.id);
+    const params = useParams()
+    const { creationId } = params
+
+    const pageCount = Math.ceil(subCount / 10) // 楼层里的评论总数
+    const [page, setPage] = useState(-1)// 页
+    const [comments, setComments] = useState([])// 楼层里的评论
+
+    const id = commentId
+    const root = id
+
     const [open, setOpen] = useState(false);
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const commentsPerPage = 10; // 每页显示的评论数量
-
-    // 计算当前页显示的评论
-    const startIndex = (currentPage - 1) * commentsPerPage;
-    const currentComments = secondComments.slice(startIndex, startIndex + commentsPerPage);
-
-    // 计算总页数
-    const totalPages = Math.ceil(secondComments.length / commentsPerPage);
-
-    const initialSecondComments = useCallback(async (creationId, root, page) => {
-        try {
-            const response = await fetch(
-                `http://localhost:8080/api/watch/comments/second/${creationId}/${root}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-            if (!response.ok) {
-                console.log(response.error)
-                return null
-            }
-
-            const result = await response.json()
-            console.log(result)
-
-            return result
-        } catch (error) {
-            console.log(error)
-            return null
-        }
-    }, [])
 
     const getSecondComments = useCallback(async (creationId, root, page) => {
         try {
@@ -469,7 +473,6 @@ const SecondCommentList = ({ commentOne, handleReplyField }) => {
 
             const result = await response.json()
             console.log(result)
-
             return result
         } catch (error) {
             console.log(error)
@@ -477,11 +480,32 @@ const SecondCommentList = ({ commentOne, handleReplyField }) => {
         }
     }, [])
 
+    const changePageComments = useCallback((creationId, root, page) => {
+        console.log("changePage")
+
+        getSecondComments(creationId, root, page)
+            .then((result) => {
+                if (!result) return;
+                const { msg, comments } = result
+                const status = msg.status;
+                if (status != "SUCCESS") return;
+                console.log(comments)
+                // 改变评论
+                setComments(() => comments)
+            })
+            .catch((error) => console.log("error: getMoreTopComments " + error))
+    }, [setComments, getSecondComments])
+
+    useEffect(() => {
+        if (page <= 0) return;
+        changePageComments(creationId, root, page)
+    }, [creationId, root, page, changePageComments])
+
     return (
         <>
-            {!open && <div style={{ color: 'rgb(148, 153, 160)', fontSize: '14px' }}>
-                共 {secondComments.length} 条回复，
-                <button onClick={() => setOpen(true)} style={{
+            {subCount > 0 && !open && <div style={{ color: 'rgb(148, 153, 160)', fontSize: '14px' }}>
+                共 {subCount} 条回复，
+                <button onClick={() => { setOpen(true); setPage(1) }} style={{
                     cursor: 'pointer',
                     display: 'inline-block',
                     position: 'relative',
@@ -492,24 +516,24 @@ const SecondCommentList = ({ commentOne, handleReplyField }) => {
                     点击查看
                 </button>
             </div>}
-            {open && currentComments.map((comment, j) => (
-                <SecondComment handleReplyField={handleReplyField} comment={comment} key={j} />
+            {open && comments.map((comment, j) => (
+                <SecondComment handleReplyField={handleReplyField} commentSecond={comment} key={j} />
             ))}
 
             {/* 分页器 */}
-            {open && totalPages > 1 && <div className="pagination">
+            {open && pageCount > 1 && <div className="pagination">
                 <button
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
                 >
                     上一页
                 </button>
                 <span>
-                    第 {currentPage} 页 / 共 {totalPages} 页
+                    第 {page} 页 / 共 {pageCount} 页
                 </span>
                 <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={page === pageCount}
+                    onClick={() => setPage(page + 1)}
                 >
                     下一页
                 </button>
@@ -519,17 +543,29 @@ const SecondCommentList = ({ commentOne, handleReplyField }) => {
 }
 
 // 二级评论内容
-const SecondComment = ({ handleReplyField, comment }) => {
+const SecondComment = ({ handleReplyField, commentSecond }) => {
+    const { replyUser, secondComment } = commentSecond;
+    const replyName = replyUser.userDefault.userName
+    const replyUserId = replyUser.userDefault.userId
+
+    const { commentUser, comment } = secondComment;
+    const { commentId, userId, content, createdAt } = comment
+    const { userDefault, userAvatar } = commentUser
+    const { userName } = userDefault
+
     const [isHovered, setIsHovered] = useState(false);
     const triggerRef = useRef()
     const [isOpen, setOpen] = useState(false)
     const param = useParams()
 
-    const id = comment.id
+    const id = commentId
     const root = comment.root
-    const parent = comment.id
-    const dialog = comment.dialog
-    const parentName = comment.name
+    const parent = id
+    let dialog = comment.dialog
+    if (dialog == -1) {
+        dialog = id
+    }
+    const parentName = userName
 
     const setReplyFields = useCallback(() => {
         handleReplyField({
@@ -576,33 +612,37 @@ const SecondComment = ({ handleReplyField, comment }) => {
             onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
         >
             <div className="comment-second-one">
-                <Avatar src="/img/slience.jpg" height="36px" width="36px" />
+                <Avatar src={userAvatar || "/img/slience.jpg"}
+                    userId={userId}
+                    height="36px"
+                    width="36px"
+                />
             </div>
             <div className="comment-second-two">
                 <div className="second-speak">
                     <span className="name">
-                        <Link href="/" target="_blank"
-                            style={{ cursor: 'pointer', fontSize: 'inherit', color: 'black' }}>
-                            {comment.name}
+                        <Link href={`/space/${userId}`} target="_blank"
+                            style={{ cursor: 'pointer', fontSize: 'inherit', color: 'rgb(111,116,122)' }}>
+                            {userName}
                         </Link>
 
                         {comment.parent !== comment.root &&
                             <>
-                                <span href="/" target="_blank"
+                                <span href={`/space/${userId}`} target="_blank"
                                     style={{ fontSize: '15px', margin: '0 6px 0 8px', color: 'black' }}>
                                     回复
                                 </span>
-                                <Link href="/" target="_blank" className="link">
-                                    @{Comments.find(val => val.id === comment.parent).name}
+                                <Link href={`/space/${replyUserId}`} target="_blank" className="link">
+                                    @{replyName}
                                 </Link>
-                                <span style={{ position: 'relative', marginLeft: '4px', fontSize: '15px', color: 'black' }}>:</span>
                             </>
                         }
+                        <span style={{ position: 'relative', marginLeft: '4px', fontSize: '15px', color: 'black' }}>:</span>
                     </span>
-                    <span className="content">{comment.content}</span>
+                    <span className="content">{content}</span>
                 </div>
                 <div className="additional">
-                    <span className="time">{comment.time}</span>
+                    <span className="time">{formatTimestamp(createdAt)}</span>
                     <button className="reply"
                         onClick={setReplyFields}
                     >回复</button>
@@ -654,15 +694,23 @@ const SecondComment = ({ handleReplyField, comment }) => {
 
 // 回复框
 const SelfSpeak = ({ reply, handleReplyField }) => {
+    const [loginUser, setUser] = useState(null)
+
     const replyComment = useCallback(async () => {
         const { root, parent, dialog, content, creationId, token } = reply
         await publishComment(content, root, parent, dialog, creationId, token)
     }, [reply])
 
+    useEffect(() => {
+        getLoginUser()
+            .then((result) => setUser(result))
+            .catch((error) => console.log("getLoginUser error " + error))
+    }, [])
+
     return (
         <div className="self-reply">
             <div className="comment-one" style={{ pointerEvents: 'none' }}>
-                <Avatar src="/img/slience.jpg" height="56px" width="56px" />
+                <Avatar src={loginUser ? loginUser.avatar : '/img/slience.jpg'} height="56px" width="56px" />
             </div>
             <div className="comment-two">
                 <div
@@ -692,7 +740,7 @@ const SelfSpeak = ({ reply, handleReplyField }) => {
     );
 }
 
-const Avatar = ({ src, height, width }) => <Link href="/" target="_blank" style={{
+const Avatar = ({ userId, src, height, width }) => <Link href={`/space/${userId}`} target="_blank" style={{
     display: 'block',
     cursor: 'pointer',
     position: 'relative',
@@ -700,7 +748,7 @@ const Avatar = ({ src, height, width }) => <Link href="/" target="_blank" style=
     width: width,
     clipPath: 'circle(50%)',
 }}>
-    <Image src={src} quality={100} fill objectFit="cover" alt="" />
+    <Image src={src || "/img/slience.jpg"} quality={100} fill objectFit="cover" alt="" />
 </Link>
 
 export default CommentBox;

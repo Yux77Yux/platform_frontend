@@ -117,6 +117,10 @@
                     background-color: inherit;
                 }
 
+                & .time {
+                    color: rgb(148, 153, 160);
+                }
+
                 & .option {
                     background-color: inherit;
                     display: block;
@@ -224,7 +228,19 @@
         }
     }
 
-
+    & .nomore {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        height: 56px;
+        background-color: transparent;
+        width: 100%;
+        color: rgb(148, 153, 160);
+        cursor: pointer;
+        font-size: 16px;
+        letter-spacing: 2px;
+    }
 }
 
 .more-symbol-button-options {

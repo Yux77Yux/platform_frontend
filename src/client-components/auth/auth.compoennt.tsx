@@ -95,7 +95,7 @@ const Auth = () => {
 
                 localStorage.setItem('refreshToken', result.tokens.refreshToken.expiresAt);
                 localStorage.setItem('accessToken', result.tokens.accessToken.expiresAt);
-                localStorage.setItem('avatar', result.userLogin.userAvatar ?? "");
+                localStorage.setItem('avatar', result.userLogin.userAvatar || "");
 
                 window.location.reload();
             } else {

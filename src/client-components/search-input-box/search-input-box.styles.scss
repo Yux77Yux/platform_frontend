@@ -15,24 +15,32 @@
         margin: auto;
         height: 30px;
         width: 89%;
-        background-color: rgb(255, 255, 255, 0);
+        background-color: rgb(255, 255, 255);
         border-radius: 6px;
         color: black;
-        padding-right: 3%;
 
         &:focus-within {
             background-color: rgba(227, 229, 231, 0.6);
         }
 
-        & input{
+        & input {
             display: block;
             position: relative;
             height: 100%;
             width: 100%;
             font-size: 16px;
+            border-radius: 6px;
+            padding-left: 8px;
 
-            &:not(:placeholder-shown)+.cross-mark {
-                display: block;
+            &:not(:placeholder-shown) {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+
+                &+.cross-mark {
+                    display: block;
+                    border-top-right-radius: 6px;
+                    border-bottom-right-radius: 6px;
+                }
             }
         }
 
@@ -41,14 +49,15 @@
             position: relative;
             margin: auto;
             cursor: pointer;
-            height: 15px;
+            height: 30px;
             width: 15px;
+            background-color: #fff;
             background-image: url('../../assets/icons8-cross-mark-50.png');
             background-repeat: no-repeat;
-            background-size: cover;
+            background-size: 15px;
             background-position: center;
-            border-radius: 25px;
-    
+            padding-right: 30px;
+
             &:hover {
                 background-image: url('../../assets/icons8-cross-mark-51.png');
             }

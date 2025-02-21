@@ -13,6 +13,40 @@ export const getToken = async () => {
     }
 };
 
+export const getLoginUser = async () => {
+    if (typeof window !== "undefined") {
+        // 浏览器端获取 Cookie
+        const { getCookie } = await import("cookies-next")
+
+        const loginUser = getCookie("loginUser");
+        if (!loginUser) {
+            console.log("not login");
+            return null;
+        }
+        try {
+            return JSON.parse(loginUser);
+        } catch (e) {
+            console.error("Failed to parse loginUser cookie:", e);
+            return null;
+        }
+    } else {
+        // **服务器端** 获取 Cookie（动态引入 next/headers，避免 Next.js 解析时出错）
+        const { cookies } = await import("next/headers");
+        const loginUser = (await cookies()).get('loginUser');
+
+        if (!loginUser) {
+            console.log("not login");
+            return null;
+        }
+        try {
+            return JSON.parse(loginUser.value); // `cookies().get()` 返回 `{ name, value }`
+        } catch (e) {
+            console.error("Failed to parse loginUser cookie:", e);
+            return null;
+        }
+    }
+}
+
 // 解析 JWT 获取 userId
 export const getLoginUserId = async () => {
     const token = await getToken();

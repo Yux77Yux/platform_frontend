@@ -156,7 +156,7 @@ const Page = () => {
                 <div className="creation-left-title">{videoInfo.title}</div>
                 <div className="creation-additional-info">
                     <span className="video-icon"></span><span className="views">{videoInfo.views}</span>
-                    <span className="time">{videoInfo.uploadTime ?? videoInfo.time}</span>
+                    <span className="time">{videoInfo.uploadTime || videoInfo.time}</span>
                 </div>
                 <div className="video-player">
                     <video key={videoInfo.src} className="video-element" autoPlay={false} controls>
