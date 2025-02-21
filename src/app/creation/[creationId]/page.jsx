@@ -20,7 +20,6 @@ const Page = () => {
     const creationParams = useParams()
     const creationId = creationParams.creationId
 
-
     const [loginId, setLoginId] = useState()
     const [isHover, setHover] = useState(false)
 
@@ -94,8 +93,6 @@ const Page = () => {
             }
 
             const result = await response.json()
-            console.log(result)
-
             return result
         } catch (error) {
             console.log(error)

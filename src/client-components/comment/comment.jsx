@@ -31,6 +31,7 @@ const publishComment = async (content, root, parent, dialog, creaitonId, token) 
                 value: token,
             },
         }
+        console.log(body)
         const response = await fetch("http://localhost:8080/api/comment", {
             method: "POST",
             headers: {
@@ -87,8 +88,11 @@ const CommentBox = () => {
     const creation = useParams()
     const creationId = creation.creationId
 
-    // 页总数
-    // const [pageCount, setCount] = useState(0)
+    // 评论区相关
+    const [area, setArea] = useState({})// 评论区信息，评论总数，评论区状态
+    const [pageCount, setPageCount] = useState(0) // 一级评论总数
+    const [page, setPage] = useState(1)// 页
+    const [topComments, setTopComments] = useState([])// 一级评论
 
     // 用于直接评论
     const [info, setInfo] = useState({
@@ -136,9 +140,15 @@ const CommentBox = () => {
             }
 
             const result = await response.json()
-            console.log(result)
+            const { area, comments, pageCount } = result
+            setPageCount(pageCount)
+            setTopComments([...comments])
+            setArea({
+                count: area.totalComments,
+                status: area.areaStatus,
+            })
 
-            return result
+            return "OK"
         } catch (error) {
             console.log(error)
             return null
@@ -160,14 +170,30 @@ const CommentBox = () => {
             }
 
             const result = await response.json()
-            console.log(result)
-
             return result
         } catch (error) {
             console.log(error)
             return null
         }
     }, [])
+
+    const getMoreTopComments = useCallback(() => {
+        console.log("getMore")
+
+        if (page >= pageCount) return
+        getTopComments(creationId, page + 1)
+            .then((result) => {
+                if (!result) return;
+                const { msg, comments } = result
+                const status = msg.status;
+                if (status != "SUCCESS") return;
+
+                // 追加评论
+                setPage(page + 1)
+                setTopComments((prev) => ([...prev, ...comments]))
+            })
+            .catch((error) => console.log("error: getMoreTopComments " + error))
+    }, [creationId, pageCount, page, setPage, setTopComments, getTopComments])
 
     const publishTopComment = useCallback(async () => {
         const { root, parent, dialog, content, creationId, token } = info
@@ -189,11 +215,16 @@ const CommentBox = () => {
         initialComments(creationId)
     }, [creationId, initialComments])
 
+    useEffect(() => {
+        console.log(topComments.length)
+        console.log(topComments)
+    }, [topComments])
+
     return <div className="comment-box">
         <div className="h2">
             <h2 style={{ display: 'inline-block' }}>评论</h2>
             <span style={{ margin: '5px 0 0 8px', color: 'rgb(162, 166, 172)', }}>
-                {Comments.length}
+                {area.count}
             </span>
         </div>
 
@@ -229,7 +260,24 @@ const CommentBox = () => {
         {Comments.filter(value => value.parent === value.root && value.root === 0).map((commentOne, i) => (
             <TopCommentList handleReplyField={handleReplyField} commentOne={commentOne} reply={reply} key={i} />
         ))}
-    </div>
+        <div style={{ color: 'rgb(148, 153, 160)', fontSize: '14px' }}>
+            <button onClick={getMoreTopComments}
+                style={{
+                    cursor: 'pointer',
+                    display: 'inline-block',
+                    position: 'relative',
+                    backgroundColor: 'transparent',
+                    color: 'inherit',
+                    fontSize: 'inherit',
+                    margin: '8px',
+                    letterSpacing: '2px',
+                    fontSize: '16px',
+                    pointerEvents: page < pageCount ? 'auto' : 'none'
+                }}>
+                {page < pageCount ? "更多评论" : "已到底"}
+            </button>
+        </div>
+    </div >
 }
 
 // 一级评论列表
@@ -285,31 +333,6 @@ const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
         const token = await getToken()
         deleteComment(id, param.creationId, token)
     }, [id, param])
-
-    const getSecondComments = useCallback(async (creationId, root, page) => {
-        try {
-            const response = await fetch(
-                `http://localhost:8080/api/watch/comments/seconds/${creationId}/${root}/${page}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-            if (!response.ok) {
-                console.log(response.error)
-                return null
-            }
-
-            const result = await response.json()
-            console.log(result)
-
-            return result
-        } catch (error) {
-            console.log(error)
-            return null
-        }
-    }, [])
 
     return (
         <div className="comments-domain">
@@ -387,6 +410,10 @@ const TopCommentList = ({ handleReplyField, commentOne, reply }) => {
 
 // 二级评论列表
 const SecondCommentList = ({ commentOne, handleReplyField }) => {
+    const [pageCount, setPageCount] = useState(0) // 一级评论总数
+    const [page, setPage] = useState(1)// 页
+    const [topComments, setTopComments] = useState([])// 一级评论
+
     const secondComments = Comments.filter(val => val.root === commentOne.id);
     const [open, setOpen] = useState(false);
 
@@ -399,6 +426,56 @@ const SecondCommentList = ({ commentOne, handleReplyField }) => {
 
     // 计算总页数
     const totalPages = Math.ceil(secondComments.length / commentsPerPage);
+
+    const initialSecondComments = useCallback(async (creationId, root, page) => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/watch/comments/second/${creationId}/${root}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+            if (!response.ok) {
+                console.log(response.error)
+                return null
+            }
+
+            const result = await response.json()
+            console.log(result)
+
+            return result
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }, [])
+
+    const getSecondComments = useCallback(async (creationId, root, page) => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/watch/comments/second/${creationId}/${root}/${page}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+            if (!response.ok) {
+                console.log(response.error)
+                return null
+            }
+
+            const result = await response.json()
+            console.log(result)
+
+            return result
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }, [])
 
     return (
         <>
