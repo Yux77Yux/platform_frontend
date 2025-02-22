@@ -4,6 +4,8 @@ import "./comment.scss"
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import TextPrompt from "@/src/client-components/prompt/TextPrompt"
 import MenuPortal from "@/src/client-components/menu-portal/menu-portal"
 import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
@@ -15,7 +17,7 @@ import { getToken, getLoginUser } from "@/src/tool/getLoginUser"
 import { reportInfo, Status, } from "@/src/tool/review"
 
 // 发表评论
-const publishComment = async (content, root, parent, dialog, creaitonId, token) => {
+const publishComment = async (content, root, parent, dialog, creaitonId, createdAt, token) => {
     try {
         if (!content) return null;
 
@@ -26,12 +28,13 @@ const publishComment = async (content, root, parent, dialog, creaitonId, token) 
                 dialog: dialog,
                 content: content,
                 creationId: creaitonId,
+                createdAt: createdAt,
             },
             accessToken: {
                 value: token,
             },
         }
-        console.log(body)
+
         const response = await fetch("http://localhost:8080/api/comment", {
             method: "POST",
             headers: {
@@ -47,7 +50,9 @@ const publishComment = async (content, root, parent, dialog, creaitonId, token) 
         const result = await response.json()
         console.log(result)
 
-        return result
+        if (result.msg.status != "SUCESS" && result.msg.status != "PENDING") return false
+
+        return true
     } catch (error) {
         console.log(error)
     }
@@ -85,6 +90,7 @@ const deleteComment = async (comment_id, creation_id, token) => {
 }
 
 const CommentBox = () => {
+    const [promptIsOpen, setPromptOpen] = useState(false)
     const creation = useParams()
     const { creationId } = creation
 
@@ -117,6 +123,8 @@ const CommentBox = () => {
         creationId: "",
 
         parentName: "",
+        parentUserId: "",
+        parentUserAvatar: "",
     })
 
     const handleField = useCallback((obj) => setInfo((prev) => ({
@@ -188,8 +196,37 @@ const CommentBox = () => {
 
     const publishTopComment = useCallback(async () => {
         const { root, parent, dialog, content, creationId, token } = info
-        await publishComment(content, root, parent, dialog, creationId, token)
-    }, [info])
+        const createdAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+        const newComment = {
+            commentUser: {
+                userBio: '',
+                userAvatar: loginUser ? loginUser.avatar : '/img/slience.jpg',
+                userDefault: {
+                    userId: loginUser ? loginUser.id : -1,
+                    userName: loginUser ? loginUser.name : '',
+                },
+            },
+            topComment: {
+                comment: {
+                    commentId: -5555,
+                    content: content,
+                    root: 0,
+                    parent: 0,
+                    dialog: 0,
+                    media: "",
+                    userId: loginUser ? loginUser.id : -1,
+                    createdAt: createdAt,
+                },
+                subCount: 0,
+            }
+        }
+
+        const ok = await publishComment(content, root, parent, dialog, creationId, createdAt, token)
+        if (!ok) return;
+        setPromptOpen(true)
+        setTopComments((prev) => [newComment, ...prev])
+
+    }, [info, loginUser])
 
     useEffect(() => {
         const accessToken = getCookie('accessToken');
@@ -249,9 +286,8 @@ const CommentBox = () => {
         };
     }, [isLoading, page, pageCount, scrollAddPage]);
 
-    useEffect(() => console.log(topComments.length + " ; " + page), [topComments, page])
-
     return <div className="comment-box">
+        {promptIsOpen && <TextPrompt setOpen={setPromptOpen} />}
         <div className="h2">
             <h2 style={{ display: 'inline-block' }}>评论</h2>
             <span style={{ margin: '5px 0 0 12px', color: 'rgb(162, 166, 172)', fontSize: '19px' }}>
@@ -304,6 +340,8 @@ const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
     const { commentId, userId, content, createdAt } = comment
     const { userDefault, userAvatar } = commentUser
     const { userName } = userDefault
+
+    const time = formatTimestamp(createdAt)
 
     const [isHover, setIsHover] = useState(false);
     const [isOpen, setOpen] = useState(false)
@@ -385,7 +423,7 @@ const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
                     onMouseEnter={() => setIsHover(true)}
                     onMouseLeave={() => setIsHover(false)}
                 >
-                    <span className="time">{formatTimestamp(createdAt)}</span>
+                    <span className="time">{time}</span>
                     <button className="reply"
                         onClick={setReplyFields}
                     >回复</button>
@@ -430,23 +468,22 @@ const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
                 </div>
 
                 {/* 二级评论列表 */}
-                <SecondCommentList commentTop={commentTop} handleReplyField={handleReplyField} />
-
-                {id === reply.root && <SelfSpeak reply={reply} handleReplyField={handleReplyField} />}
+                <SecondCommentList reply={reply} commentTop={commentTop} handleReplyField={handleReplyField} />
             </div>
         </div>
     );
 }
 
 // 二级评论列表
-const SecondCommentList = ({ commentTop, handleReplyField }) => {
+const SecondCommentList = ({ reply, commentTop, handleReplyField }) => {
     const { topComment } = commentTop;
-    const { comment, subCount } = topComment
+    const { comment } = topComment
     const { commentId } = comment
 
     const params = useParams()
     const { creationId } = params
 
+    const [subCount, setSubCount] = useState(topComment.subCount || 0)
     const pageCount = Math.ceil(subCount / 10) // 楼层里的评论总数
     const [page, setPage] = useState(-1)// 页
     const [comments, setComments] = useState([])// 楼层里的评论
@@ -472,7 +509,6 @@ const SecondCommentList = ({ commentTop, handleReplyField }) => {
             }
 
             const result = await response.json()
-            console.log(result)
             return result
         } catch (error) {
             console.log(error)
@@ -489,17 +525,22 @@ const SecondCommentList = ({ commentTop, handleReplyField }) => {
                 const { msg, comments } = result
                 const status = msg.status;
                 if (status != "SUCCESS") return;
-                console.log(comments)
                 // 改变评论
                 setComments(() => comments)
             })
             .catch((error) => console.log("error: getMoreTopComments " + error))
     }, [setComments, getSecondComments])
 
+    const pushComment = useCallback((newComment) => {
+        setComments((prev) => [...prev, newComment])
+    }, [])
+
     useEffect(() => {
         if (page <= 0) return;
         changePageComments(creationId, root, page)
     }, [creationId, root, page, changePageComments])
+
+    useEffect(() => { if (comments.length > 0) console.log(comments) }, [comments])
 
     return (
         <>
@@ -538,6 +579,8 @@ const SecondCommentList = ({ commentTop, handleReplyField }) => {
                     下一页
                 </button>
             </div>}
+            {/* 回复插入仍未拿到数据库回来的id，所以回复自己新评论是不可以的 */}
+            {id > 0 && id === reply.root && <SelfSpeak pushComment={pushComment} reply={reply} handleReplyField={handleReplyField} subCount={subCount} setSubCount={setSubCount} />}
         </>
     );
 }
@@ -545,13 +588,21 @@ const SecondCommentList = ({ commentTop, handleReplyField }) => {
 // 二级评论内容
 const SecondComment = ({ handleReplyField, commentSecond }) => {
     const { replyUser, secondComment } = commentSecond;
-    const replyName = replyUser.userDefault.userName
-    const replyUserId = replyUser.userDefault.userId
+    let replyName = replyUser.userDefault.userName
+    let replyUserId = replyUser.userDefault.userId
 
     const { commentUser, comment } = secondComment;
     const { commentId, userId, content, createdAt } = comment
     const { userDefault, userAvatar } = commentUser
     const { userName } = userDefault
+
+    const commentParent = comment.parent; // 指评论的回复的id
+    if (commentParent <= 0) {
+        replyName = userName
+        replyUserId = userId
+    }
+
+    const time = formatTimestamp(createdAt)
 
     const [isHovered, setIsHovered] = useState(false);
     const triggerRef = useRef()
@@ -574,8 +625,11 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
             dialog: dialog,
             parentName: parentName,
             content: null,
+
+            parentUserId: userId,
+            parentUserAvatar: userAvatar,
         })
-    }, [handleReplyField, root, parent, dialog, parentName])
+    }, [handleReplyField, root, parent, dialog, parentName, userId, userAvatar])
 
     // 举报
     const [report, setReport] = useState({
@@ -642,7 +696,7 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
                     <span className="content">{content}</span>
                 </div>
                 <div className="additional">
-                    <span className="time">{formatTimestamp(createdAt)}</span>
+                    <span className="time">{time}</span>
                     <button className="reply"
                         onClick={setReplyFields}
                     >回复</button>
@@ -693,13 +747,55 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
 }
 
 // 回复框
-const SelfSpeak = ({ reply, handleReplyField }) => {
+const SelfSpeak = ({ pushComment, reply, handleReplyField, subCount, setSubCount }) => {
+    const [promptIsOpen, setPromptOpen] = useState(false)
     const [loginUser, setUser] = useState(null)
 
     const replyComment = useCallback(async () => {
-        const { root, parent, dialog, content, creationId, token } = reply
-        await publishComment(content, root, parent, dialog, creationId, token)
-    }, [reply])
+        const { root, parent, dialog, content, creationId, token, parentName, parentUserId, parentUserAvatar } = reply
+        const createdAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+        const newComment = {
+            replyUser: {
+                userBio: '',
+                userAvatar: parentUserAvatar || '/img/slience.jpg',
+                userDefault: {
+                    userId: parentUserId,
+                    userName: parentName || '',
+                },
+            },
+            secondComment: {
+                commentUser: {
+                    userBio: '',
+                    userAvatar: loginUser ? loginUser.avatar : '/img/slience.jpg',
+                    userDefault: {
+                        userId: loginUser ? loginUser.id : -1,
+                        userName: loginUser ? loginUser.name : '',
+                    },
+                },
+                comment: {
+                    commentId: 0,
+                    content: content,
+                    root: root,
+                    parent: parent,
+                    dialog: dialog,
+                    media: "",
+                    creationId: creationId,
+                    userId: loginUser ? loginUser.id : -1,
+                    createdAt: createdAt,
+                },
+            },
+        }
+
+        const ok = await publishComment(content, root, parent, dialog, creationId, createdAt, token)
+        if (!ok) return;
+        setPromptOpen(true)
+        pushComment(newComment)
+        const initialState = {
+            content: null,
+        }
+        handleReplyField(initialState)
+        setSubCount(subCount + 1)
+    }, [pushComment, loginUser, reply, handleReplyField, setSubCount, subCount])
 
     useEffect(() => {
         getLoginUser()
@@ -708,35 +804,38 @@ const SelfSpeak = ({ reply, handleReplyField }) => {
     }, [])
 
     return (
-        <div className="self-reply">
-            <div className="comment-one" style={{ pointerEvents: 'none' }}>
-                <Avatar src={loginUser ? loginUser.avatar : '/img/slience.jpg'} height="56px" width="56px" />
-            </div>
-            <div className="comment-two">
-                <div
-                    contentEditable="true"
-                    ref={(div) => {
-                        if (div && div.innerText !== reply.content) {
-                            div.innerText = reply.content; // 保持内容同步
-                        }
-                    }}
-                    onInput={(event) => {
-                        const newContent = event.target.innerText;
-                        handleReplyField({ content: newContent });
-                        const trim = newContent.trim();
-                        if (trim === '' && trim.length === 0) {
-                            handleReplyField({ content: null });
-                        }
-                    }}
-                    className="editor-comment"
-                    data-placeholder={`回复 @${reply.parentName}:`}
-                >
+        <>
+            {promptIsOpen && <TextPrompt setOpen={setPromptOpen} />}
+            <div className="self-reply">
+                <div className="comment-one" style={{ pointerEvents: 'none' }}>
+                    <Avatar src={loginUser ? loginUser.avatar : '/img/slience.jpg'} height="56px" width="56px" />
                 </div>
-                <div className="publish-btn">
-                    <button className="btn" onClick={replyComment}>发布</button>
+                <div className="comment-two">
+                    <div
+                        contentEditable="true"
+                        ref={(div) => {
+                            if (div && div.innerText !== reply.content) {
+                                div.innerText = reply.content; // 保持内容同步
+                            }
+                        }}
+                        onInput={(event) => {
+                            const newContent = event.target.innerText;
+                            handleReplyField({ content: newContent });
+                            const trim = newContent.trim();
+                            if (trim === '' && trim.length === 0) {
+                                handleReplyField({ content: null });
+                            }
+                        }}
+                        className="editor-comment"
+                        data-placeholder={`回复 @${reply.parentName}:`}
+                    >
+                    </div>
+                    <div className="publish-btn">
+                        <button className="btn" onClick={replyComment}>发布</button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
 

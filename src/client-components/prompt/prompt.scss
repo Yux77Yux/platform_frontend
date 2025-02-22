@@ -1,0 +1,8 @@
+.prompt {
+    position: fixed;
+    top: 60px; /* 距离视口顶部 300px */
+    left: 50%; /* 水平居中 */
+    transform: translateX(-50%); /* 确保完全居中 */
+    min-height: 80px;
+    z-index: 1000; /* 确保在其他元素之上 */
+}
