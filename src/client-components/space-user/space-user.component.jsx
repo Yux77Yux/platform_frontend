@@ -9,21 +9,13 @@ import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
 import { Status, reportInfo } from "@/src/tool/review"
 
-interface PropsType {
-    user: {
-        userDefault: { userName: string, userId: string };
-        userAvatar: string;
-        userBio: string;
-    };
-    master: boolean
-}
 
-const SpaceUser = (props: PropsType) => {
+const SpaceUser = (props) => {
     const { user, master } = props;
     const { userAvatar, userDefault, userBio } = user;
     const { userName, userId } = userDefault;
 
-    const avatar = userAvatar === "" ? "/img/slience.jpg" : userAvatar
+    const avatar = userAvatar ? userAvatar : "/img/slience.jpg"
 
     const [isOpen, setOpen] = useState(false)
     const [report, setReport] = useState({

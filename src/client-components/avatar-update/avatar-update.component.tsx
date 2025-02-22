@@ -87,7 +87,7 @@ const AvatarUpdate = () => {
     useEffect(() => {
         const { user } = data.space;
         const { userAvatar } = user;
-        const avatar = userAvatar === "" ? "/img/slience.jpg" : userAvatar;
+        const avatar = userAvatar || "/img/slience.jpg";
 
         localStorage.setItem("avatar", avatar);
 

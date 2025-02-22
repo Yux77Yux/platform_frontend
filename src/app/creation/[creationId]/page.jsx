@@ -3,7 +3,7 @@
 
 import "./page.scss";
 import { getAddress } from "@/src/tool/getIp"
-import { getLoginUserId } from "@/src/tool/getLoginUser"
+import { getLoginUserId, getToken } from "@/src/tool/getLoginUser"
 import { Status, reportInfo } from "@/src/tool/review"
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
 
@@ -15,10 +15,21 @@ import CommentBox from "@/src/client-components/comment/comment"
 import MenuPortal from "@/src/client-components/menu-portal/menu-portal"
 import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
+// 处理
+const Interaction = () => {
+
+}
+
 const Page = () => {
+    const [isPageLoading, setPageLoading] = useState(true)
     const triggerRef = useRef()
     const creationParams = useParams()
-    const creationId = creationParams.creationId
+    const { creationId } = creationParams
+
+    const [interaction, setInteraction] = useState({
+        isLike: false,
+        isCollection: false,
+    })
 
     const [loginId, setLoginId] = useState()
     const [isHover, setHover] = useState(false)
@@ -50,6 +61,7 @@ const Page = () => {
         setReport((prev) => ({ ...prev, isOpen: state }))
     }, [setReport])
 
+
     const [recommends, setRecommends] = useState([
         {
             src: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5%2F%5B+%5D%2F1-CATACLYSM+-+%E6%9A%97%E5%BD%B1%E6%A0%BC%E6%96%97+2+%5BEdit+GMV%5D-480P+%E6%B8%85%E6%99%B0-AVC.Cover.jpg",
@@ -77,7 +89,7 @@ const Page = () => {
 
 
     // 初始化视频信息
-    const fetCreation = useCallback(async (creationId) => {
+    const fetchCreation = useCallback(async (creationId) => {
         try {
             const ip = await getAddress()
             const response = await fetch(`http://localhost:8080/api/watch/${creationId}`, {
@@ -100,13 +112,47 @@ const Page = () => {
         }
     }, [])
 
+    // 初始化用户的动作行为
+    const fetchInteraction = useCallback(async (creationId, token) => {
+        const body = {
+            accessToken: {
+                value: token
+            },
+            base: {
+                creationId: creationId,
+            },
+        }
+        try {
+            const response = await fetch("http://localhost:8080/api/interaction", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body)
+            })
+            if (!response.ok) {
+                console.log("api/interaction error")
+                return false
+            }
+            const result = await response.json()
+            const status = result.msg.status
+            if (status != "SUCCESS") return false
+            return result
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }, [])
+
     const reportCreation = useCallback(async () => {
         reportInfo(Status.CREATION, report.id, report.detail)
     }, [report])
 
+    // 获取视频
     useEffect(() => {
-        fetCreation(creationId)
+        fetchCreation(creationId)
             .then((result) => {
+                setPageLoading(false)
                 if (!result) return;
                 const { creationInfo, creationUser } = result
                 if (!creationInfo || !creationUser) return;
@@ -114,6 +160,7 @@ const Page = () => {
                 const { uploadTime, baseInfo } = creation
                 const { authorId, bio, src, thumbnail, title, status, duration } = baseInfo
                 const { views, saves, likes, publishTime } = creationEngagement
+
                 const video = {
                     uploadTime: formatTimestamp(uploadTime),
                     authorId: authorId,
@@ -148,7 +195,40 @@ const Page = () => {
             .then((loginId) => setLoginId(loginId))
 
         setReport((prev) => ({ ...prev, id: creationId }))
-    }, [fetCreation, creationId, setLoginId])
+    }, [fetchCreation, creationId, setLoginId])
+
+    // 获取交互
+    useEffect(() => {
+        const execute = async () => {
+            const token = await getToken()
+            fetchInteraction(creationId, token)
+                .then((result) => {
+                    if (!result) return;
+                    const { actionTag } = result;
+                    let isLike = false
+                    let isCollection = false
+                    if (actionTag & 2 === 2) {
+                        isLike = true
+                    }
+                    if (actionTag & 4 === 4) {
+                        isCollection = true
+                    }
+                    setInteraction({
+                        isCollection: isCollection,
+                        isLike: isLike,
+                    })
+                    console.log("isLike:" + isLike)
+                    console.log("isCollection:" + isCollection)
+                })
+                .catch((error) => console.log("error: " + error))
+        }
+        execute()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+
+    if (isPageLoading) return null;
 
     return (
         <>
@@ -166,12 +246,14 @@ const Page = () => {
                 </div>
                 <div className="user-options">
                     <span className="likes">
-                        <Image src="/img/like.png" height={40} width={40} quality={100} alt="" />
-                        <span style={{ position: 'relative', marginLeft: "20px" }}>{videoInfo.likes}</span>
+                        <Image src={interaction.isLike ? "/img/like-active.png" : "/img/like.png"}
+                            height={40} width={40} quality={100} alt="" />
+                        <span className="text">{videoInfo.likes}</span>
                     </span>
                     <span className="saves">
-                        <Image src="/img/save.png" height={40} width={40} quality={100} alt="" />
-                        <span style={{ position: 'relative', marginLeft: "20px" }}>{videoInfo.saves}</span>
+                        <Image src={interaction.isLike ? "/img/save-active.png" : "/img/save.png"}
+                            height={40} width={40} quality={100} alt="" />
+                        <span className="text">{videoInfo.saves}</span>
                     </span>
                     {loginId === author.userId && <span className="master">
                         <button className="modify">编辑稿件</button>
@@ -204,7 +286,6 @@ const Page = () => {
                             </div>
                         </div>
                     </Modal>}
-
                 </div>
                 <div ><span className="bio">{videoInfo.bio}</span></div>
                 <CommentBox />
