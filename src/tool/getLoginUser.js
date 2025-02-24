@@ -60,7 +60,7 @@ export const getLoginUserId = async () => {
         const payload = JSON.parse(atob(base64));
 
         const userId = payload.userId ? BigInt(payload.userId) : payload.user_id ? BigInt(payload.user_id) : -1n;
-        return "" + userId
+        return userId
     } catch (error) {
         console.log("JWT 解析失败:", error);
         return -1;

@@ -14,7 +14,7 @@ const TextPrompt = ({ text, setOpen }) => {
                 borderRadius: '8px',
                 fontSize: '18px',
 
-            }}>{text}发布成功!</div>
+            }}>{text}</div>
         </Prompt>
     </>
 }

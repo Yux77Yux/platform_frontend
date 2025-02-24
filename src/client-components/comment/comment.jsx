@@ -13,13 +13,13 @@ import { useParams } from "next/navigation";
 import { getCookie } from "cookies-next";
 
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
-import { getToken, getLoginUser } from "@/src/tool/getLoginUser"
+import { getToken, getLoginUser, getLoginUserId } from "@/src/tool/getLoginUser"
 import { reportInfo, Status, } from "@/src/tool/review"
 
 // 发表评论
 const publishComment = async (content, root, parent, dialog, creaitonId, createdAt, token) => {
     try {
-        if (!content) return null;
+        if (!content || root < 0) return null;
 
         const body = {
             comment: {
@@ -80,17 +80,20 @@ const deleteComment = async (comment_id, creation_id, token) => {
             return null
         }
 
-        const result = await response.json()
-        console.log(result)
-
-        return result
+        return true
     } catch (error) {
         console.log(error)
+        return false
     }
 }
 
 const CommentBox = () => {
-    const [promptIsOpen, setPromptOpen] = useState(false)
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: "",
+    })
+    const [newId, setNewId] = useState(-1)
+    const setPromptOpen = (isOpen) => setTextPrompt((prev) => ({ ...prev, isOpen: isOpen }))
     const creation = useParams()
     const { creationId } = creation
 
@@ -117,8 +120,8 @@ const CommentBox = () => {
     const [reply, setReply] = useState({
         content: null,
         root: -1,    // 楼层id
-        parent: -1,  // 对话对象
-        dialog: -1,
+        parent: 0,  // 对话对象
+        dialog: 0,
         token: "",
         creationId: "",
 
@@ -135,6 +138,22 @@ const CommentBox = () => {
         ...prev,
         ...obj,
     })), [])
+
+    const updateSubCount = (commentId, newCount) => {
+        setTopComments((prevComments) =>
+            prevComments.map((commentTop) =>
+                commentTop.topComment.comment.commentId == commentId
+                    ? {
+                        ...commentTop,
+                        topComment: {
+                            ...commentTop.topComment,
+                            subCount: newCount
+                        }
+                    }
+                    : commentTop
+            )
+        );
+    };
 
     const scrollAddPage = useCallback(() => {
         if (isLoading || page + 1 > pageCount) return;
@@ -194,7 +213,7 @@ const CommentBox = () => {
         }
     }, [])
 
-    const publishTopComment = useCallback(async () => {
+    const publishTopComment = async () => {
         const { root, parent, dialog, content, creationId, token } = info
         const createdAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
         const newComment = {
@@ -208,7 +227,7 @@ const CommentBox = () => {
             },
             topComment: {
                 comment: {
-                    commentId: -5555,
+                    commentId: newId,
                     content: content,
                     root: 0,
                     parent: 0,
@@ -220,13 +239,13 @@ const CommentBox = () => {
                 subCount: 0,
             }
         }
+        setNewId(newId - 1)
 
         const ok = await publishComment(content, root, parent, dialog, creationId, createdAt, token)
         if (!ok) return;
-        setPromptOpen(true)
+        setTextPrompt({ isOpen: true, text: "发布成功" })
         setTopComments((prev) => [newComment, ...prev])
-
-    }, [info, loginUser])
+    }
 
     useEffect(() => {
         const accessToken = getCookie('accessToken');
@@ -287,7 +306,7 @@ const CommentBox = () => {
     }, [isLoading, page, pageCount, scrollAddPage]);
 
     return <div className="comment-box">
-        {promptIsOpen && <TextPrompt setOpen={setPromptOpen} />}
+        {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setPromptOpen} />}
         <div className="h2">
             <h2 style={{ display: 'inline-block' }}>评论</h2>
             <span style={{ margin: '5px 0 0 12px', color: 'rgb(162, 166, 172)', fontSize: '19px' }}>
@@ -324,8 +343,8 @@ const CommentBox = () => {
                 </div>
             </div>
         </div>
-        {topComments.map((commentTop, i) => (
-            <TopCommentList handleReplyField={handleReplyField} commentTop={commentTop} reply={reply} key={i} />
+        {topComments.map((commentTop) => (
+            <TopCommentList handleReplyField={handleReplyField} commentTop={commentTop} reply={reply} key={commentTop.topComment.comment.commentId} updateSubCount={updateSubCount} />
         ))}
         {page >= pageCount && <div className="nomore">
             没有更多评论
@@ -334,7 +353,8 @@ const CommentBox = () => {
 }
 
 // 一级评论列表
-const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
+const TopCommentList = ({ handleReplyField, commentTop, reply, updateSubCount }) => {
+    const [loginId, setLoginId] = useState()
     const { commentUser, topComment } = commentTop;
     const { comment } = topComment
     const { commentId, userId, content, createdAt } = comment
@@ -362,12 +382,18 @@ const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
         isOpen: false,
     })
 
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: ""
+    })
+    const setTextPromptOpen = () => setTextPrompt((prev) => ({ ...prev, isOpen: true }))
+
     // 删除
     const [delInfo, setDelInfo] = useState({
         isOpen: false,
     })
 
-    const setReplyFields = useCallback(() => {
+    const setReplyFields = () => {
         handleReplyField({
             root: root,
             parent: parent,
@@ -375,15 +401,15 @@ const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
             parentName: parentName,
             content: null,
         })
-    }, [handleReplyField, root, parent, dialog, parentName])
+    }
 
     const setReportOpen = useCallback((state) => {
         setReport((prev) => ({ ...prev, isOpen: state }))
     }, [setReport])
 
-    const setDelOpen = useCallback((state) => {
+    const setDelOpen = (state) => {
         setDelInfo((prev) => ({ ...prev, isOpen: state }))
-    }, [setDelInfo])
+    }
 
     // 举报发送
     const reportComment = useCallback(() => {
@@ -393,89 +419,112 @@ const TopCommentList = ({ handleReplyField, commentTop, reply }) => {
     // 删除评论
     const delComment = useCallback(async () => {
         const token = await getToken()
-        deleteComment(id, creationId, token)
+        const result = await deleteComment(id, creationId, token)
+        if (result) {
+            setTextPrompt({ isOpen: true, text: "删除成功" })
+            setDelOpen(false)
+            setTimeout(() => window.location.reload(), 2000)
+        } else {
+            setTextPrompt({ isOpen: true, text: "删除失败，请重试！" })
+            setDelOpen(false)
+        }
     }, [id, creationId])
 
+    useEffect(() => {
+        getLoginUserId()
+            .then((userId) => {
+                if (!userId) return
+                setLoginId(userId)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }, [])
+
     return (
-        <div className="comments-domain">
-            <div className="comment-one"
-                onMouseEnter={() => setIsHover(true)}
-                onMouseLeave={() => setIsHover(false)}
-            >
-                <Avatar src={userAvatar || "/img/slience.jpg"}
-                    height="56px" width="56px"
-                    userId={userId}
-                />
-            </div>
-            <div className="comment-two" >
-                <div className="name"
+        <>
+            {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
+            <div className="comments-domain">
+                <div className="comment-one"
                     onMouseEnter={() => setIsHover(true)}
                     onMouseLeave={() => setIsHover(false)}
                 >
-                    <span style={{ color: 'rgb(111,116,122)' }}>{userName}</span>
+                    <Avatar src={userAvatar || "/img/slience.jpg"}
+                        height="56px" width="56px"
+                        userId={userId}
+                    />
                 </div>
-                <div className="content"
-                    onMouseEnter={() => setIsHover(true)}
-                    onMouseLeave={() => setIsHover(false)}
-                >
-                    {content}</div>
-                <div className="additional"
-                    onMouseEnter={() => setIsHover(true)}
-                    onMouseLeave={() => setIsHover(false)}
-                >
-                    <span className="time">{time}</span>
-                    <button className="reply"
-                        onClick={setReplyFields}
-                    >回复</button>
-                    <span className={`option ${isHover && "show"}`}
-                        ref={triggerRef}
-                        onClick={() => setOpen(true)}
-                        onMouseLeave={() => setOpen(false)}>
-                        ···
-                        {isOpen && <MenuPortal targetRef={triggerRef}>
-                            <div className="more-symbol-button-options">
-                                <button className="btn" onClick={() => setReportOpen(true)}>举报</button>
-                                <button className="btn" onClick={() => setDelOpen(true)}>删除</button>
+                <div className="comment-two" >
+                    <div className="name"
+                        onMouseEnter={() => setIsHover(true)}
+                        onMouseLeave={() => setIsHover(false)}
+                    >
+                        <span style={{ color: 'rgb(111,116,122)' }}>{userName}</span>
+                    </div>
+                    <div className="content"
+                        onMouseEnter={() => setIsHover(true)}
+                        onMouseLeave={() => setIsHover(false)}
+                    >
+                        {content}</div>
+                    <div className="additional"
+                        onMouseEnter={() => setIsHover(true)}
+                        onMouseLeave={() => setIsHover(false)}
+                    >
+                        <span className="time">{time}</span>
+                        <button className="reply"
+                            onClick={setReplyFields}
+                        >回复</button>
+                        <span className={`option ${isHover && "show"}`}
+                            ref={triggerRef}
+                            onClick={() => setOpen(true)}
+                            onMouseLeave={() => setOpen(false)}>
+                            ···
+                            {isOpen && <MenuPortal targetRef={triggerRef}>
+                                <div className="more-symbol-button-options">
+                                    {loginId != userId
+                                        ? <button className="btn" onClick={() => setReportOpen(true)}>举报</button>
+                                        : <button className="btn" onClick={() => setDelOpen(true)}>删除</button>}
+                                </div>
+                            </MenuPortal>}
+                        </span>
+                        {delInfo.isOpen && <Modal setOpen={setDelOpen}>
+                            <div className="report-comment">
+                                <h4 className="title">是否删除？</h4>
+                                <div className="btns">
+                                    <button className="btn cancel" onClick={() => setDelOpen(false)}>取消</button>
+                                    <button className="btn confirm" onClick={delComment}>确定</button>
+                                </div>
                             </div>
-                        </MenuPortal>}
-                    </span>
-                    {delInfo.isOpen && <Modal setOpen={setDelOpen}>
-                        <div className="report-comment">
-                            <h4 className="title">是否删除？</h4>
-                            <div className="btns">
-                                <button className="btn cancel" onClick={() => setDelOpen(false)}>取消</button>
-                                <button className="btn confirm" onClick={delComment}>确定</button>
-                            </div>
-                        </div>
-                    </Modal>}
-                    {report.isOpen && <Modal setOpen={setReportOpen}>
-                        <div className="report-comment">
-                            <h4 className="title">评论信息举报</h4>
-                            <div className="detail">
-                                <textarea
-                                    value={report.detail}
-                                    onChange={(e) => setReport((prev) => ({ ...prev, detail: e.target.value }))}
-                                    placeholder="请输入举报理由，请简要描述"
-                                />
-                            </div>
+                        </Modal>}
+                        {report.isOpen && <Modal setOpen={setReportOpen}>
+                            <div className="report-comment">
+                                <h4 className="title">评论信息举报</h4>
+                                <div className="detail">
+                                    <textarea
+                                        value={report.detail}
+                                        onChange={(e) => setReport((prev) => ({ ...prev, detail: e.target.value }))}
+                                        placeholder="请输入举报理由，请简要描述"
+                                    />
+                                </div>
 
-                            <div className="btns">
-                                <button className="btn cancel" onClick={() => setReportOpen(false)}>取消</button>
-                                <button className="btn confirm" disabled={report.detail.trim().length <= 0} onClick={reportComment}>确定</button>
+                                <div className="btns">
+                                    <button className="btn cancel" onClick={() => setReportOpen(false)}>取消</button>
+                                    <button className="btn confirm" disabled={report.detail.trim().length <= 0} onClick={reportComment}>确定</button>
+                                </div>
                             </div>
-                        </div>
-                    </Modal>}
+                        </Modal>}
+                    </div>
+
+                    {/* 二级评论列表 */}
+                    <SecondCommentList reply={reply} commentTop={commentTop} handleReplyField={handleReplyField} updateSubCount={updateSubCount} />
                 </div>
-
-                {/* 二级评论列表 */}
-                <SecondCommentList reply={reply} commentTop={commentTop} handleReplyField={handleReplyField} />
             </div>
-        </div>
+        </>
     );
 }
 
 // 二级评论列表
-const SecondCommentList = ({ reply, commentTop, handleReplyField }) => {
+const SecondCommentList = ({ reply, commentTop, handleReplyField, updateSubCount }) => {
     const { topComment } = commentTop;
     const { comment } = topComment
     const { commentId } = comment
@@ -483,7 +532,8 @@ const SecondCommentList = ({ reply, commentTop, handleReplyField }) => {
     const params = useParams()
     const { creationId } = params
 
-    const [subCount, setSubCount] = useState(topComment.subCount || 0)
+    const { subCount } = topComment
+
     const pageCount = Math.ceil(subCount / 10) // 楼层里的评论总数
     const [page, setPage] = useState(-1)// 页
     const [comments, setComments] = useState([])// 楼层里的评论
@@ -529,7 +579,7 @@ const SecondCommentList = ({ reply, commentTop, handleReplyField }) => {
                 setComments(() => comments)
             })
             .catch((error) => console.log("error: getMoreTopComments " + error))
-    }, [setComments, getSecondComments])
+    }, [getSecondComments])
 
     const pushComment = useCallback((newComment) => {
         setComments((prev) => [...prev, newComment])
@@ -557,8 +607,8 @@ const SecondCommentList = ({ reply, commentTop, handleReplyField }) => {
                     点击查看
                 </button>
             </div>}
-            {open && comments.map((comment, j) => (
-                <SecondComment handleReplyField={handleReplyField} commentSecond={comment} key={j} />
+            {open && comments.map((commentSecond) => (
+                <SecondComment handleReplyField={handleReplyField} commentSecond={commentSecond} key={commentSecond.secondComment.comment.commentId} />
             ))}
 
             {/* 分页器 */}
@@ -580,13 +630,14 @@ const SecondCommentList = ({ reply, commentTop, handleReplyField }) => {
                 </button>
             </div>}
             {/* 回复插入仍未拿到数据库回来的id，所以回复自己新评论是不可以的 */}
-            {id > 0 && id === reply.root && <SelfSpeak pushComment={pushComment} reply={reply} handleReplyField={handleReplyField} subCount={subCount} setSubCount={setSubCount} />}
+            {id > 0 && id === reply.root && <SelfSpeak pushComment={pushComment} reply={reply} handleReplyField={handleReplyField} subCount={subCount} updateSubCount={updateSubCount} />}
         </>
     );
 }
 
 // 二级评论内容
 const SecondComment = ({ handleReplyField, commentSecond }) => {
+    const [loginId, setLoginId] = useState()
     const { replyUser, secondComment } = commentSecond;
     let replyName = replyUser.userDefault.userName
     let replyUserId = replyUser.userDefault.userId
@@ -607,7 +658,8 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
     const [isHovered, setIsHovered] = useState(false);
     const triggerRef = useRef()
     const [isOpen, setOpen] = useState(false)
-    const param = useParams()
+    const params = useParams()
+    const { creationId } = params
 
     const id = commentId
     const root = comment.root
@@ -618,7 +670,7 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
     }
     const parentName = userName
 
-    const setReplyFields = useCallback(() => {
+    const setReplyFields = () => {
         handleReplyField({
             root: root,
             parent: parent,
@@ -629,7 +681,13 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
             parentUserId: userId,
             parentUserAvatar: userAvatar,
         })
-    }, [handleReplyField, root, parent, dialog, parentName, userId, userAvatar])
+    }
+
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: ""
+    })
+    const setTextPromptOpen = () => setTextPrompt((prev) => ({ ...prev, isOpen: true }))
 
     // 举报
     const [report, setReport] = useState({
@@ -646,9 +704,9 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
         setReport((prev) => ({ ...prev, isOpen: state }))
     }, [setReport])
 
-    const setDelOpen = useCallback((state) => {
+    const setDelOpen = (state) => {
         setDelInfo((prev) => ({ ...prev, isOpen: state }))
-    }, [setDelInfo])
+    }
 
     // 举报发送
     const reportComment = useCallback(() => {
@@ -658,100 +716,127 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
     // 删除评论
     const delComment = useCallback(async () => {
         const token = await getToken()
-        deleteComment(id, param.creationId, token)
-    }, [id, param])
+        const result = await deleteComment(id, creationId, token)
+        if (result) {
+            setTextPrompt({ isOpen: true, text: "删除成功" })
+            setDelOpen(false)
+            setTimeout(() => window.location.reload(), 2000)
+        } else {
+            setTextPrompt({ isOpen: true, text: "删除失败，请重试！" })
+            setDelOpen(false)
+        }
+    }, [id, creationId])
+
+    useEffect(() => {
+        getLoginUserId()
+            .then((userId) => {
+                if (!userId) return
+                setLoginId(userId)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }, [])
 
     return (
-        <div className="comments-second-domain"
-            onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
-        >
-            <div className="comment-second-one">
-                <Avatar src={userAvatar || "/img/slience.jpg"}
-                    userId={userId}
-                    height="36px"
-                    width="36px"
-                />
-            </div>
-            <div className="comment-second-two">
-                <div className="second-speak">
-                    <span className="name">
-                        <Link href={`/space/${userId}`} target="_blank"
-                            style={{ cursor: 'pointer', fontSize: 'inherit', color: 'rgb(111,116,122)' }}>
-                            {userName}
-                        </Link>
-
-                        {comment.parent !== comment.root &&
-                            <>
-                                <span href={`/space/${userId}`} target="_blank"
-                                    style={{ fontSize: '15px', margin: '0 6px 0 8px', color: 'black' }}>
-                                    回复
-                                </span>
-                                <Link href={`/space/${replyUserId}`} target="_blank" className="link">
-                                    @{replyName}
-                                </Link>
-                            </>
-                        }
-                        <span style={{ position: 'relative', marginLeft: '4px', fontSize: '15px', color: 'black' }}>:</span>
-                    </span>
-                    <span className="content">{content}</span>
+        <>
+            {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
+            <div className="comments-second-domain"
+                onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
+            >
+                <div className="comment-second-one">
+                    <Avatar src={userAvatar || "/img/slience.jpg"}
+                        userId={userId}
+                        height="36px"
+                        width="36px"
+                    />
                 </div>
-                <div className="additional">
-                    <span className="time">{time}</span>
-                    <button className="reply"
-                        onClick={setReplyFields}
-                    >回复</button>
-                    <span className={`option ${isHovered && "show"}`}
-                        ref={triggerRef}
-                        onClick={() => setOpen(true)}
-                        onMouseLeave={() => setOpen(false)}>
-                        ···
-                        {isOpen && (
-                            <MenuPortal targetRef={triggerRef}>
-                                <div className="more-symbol-button-options">
-                                    <button className="btn" onClick={() => setReportOpen(true)}>举报</button>
-                                    <button className="btn" onClick={() => setDelOpen(true)}>删除</button>
+                <div className="comment-second-two">
+                    <div className="second-speak">
+                        <span className="name">
+                            <Link href={`/space/${userId}`} target="_blank"
+                                style={{ cursor: 'pointer', fontSize: 'inherit', color: 'rgb(111,116,122)' }}>
+                                {userName}
+                            </Link>
+
+                            {comment.parent !== comment.root &&
+                                <>
+                                    <span href={`/space/${userId}`} target="_blank"
+                                        style={{ fontSize: '15px', margin: '0 6px 0 8px', color: 'black' }}>
+                                        回复
+                                    </span>
+                                    <Link href={`/space/${replyUserId}`} target="_blank" className="link">
+                                        @{replyName}
+                                    </Link>
+                                </>
+                            }
+                            <span style={{ position: 'relative', marginLeft: '4px', fontSize: '15px', color: 'black' }}>:</span>
+                        </span>
+                        <span className="content">{content}</span>
+                    </div>
+                    <div className="additional">
+                        <span className="time">{time}</span>
+                        <button className="reply"
+                            onClick={setReplyFields}
+                        >回复</button>
+                        <span className={`option ${isHovered && "show"}`}
+                            ref={triggerRef}
+                            onClick={() => setOpen(true)}
+                            onMouseLeave={() => setOpen(false)}>
+                            ···
+                            {isOpen && (
+                                <MenuPortal targetRef={triggerRef}>
+                                    <div className="more-symbol-button-options">
+                                        {loginId != userId
+                                            ? <button className="btn" onClick={() => setReportOpen(true)}>举报</button>
+                                            : <button className="btn" onClick={() => setDelOpen(true)}>删除</button>}
+                                    </div>
+                                </MenuPortal>
+                            )}
+                        </span>
+                        {delInfo.isOpen && <Modal setOpen={setDelOpen}>
+                            <div className="report-comment">
+                                <h4 className="title">是否删除？</h4>
+                                <div className="btns">
+                                    <button className="btn cancel" onClick={() => setDelOpen(false)}>取消</button>
+                                    <button className="btn confirm" onClick={delComment}>确定</button>
                                 </div>
-                            </MenuPortal>
-                        )}
-                    </span>
-                    {delInfo.isOpen && <Modal setOpen={setDelOpen}>
-                        <div className="report-comment">
-                            <h4 className="title">是否删除？</h4>
-                            <div className="btns">
-                                <button className="btn cancel" onClick={() => setDelOpen(false)}>取消</button>
-                                <button className="btn confirm" onClick={delComment}>确定</button>
                             </div>
-                        </div>
-                    </Modal>}
-                    {report.isOpen && <Modal setOpen={setReportOpen}>
-                        <div className="report-comment">
-                            <h4 className="title">评论信息举报</h4>
-                            <div className="detail">
-                                <textarea
-                                    value={report.detail}
-                                    onChange={(e) => setReport((prev) => ({ ...prev, detail: e.target.value }))}
-                                    placeholder="请输入举报理由，请简要描述"
-                                />
-                            </div>
+                        </Modal>}
+                        {report.isOpen && <Modal setOpen={setReportOpen}>
+                            <div className="report-comment">
+                                <h4 className="title">评论信息举报</h4>
+                                <div className="detail">
+                                    <textarea
+                                        value={report.detail}
+                                        onChange={(e) => setReport((prev) => ({ ...prev, detail: e.target.value }))}
+                                        placeholder="请输入举报理由，请简要描述"
+                                    />
+                                </div>
 
-                            <div className="btns">
-                                <button className="btn cancel" onClick={() => setReportOpen(false)}>取消</button>
-                                <button className="btn confirm" disabled={report.detail.trim().length <= 0} onClick={reportComment}>确定</button>
+                                <div className="btns">
+                                    <button className="btn cancel" onClick={() => setReportOpen(false)}>取消</button>
+                                    <button className="btn confirm" disabled={report.detail.trim().length <= 0} onClick={reportComment}>确定</button>
+                                </div>
                             </div>
-                        </div>
-                    </Modal>}
+                        </Modal>}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
 
 // 回复框
-const SelfSpeak = ({ pushComment, reply, handleReplyField, subCount, setSubCount }) => {
-    const [promptIsOpen, setPromptOpen] = useState(false)
+const SelfSpeak = ({ pushComment, reply, handleReplyField, subCount, updateSubCount }) => {
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: "",
+    })
+    const setPromptOpen = (isOpen) => setTextPrompt((prev) => ({ ...prev, isOpen: isOpen }))
     const [loginUser, setUser] = useState(null)
 
-    const replyComment = useCallback(async () => {
+    const replyComment = async () => {
         const { root, parent, dialog, content, creationId, token, parentName, parentUserId, parentUserAvatar } = reply
         const createdAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
         const newComment = {
@@ -788,14 +873,15 @@ const SelfSpeak = ({ pushComment, reply, handleReplyField, subCount, setSubCount
 
         const ok = await publishComment(content, root, parent, dialog, creationId, createdAt, token)
         if (!ok) return;
-        setPromptOpen(true)
+        setTextPrompt({ text: "发布成功", isOpen: true })
         pushComment(newComment)
         const initialState = {
             content: null,
+            root: -1,
         }
         handleReplyField(initialState)
-        setSubCount(subCount + 1)
-    }, [pushComment, loginUser, reply, handleReplyField, setSubCount, subCount])
+        updateSubCount(root, subCount + 1)
+    }
 
     useEffect(() => {
         getLoginUser()
@@ -805,7 +891,7 @@ const SelfSpeak = ({ pushComment, reply, handleReplyField, subCount, setSubCount
 
     return (
         <>
-            {promptIsOpen && <TextPrompt setOpen={setPromptOpen} />}
+            {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setPromptOpen} />}
             <div className="self-reply">
                 <div className="comment-one" style={{ pointerEvents: 'none' }}>
                     <Avatar src={loginUser ? loginUser.avatar : '/img/slience.jpg'} height="56px" width="56px" />

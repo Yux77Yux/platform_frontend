@@ -93,5 +93,5 @@ export default function LogoutLink() {
         return () => clearInterval(refresh);
     }, [refreshInterval]);
 
-    return <Link href="/" className="avatar-card" onClick={logout}>退出登录</Link>
+    return <Link href="#" className="avatar-card" onClick={logout}>退出登录</Link>
 }

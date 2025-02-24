@@ -8,8 +8,8 @@ export const reportInfo = async (target_type, target_id, detail) => {
     try {
         console.log("d11etail")
         if (detail.trim().length <= 0) {
-        console.log("detail")
-        return null
+            console.log("detail")
+            return null
         }
         let Type = ""
         switch (target_type) {
@@ -45,6 +45,9 @@ export const reportInfo = async (target_type, target_id, detail) => {
         }
 
         const result = await response.json()
+        const status = result.msg.status
+        if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) return false
+
         console.log(result)
 
         return result

@@ -5,26 +5,34 @@ import "./page.scss";
 import { getAddress } from "@/src/tool/getIp"
 import { getLoginUserId, getToken } from "@/src/tool/getLoginUser"
 import { Status, reportInfo } from "@/src/tool/review"
+import { Operate } from "@/src/tool/interaction"
+import { Api_Status } from "@/src/tool/api-status"
+import { cancelCollections } from "@/src/tool/interaction"
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 
 import CommentBox from "@/src/client-components/comment/comment"
+import TextPrompt from "@/src/client-components/prompt/TextPrompt"
 import MenuPortal from "@/src/client-components/menu-portal/menu-portal"
 import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
-// 处理
-const Interaction = () => {
-
-}
-
 const Page = () => {
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: ""
+    })
+    const setTextPromptOpen = () => setTextPrompt((prev) => ({ ...prev, isOpen: true }))
+
+    const timerRef = useRef(null)
     const [isPageLoading, setPageLoading] = useState(true)
     const triggerRef = useRef()
     const creationParams = useParams()
     const { creationId } = creationParams
+    const [token, setToken] = useState(null)
+    const stableCreationId = useMemo(() => creationId, [creationId]);
 
     const [interaction, setInteraction] = useState({
         isLike: false,
@@ -37,7 +45,7 @@ const Page = () => {
     const [videoInfo, setVideoInfo] = useState({
         title: '只是个胜利结算动画而已',
         src: 'https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media/%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5/%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2/1-%E5%8F%AA%E6%98%AF%E4%B8%AA%E8%83%9C%E5%88%A9%E7%BB%93%E7%AE%97%E5%8A%A8%E7%94%BB%E8%80%8C%E5%B7%B2-480P%20%E6%B8%85%E6%99%B0-AVC.mp4',
-        views: "36.7万",
+        views: "36",
         time: '2022-10-20 07:28:18',
         likes: 3442,
         saves: 488,
@@ -57,10 +65,9 @@ const Page = () => {
         id: creationId,
         isOpen: false,
     })
-    const setReportOpen = useCallback((state) => {
+    const setReportOpen = (state) => {
         setReport((prev) => ({ ...prev, isOpen: state }))
-    }, [setReport])
-
+    }
 
     const [recommends, setRecommends] = useState([
         {
@@ -87,7 +94,6 @@ const Page = () => {
 
     // 初始化相似视频
 
-
     // 初始化视频信息
     const fetchCreation = useCallback(async (creationId) => {
         try {
@@ -105,6 +111,8 @@ const Page = () => {
             }
 
             const result = await response.json()
+            const status = result.msg.status
+            if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) return false
             return result
         } catch (error) {
             console.log(error)
@@ -136,13 +144,170 @@ const Page = () => {
             }
             const result = await response.json()
             const status = result.msg.status
-            if (status != "SUCCESS") return false
+            if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) return false
             return result
         } catch (error) {
             console.log(error)
             return false
         }
     }, [])
+
+    const cancelLike = useCallback(async (creationId, token) => {
+        const body = {
+            accessToken: {
+                value: token
+            },
+            operateInteraction: {
+                action: Operate.CANCEL_LIKE,
+                interaction: {
+                    creationId: creationId,
+                }
+            },
+        }
+        try {
+            const response = await fetch("http://localhost:8080/api/interaction/like/cancel", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body)
+            })
+            if (!response.ok) {
+                console.log("api/interaction/like/cancel error")
+                return false
+            }
+            const result = await response.json()
+            const status = result.msg.status
+            if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) return false
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }, [])
+
+    const clickCollect = useCallback(async (creationId, token) => {
+        const body = {
+            accessToken: {
+                value: token
+            },
+            operateInteraction: {
+                action: Operate.COLLECT,
+                interaction: {
+                    creationId: creationId,
+                }
+            },
+        }
+        try {
+            const response = await fetch("http://localhost:8080/api/interaction/collection", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body)
+            })
+            if (!response.ok) {
+                console.log("api/interaction/collection error")
+                return false
+            }
+            const result = await response.json()
+            const status = result.msg.status
+            if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) return false
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }, [])
+
+    const clickLike = useCallback(async (creationId, token) => {
+        const body = {
+            accessToken: {
+                value: token
+            },
+            operateInteraction: {
+                action: Operate.LIKE,
+                interaction: {
+                    creationId: creationId,
+                }
+            },
+        }
+        try {
+            const response = await fetch("http://localhost:8080/api/interaction/like", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body)
+            })
+            if (!response.ok) {
+                console.log("api/interaction/like error")
+                return false
+            }
+            const result = await response.json()
+            console.log(result)
+            const status = result.msg.status
+            if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) return false
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }, [])
+
+    const handleLikeEvent = useCallback(async () => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current) // 清除上一次的定时器
+        }
+
+        timerRef.current = setTimeout(async () => {
+            const likes = videoInfo.likes
+            const isLike = interaction.isLike
+
+            // 立即更新 UI（乐观更新）
+            setInteraction((prev) => ({ ...prev, isLike: !isLike }));
+            setVideoInfo((prev) => ({
+                ...prev,
+                likes: isLike ? likes - 1 : likes + 1,
+            }));
+
+            const result = isLike
+                ? await cancelLike(creationId, token)
+                : await clickLike(creationId, token);
+
+            if (!result) {
+                // 请求失败，恢复快照，并提示重试
+                setInteraction((prev) => ({ ...prev, isLike: isLikeSnapshot }));
+                setVideoInfo((prev) => ({ ...prev, likes: likesSnapshot }));
+                setTextPrompt({ text: "请重试！", isOpen: true })
+            }
+        }, 300)
+    }, [token, videoInfo.likes, interaction.isLike, creationId, cancelLike, clickLike])
+
+    const handleCollectEvent = useCallback(async () => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current) // 清除上一次的定时器
+        }
+
+        timerRef.current = setTimeout(async () => {
+            const saves = videoInfo.saves
+            const isCollection = interaction.isCollection
+
+            setInteraction((prev) => ({ ...prev, isCollection: !isCollection }))
+            setVideoInfo((prev) => ({ ...prev, saves: isCollection ? saves - 1 : saves + 1 }))
+
+            const creationIds = [{ creationId: creationId }]
+            const result = isCollection
+                ? await cancelCollections(creationIds, token)
+                : await clickCollect(creationId, token)
+            if (!result) {
+                // 失败
+                setInteraction((prev) => ({ ...prev, isCollection: isCollection }))
+                setVideoInfo((prev) => ({ ...prev, saves: saves }))
+                setTextPrompt({ text: "请重试！", isOpen: true })
+            }
+        }, 300)
+    }, [token, videoInfo.saves, interaction.isCollection, creationId, clickCollect])
 
     const reportCreation = useCallback(async () => {
         reportInfo(Status.CREATION, report.id, report.detail)
@@ -200,38 +365,44 @@ const Page = () => {
     // 获取交互
     useEffect(() => {
         const execute = async () => {
-            const token = await getToken()
-            fetchInteraction(creationId, token)
+            fetchInteraction(stableCreationId, token)
                 .then((result) => {
                     if (!result) return;
                     const { actionTag } = result;
+                    console.log(actionTag)
                     let isLike = false
                     let isCollection = false
-                    if (actionTag & 2 === 2) {
+                    if (actionTag & 2) {
                         isLike = true
                     }
-                    if (actionTag & 4 === 4) {
+                    if (actionTag & 4) {
                         isCollection = true
                     }
+                    console.log("isLike")
+                    console.log(isLike)
+                    console.log("isCollection")
+                    console.log(isCollection)
                     setInteraction({
                         isCollection: isCollection,
                         isLike: isLike,
                     })
-                    console.log("isLike:" + isLike)
-                    console.log("isCollection:" + isCollection)
                 })
                 .catch((error) => console.log("error: " + error))
         }
         execute()
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [token, stableCreationId, fetchInteraction])
 
+    useEffect(() => {
+        getToken()
+            .then((token) => setToken(token))
+    }, [])
 
     if (isPageLoading) return null;
 
     return (
         <>
+            {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
             <div className="creation-left">
                 <div className="creation-left-title">{videoInfo.title}</div>
                 <div className="creation-additional-info">
@@ -247,11 +418,13 @@ const Page = () => {
                 <div className="user-options">
                     <span className="likes">
                         <Image src={interaction.isLike ? "/img/like-active.png" : "/img/like.png"}
+                            onClick={handleLikeEvent}
                             height={40} width={40} quality={100} alt="" />
                         <span className="text">{videoInfo.likes}</span>
                     </span>
                     <span className="saves">
-                        <Image src={interaction.isLike ? "/img/save-active.png" : "/img/save.png"}
+                        <Image src={interaction.isCollection ? "/img/save-active.png" : "/img/save.png"}
+                            onClick={handleCollectEvent}
                             height={40} width={40} quality={100} alt="" />
                         <span className="text">{videoInfo.saves}</span>
                     </span>
