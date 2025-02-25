@@ -47,8 +47,7 @@ export const getLoginUser = async () => {
     }
 }
 
-// 解析 JWT 获取 userId
-export const getLoginUserId = async () => {
+const getTokenClaim = async () => {
     const token = await getToken();
     if (!token) return -1;
 
@@ -59,10 +58,35 @@ export const getLoginUserId = async () => {
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const payload = JSON.parse(atob(base64));
 
-        const userId = payload.userId ? BigInt(payload.userId) : payload.user_id ? BigInt(payload.user_id) : -1n;
+        return payload
+    } catch (error) {
+        console.log("JWT 解析失败:", error);
+        return -1;
+    }
+}
+
+// 解析 JWT 获取 userId
+export const getLoginUserId = async () => {
+    try {
+        const claims = await getTokenClaim()
+
+        const userId = claims ? BigInt(claims.user_id) : 0;
         return userId
     } catch (error) {
         console.log("JWT 解析失败:", error);
         return -1;
     }
 };
+
+export const getLoginUserRole = async () => {
+    try {
+        const claims = await getTokenClaim()
+
+        const role = claims ? claims.role : "GUEST";
+        return role
+    } catch (error) {
+        console.log("JWT 解析失败:", error);
+        return -1;
+    }
+};
+

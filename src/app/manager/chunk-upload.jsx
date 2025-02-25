@@ -3,12 +3,16 @@
 import Image from "next/image";
 import "./chunk-upload.scss"
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useSearchParams } from 'next/navigation';
 import CategorySelect from './select';
 
 import { client } from './oss';
 import { getCookie } from "cookies-next";
 
 const ChunkUploadBox = () => {
+    const searchParams = useSearchParams()
+    const id = searchParams.get('id') || null;
+
     const ref = useRef({
         draft: null,
         publish: null,
@@ -36,7 +40,7 @@ const ChunkUploadBox = () => {
             ...prevState,
             [key]: value,
         }));
-    }, [setInfo])
+    }, [])
 
     const getMimeType = useCallback((fileName) => {
         const ext = fileName.split('.').pop().toLowerCase(); // 获取文件扩展名
@@ -89,21 +93,16 @@ const ChunkUploadBox = () => {
 
     // 前后端交互
     const uploadCreation = useCallback(async () => {
-        const loginUser = getCookie("loginUser");
-        if (!loginUser) {
-            console.log("not login");
-            return;
-        }
-        const user = JSON.parse(loginUser);
         const accessToken = getCookie('accessToken');
         if (!accessToken) {
-            console.log('Refresh token is missing or empty');
+            alert("未登录")
+            return;
         }
+
         const status = info.submit === "PENDING" ? 1 : 0;
 
         const body = {
             baseInfo: {
-                authorId: user.id,
                 src: info.fileSrc,
                 thumbnail: info.imageSrc,
                 title: info.title,
@@ -132,7 +131,46 @@ const ChunkUploadBox = () => {
         } catch (error) {
             console.log(error)
         }
-    }, [info])
+    }, [info.bio, info.category, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title])
+    const updateCreation = useCallback(async () => {
+        const accessToken = getCookie('accessToken');
+        if (!accessToken) {
+            alert("未登录")
+            return;
+        }
+
+        const status = info.submit === "PENDING" ? 1 : 0;
+
+        const body = {
+            baseInfo: {
+                src: info.fileSrc,
+                thumbnail: info.imageSrc,
+                title: info.title,
+                bio: info.bio,
+                status: status,
+                duration: Math.round(info.duration),
+            },
+            accessToken: {
+                value: accessToken,
+            }
+        }
+        try {
+            const response = await fetch('http://localhost:8080/api/creation', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
+            });
+
+            if (response.ok) {
+                const result = await response.json();  // 解析 JSON 响应
+                console.log(result);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }, [info.bio, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title])
 
     // 上传视频文件至oss
     const handleFileChange = async (event) => {
@@ -231,13 +269,20 @@ const ChunkUploadBox = () => {
         // 上传事件
         console.log("it's creating creation!")
 
-        uploadCreation();
+        const handleSubmit = async () => {
+            if (id) {
+                await updateCreation()
+            } else {
+                await uploadCreation()
+            }
+        };
+        handleSubmit()
         console.log("success")
-    }, [info.submit, info.fileSrc, info.uploading, uploadCreation])
+    }, [id, info.submit, info.fileSrc, info.uploading, uploadCreation, updateCreation])
 
     return (
         <>
-            <div className={`upload-video-box ${info.file && "hide"}`}>
+            {(info.file || id) && <div className="upload-video-box">
                 <label style={{
                     display: "flex",
                     justifyContent: "center",
@@ -253,6 +298,7 @@ const ChunkUploadBox = () => {
                         letterSpacing: "10px",
                     }}>点击上传</span>
                     <input
+
                         type="file"
                         name="video"
                         style={{
@@ -262,90 +308,94 @@ const ChunkUploadBox = () => {
                         onChange={handleFileChange}
                     />
                 </label>
-            </div>
-            {info.file && (
-                <div className="jichuxinxi">
-                    {/* 进度条 */}
-                    <div className="biaodan-option">
-                        <div className="progress-bar">
-                            <div
-                                className="progress"
-                                style={{ width: `${info.progress}%` }}
-                            ></div>
-                            <span>{`${info.progress}%`}</span>
-                        </div>
+            </div>}
+            {(info.file || id) && <div className="jichuxinxi">
+                {/* 进度条 */}
+                {info.file && <div className="biaodan-option">
+                    <div className="progress-bar">
+                        <div className="progress"
+                            style={{ width: `${info.progress}%`, }}
+                        ></div>
+                        <span>{`${info.progress}%`}</span>
                     </div>
+                </div>}
 
-                    {/* 封面上传 */}
-                    <div className="biaodan-option">
-                        <label className="biaodan-key">*封面:</label>
-                        <div className="biaodan-value info-circle">
-                            <label style={{
-                                height: '160px',
-                                width: '160px',
-                                position: 'relative',
-                                border: '1px solid rgb(50, 51, 50)',
-                                backgroundImage: 'url(/plus.svg)',
-                                backgroundPosition: 'center',
-                                backgroundRepeat: 'no-repeat',
-                                backgroundSize: '30px',
-                            }}>
-                                {info.imageBlob && <Image
-                                    src={info.imageBlob}
-                                    alt="info"
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                    quality={100}
-                                />}
-                                <input type="file" style={{ position: 'absolute', visibility: 'hidden', opacity: 0, }} onChange={handleCoverImageChange} />
-                            </label>
-                        </div>
-                    </div>
-
-                    {/* 标题 */}
-                    <div className="biaodan-option">
-                        <label className="biaodan-key">*标题:</label>
-                        <div className="biaodan-value">
-                            <input
-                                type="text"
-                                value={info.title}
-                                onChange={(e) => handleChange('title', e.target.value)}
-                                maxLength="80"
-                            />
-                            <p>{info.title.length}/80</p>
-                        </div>
-                    </div>
-
-                    {/* 分区 */}
-                    <div className="biaodan-option">
-                        <label className="biaodan-key">*分区:</label>
-                        <div className="biaodan-value">
-                            <CategorySelect handleChange={handleChange} />
-                        </div>
-                    </div>
-
-                     {/* 简介 */}
-                     <div className="biaodan-option">
-                        <label className="biaodan-key">简介:</label>
-                        <div className="biaodan-value">
-                            <textarea
-                                value={info.bio}
-                                onChange={(e) => handleChange('bio', e.target.value)}
-                                placeholder="请输入简介"
-                                rows="4"
-                            />
-                        </div>
-                    </div>
-
-                    {/* 按钮 */}
-                    <div className="button-group">
-                        <button type="submit" ref={(el) => (ref.current.draft = el)} className="biaodan-button"
-                            onClick={() => handleChange("submit", "DRAFT")}>存草稿</button>
-                        <button type="submit" ref={(el) => (ref.current.publish = el)} className="biaodan-button"
-                            onClick={() => handleChange("submit", "PENDING")}>发布</button>
+                {/* 封面上传 */}
+                <div className="biaodan-option">
+                    <label className="biaodan-key">*封面:</label>
+                    <div className="biaodan-value info-circle">
+                        <label style={{
+                            height: '160px',
+                            width: '160px',
+                            position: 'relative',
+                            border: '1px solid rgb(50, 51, 50)',
+                            backgroundImage: 'url(/plus.svg)',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: '30px',
+                        }}>
+                            {info.imageBlob && <Image
+                                src={info.imageBlob}
+                                alt="info"
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                quality={100}
+                            />}
+                            <input type="file" style={{ position: 'absolute', visibility: 'hidden', opacity: 0, }} onChange={handleCoverImageChange} />
+                        </label>
                     </div>
                 </div>
-            )}
+
+                {/* 标题 */}
+                <div className="biaodan-option">
+                    <label className="biaodan-key">*标题:</label>
+                    <div className="biaodan-value">
+                        <input
+                            type="text"
+                            value={info.title}
+                            onChange={(e) => handleChange('title', e.target.value)}
+                            maxLength="80"
+                        />
+                        <p>{info.title.length}/80</p>
+                    </div>
+                </div>
+
+                {/* 分区 */}
+                {id && <div className="biaodan-option">
+                    <label className="biaodan-key">*分区:</label>
+                    <div className="biaodan-value">
+                        <CategorySelect handleChange={handleChange} />
+                    </div>
+                </div>}
+
+                {/* 简介 */}
+                <div className="biaodan-option">
+                    <label className="biaodan-key">简介:</label>
+                    <div className="biaodan-value">
+                        <textarea
+                            value={info.bio}
+                            onChange={(e) => handleChange('bio', e.target.value)}
+                            placeholder="请输入简介"
+                            rows="4"
+                        />
+                    </div>
+                </div>
+
+                {/* 按钮 */}
+                <div className="button-group">
+                    {!id
+                        ? <>
+                            <button type="submit" ref={(el) => (ref.current.draft = el)} className="biaodan-button"
+                                onClick={() => handleChange("submit", "DRAFT")}>存草稿</button>
+
+                            <button type="submit" ref={(el) => (ref.current.publish = el)}
+                                className="biaodan-button"
+                                onClick={() => handleChange("submit", "PENDING")}>发布</button>
+                        </>
+                        : <button type="submit" ref={(el) => (ref.current.draft = el)} className="biaodan-button"
+                            onClick={() => handleChange("submit", "PENDING")}>更新</button>}
+                </div>
+            </div>}
         </>
     );
 };

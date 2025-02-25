@@ -22,7 +22,7 @@ const Lunbos = ({ lunbos }) => {
                     <img
                         src={lunbo.src}
                         alt={`Slide ${i}`}
-                        style={{ height: '400px', width: '100vw', objectFit: 'cover', objectPosition: 'center' }}  // 使图片填充容器
+                        style={{ height: '400px', width: '40vw', objectFit: 'cover', objectPosition: 'center' }}  // 使图片填充容器
                     />
                 </div>
             ))}

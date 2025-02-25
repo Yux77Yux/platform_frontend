@@ -177,13 +177,7 @@ const Home = () => {
             <div>
                 <Lunbos lunbos={lunbos} />
             </div>
-            <h2 style={{
-                position:'relative',
-                display: 'flex',
-                justifyContent:'center',
-                alignItems:'center',
-                marginTop: '100px',
-            }}>推荐视频</h2>
+            
             <div style={{
                 position: 'relative',
                 margin: '0 auto',

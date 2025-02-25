@@ -7,7 +7,7 @@ import SpaceUser from "@/src/client-components/space-user/space-user.component";
 import SpaceOptions from "@/src/client-components/space-options/space-options.component";
 import "./layout.scss"
 
-const fetchSpace = async (userIdInt64: string) => {
+const fetchSpace = async (userIdInt64) => {
     const loginId = await getLoginUserId()
 
     const url = 'http://localhost:8080/api/user/' + userIdInt64;
@@ -26,7 +26,7 @@ const fetchSpace = async (userIdInt64: string) => {
 
     const result = {
         user: userResponse.user,
-        master: loginId === userIdInt64,
+        master: loginId == userIdInt64,
     }
     return result;
 }
@@ -34,9 +34,6 @@ const fetchSpace = async (userIdInt64: string) => {
 export default async function SpaceLayout({
     children,
     params,
-}: {
-    children: React.ReactNode;
-    params: Promise<{ userId: string }>;
 }) {
     const userId = (await params).userId;
     const data = await fetchSpace(userId);

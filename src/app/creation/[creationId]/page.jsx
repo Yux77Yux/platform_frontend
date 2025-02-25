@@ -3,16 +3,18 @@
 
 import "./page.scss";
 import { getAddress } from "@/src/tool/getIp"
-import { getLoginUserId, getToken } from "@/src/tool/getLoginUser"
+import { getLoginUserId, getToken, getLoginUserRole } from "@/src/tool/getLoginUser"
 import { Status, reportInfo } from "@/src/tool/review"
 import { Operate } from "@/src/tool/interaction"
 import { Api_Status } from "@/src/tool/api-status"
+import { Creation_Status } from "@/src/tool/creation"
+import { User_Role } from "@/src/tool/user"
 import { cancelCollections } from "@/src/tool/interaction"
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import CommentBox from "@/src/client-components/comment/comment"
 import TextPrompt from "@/src/client-components/prompt/TextPrompt"
@@ -20,6 +22,7 @@ import MenuPortal from "@/src/client-components/menu-portal/menu-portal"
 import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
 const Page = () => {
+    const router = useRouter()
     const [textPrompt, setTextPrompt] = useState({
         isOpen: false,
         text: ""
@@ -112,7 +115,7 @@ const Page = () => {
 
             const result = await response.json()
             const status = result.msg.status
-            if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) return false
+            if (status != Api_Status.SUCCESS) return false
             return result
         } catch (error) {
             console.log(error)
@@ -315,17 +318,60 @@ const Page = () => {
 
     // 获取视频
     useEffect(() => {
-        fetchCreation(creationId)
-            .then((result) => {
-                setPageLoading(false)
-                if (!result) return;
-                const { creationInfo, creationUser } = result
+        const fetchData = async () => {
+            try {
+                const result = await fetchCreation(creationId);
+                setPageLoading(false);
+                if (!result) {
+                    router.replace("/creation");
+                    return;
+                }
+    
+                const { creationInfo, creationUser } = result;
                 if (!creationInfo || !creationUser) return;
-                const { creation, creationEngagement, category } = creationInfo
-                const { uploadTime, baseInfo } = creation
-                const { authorId, bio, src, thumbnail, title, status, duration } = baseInfo
-                const { views, saves, likes, publishTime } = creationEngagement
-
+                const { creation, creationEngagement, category } = creationInfo;
+                const { uploadTime, baseInfo } = creation;
+                const { authorId, bio, src, thumbnail, title, status, duration } = baseInfo;
+                const { views, saves, likes, publishTime } = creationEngagement;
+                const { categoryId, name, parent } = category;
+    
+                const { userDefault, userAvatar, userBio } = creationUser;
+                const { userId, userName } = userDefault;
+    
+                console.log("creationInfo");
+                console.log(creationInfo);
+    
+                let loginUserId;
+                try {
+                    loginUserId = await getLoginUserId();
+                    console.log("loginUserId:", loginUserId);
+                } catch (error) {
+                    console.log(error);
+                    return;
+                }
+    
+                let role = User_Role.GUEST;
+                try {
+                    const userRole = await getLoginUserRole();
+                    if (userRole) {
+                        role = userRole;
+                    }
+                } catch (error) {
+                    console.log(error);
+                    return;
+                }
+    
+                console.log("role:", role);
+    
+                if (status != Creation_Status.PUBLISHED) {
+                    if (userId != loginUserId) {
+                        if (role != User_Role.ADMIN && role != User_Role.SUPER_ADMIN) {
+                            router.replace("/creation");
+                            return;
+                        }
+                    }
+                }
+    
                 const video = {
                     uploadTime: formatTimestamp(uploadTime),
                     authorId: authorId,
@@ -339,28 +385,25 @@ const Page = () => {
                     saves: saves,
                     likes: likes,
                     publishTime: formatTimestamp(publishTime),
-                }
-
-                const { categoryId, name, parent, description } = category
-
-                const { userDefault, userAvatar, userBio } = creationUser
-                const { userId, userName } = userDefault
-
-                setVideoInfo((prev) => ({ ...prev, ...video }))
-                setTag({ categoryId: categoryId, name: name, parent: parent, description: description })
+                };
+    
+                setVideoInfo((prev) => ({ ...prev, ...video }));
+                setTag({ categoryId: categoryId, name: name, parent: parent });
                 setAuthor({
                     userName: userName,
                     userBio: userBio,
                     userId: userId,
                     userAvatar: userAvatar,
-                })
-            })
-
-        getLoginUserId()
-            .then((loginId) => setLoginId(loginId))
-
-        setReport((prev) => ({ ...prev, id: creationId }))
-    }, [fetchCreation, creationId, setLoginId])
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        };
+    
+        fetchData();
+        setReport((prev) => ({ ...prev, id: creationId }));
+    }, [router, creationId, loginId, fetchCreation]);
+    
 
     // 获取交互
     useEffect(() => {
@@ -369,7 +412,6 @@ const Page = () => {
                 .then((result) => {
                     if (!result) return;
                     const { actionTag } = result;
-                    console.log(actionTag)
                     let isLike = false
                     let isCollection = false
                     if (actionTag & 2) {
@@ -378,10 +420,7 @@ const Page = () => {
                     if (actionTag & 4) {
                         isCollection = true
                     }
-                    console.log("isLike")
-                    console.log(isLike)
-                    console.log("isCollection")
-                    console.log(isCollection)
+
                     setInteraction({
                         isCollection: isCollection,
                         isLike: isLike,
