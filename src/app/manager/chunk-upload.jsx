@@ -3,15 +3,18 @@
 import Image from "next/image";
 import "./chunk-upload.scss"
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import CategorySelect from './select';
+
+import TextPrompt from "@/src/client-components/prompt/TextPrompt"
 
 import { client } from './oss';
 import { getCookie } from "cookies-next";
 
 const ChunkUploadBox = () => {
+    const router = useRouter()
     const searchParams = useSearchParams()
-    const id = searchParams.get('id') || null;
+    const id = searchParams.get('id') || false;
 
     const ref = useRef({
         draft: null,
@@ -33,6 +36,12 @@ const ChunkUploadBox = () => {
         duration: 0,
         submit: '',
     })
+
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: ""
+    })
+    const setTextPromptOpen = (open) => setTextPrompt((prev) => ({ ...prev, isOpen: open }))
 
     // 更新字段的通用方法
     const handleChange = useCallback((key, value) => {
@@ -124,12 +133,16 @@ const ChunkUploadBox = () => {
                 body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
             });
 
-            if (response.ok) {
-                const result = await response.json();  // 解析 JSON 响应
+            if (!response.ok) {
                 console.log(result);
+                return false
             }
+            const result = await response.json();  // 解析 JSON 响应
+            console.log(result)
+            return true
         } catch (error) {
             console.log(error)
+            return false
         }
     }, [info.bio, info.category, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title])
     const updateCreation = useCallback(async () => {
@@ -163,12 +176,16 @@ const ChunkUploadBox = () => {
                 body: JSON.stringify(body),  // 将表单数据作为 JSON 发送
             });
 
-            if (response.ok) {
-                const result = await response.json();  // 解析 JSON 响应
+            if (!response.ok) {
                 console.log(result);
+                return false
             }
+            const result = await response.json();  // 解析 JSON 响应
+            console.log(result)
+            return true
         } catch (error) {
             console.log(error)
+            return false
         }
     }, [info.bio, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title])
 
@@ -252,7 +269,7 @@ const ChunkUploadBox = () => {
     useEffect(() => {
         if (!ref) return;
         const [title, imageSrc, category] = [info.title, info.imageSrc, info.category];
-        if (title === '' || !imageSrc || !category) {
+        if (title == "" || !imageSrc || !category) {
             if (!ref.current.draft || !ref.current.publish) return;
             ref.current.draft.classList.add('disable')
             ref.current.publish.classList.add('disable')
@@ -270,19 +287,25 @@ const ChunkUploadBox = () => {
         console.log("it's creating creation!")
 
         const handleSubmit = async () => {
+            let result
             if (id) {
-                await updateCreation()
+                result = await updateCreation()
             } else {
-                await uploadCreation()
+                result = await uploadCreation()
+            }
+            if (result) {
+                setTextPrompt({ isOpen: true, text: "上传成功！发布需等待审核！" })
+                setTimeout(() => router.replace("/manager/creations"), 2000);
             }
         };
         handleSubmit()
         console.log("success")
-    }, [id, info.submit, info.fileSrc, info.uploading, uploadCreation, updateCreation])
+    }, [router, id, info.submit, info.fileSrc, info.uploading, uploadCreation, updateCreation])
 
     return (
         <>
-            {(info.file || id) && <div className="upload-video-box">
+            {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
+            {!id && !info.file && <div className="upload-video-box">
                 <label style={{
                     display: "flex",
                     justifyContent: "center",
@@ -361,12 +384,12 @@ const ChunkUploadBox = () => {
                 </div>
 
                 {/* 分区 */}
-                {id && <div className="biaodan-option">
+                <div className="biaodan-option">
                     <label className="biaodan-key">*分区:</label>
-                    <div className="biaodan-value">
+                    <div className="biaodan-value" style={{ pointerEvents: !id ? 'auto' : 'none' }}>
                         <CategorySelect handleChange={handleChange} />
                     </div>
-                </div>}
+                </div>
 
                 {/* 简介 */}
                 <div className="biaodan-option">
@@ -385,14 +408,15 @@ const ChunkUploadBox = () => {
                 <div className="button-group">
                     {!id
                         ? <>
-                            <button type="submit" ref={(el) => (ref.current.draft = el)} className="biaodan-button"
+                            <button type="submit" ref={(el) => (ref.current.draft = el)}
+                                className="biaodan-button"
                                 onClick={() => handleChange("submit", "DRAFT")}>存草稿</button>
 
                             <button type="submit" ref={(el) => (ref.current.publish = el)}
                                 className="biaodan-button"
                                 onClick={() => handleChange("submit", "PENDING")}>发布</button>
                         </>
-                        : <button type="submit" ref={(el) => (ref.current.draft = el)} className="biaodan-button"
+                        : <button type="submit" ref={(el) => (ref.current.publish = el)} className="biaodan-button"
                             onClick={() => handleChange("submit", "PENDING")}>更新</button>}
                 </div>
             </div>}

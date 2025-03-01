@@ -1,0 +1,64 @@
+.creations-page {
+    display: block;
+    position: relative;
+    width: 80vw;
+    margin: 0 auto;
+    top: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+
+    & .creation-status {
+        display: flex;
+        flex-direction: row;
+
+        & .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            letter-spacing: 2px;
+            font-size: 13px;
+            font-family: Arial, Helvetica, sans-serif;
+            padding:  8px;
+            margin: auto 6px;
+            background-color: inherit;
+            color: rgb(80, 80, 80);
+            cursor: pointer;
+
+            &.active {
+                color: rgb(0, 161, 214);
+            }
+
+            &:hover {
+                color: rgb(0, 161, 214);
+            }
+        }
+    }
+
+    & .creation-review-status {
+        display: flex;
+        flex-direction: row;
+
+        & .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            letter-spacing: 2px;
+            font-size: 13px;
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 1px 8px;
+            margin: auto 6px;
+            background-color: inherit;
+            cursor: pointer;
+            color: rgb(132, 132, 132);
+
+            &.active {
+                color: rgb(0, 161, 214);
+            }
+
+            &:hover {
+                color: rgb(0, 161, 214);
+            }
+        }
+    }
+}

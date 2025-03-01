@@ -323,7 +323,7 @@ const Page = () => {
                 const result = await fetchCreation(creationId);
                 setPageLoading(false);
                 if (!result) {
-                    router.replace("/creation");
+                    console.log(result)
                     return;
                 }
     
@@ -345,6 +345,7 @@ const Page = () => {
                 try {
                     loginUserId = await getLoginUserId();
                     console.log("loginUserId:", loginUserId);
+                    console.log("userId:", userId);
                 } catch (error) {
                     console.log(error);
                     return;
