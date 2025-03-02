@@ -160,11 +160,8 @@ const Page = () => {
             accessToken: {
                 value: token
             },
-            operateInteraction: {
-                action: Operate.CANCEL_LIKE,
-                interaction: {
-                    creationId: creationId,
-                }
+            base: {
+                creationId: creationId,
             },
         }
         try {
@@ -194,11 +191,8 @@ const Page = () => {
             accessToken: {
                 value: token
             },
-            operateInteraction: {
-                action: Operate.COLLECT,
-                interaction: {
-                    creationId: creationId,
-                }
+            base: {
+                creationId: creationId,
             },
         }
         try {
@@ -228,11 +222,8 @@ const Page = () => {
             accessToken: {
                 value: token
             },
-            operateInteraction: {
-                action: Operate.LIKE,
-                interaction: {
-                    creationId: creationId,
-                }
+            base: {
+                creationId: creationId,
             },
         }
         try {
@@ -280,8 +271,8 @@ const Page = () => {
 
             if (!result) {
                 // 请求失败，恢复快照，并提示重试
-                setInteraction((prev) => ({ ...prev, isLike: isLikeSnapshot }));
-                setVideoInfo((prev) => ({ ...prev, likes: likesSnapshot }));
+                setInteraction((prev) => ({ ...prev, isLike: isLike }));
+                setVideoInfo((prev) => ({ ...prev, likes: isLike }));
                 setTextPrompt({ text: "请重试！", isOpen: true })
             }
         }, 300)
@@ -326,7 +317,7 @@ const Page = () => {
                     console.log(result)
                     return;
                 }
-    
+
                 const { creationInfo, creationUser } = result;
                 if (!creationInfo || !creationUser) return;
                 const { creation, creationEngagement, category } = creationInfo;
@@ -334,13 +325,13 @@ const Page = () => {
                 const { authorId, bio, src, thumbnail, title, status, duration } = baseInfo;
                 const { views, saves, likes, publishTime } = creationEngagement;
                 const { categoryId, name, parent } = category;
-    
+
                 const { userDefault, userAvatar, userBio } = creationUser;
                 const { userId, userName } = userDefault;
-    
+
                 console.log("creationInfo");
                 console.log(creationInfo);
-    
+
                 let loginUserId;
                 try {
                     loginUserId = await getLoginUserId();
@@ -350,7 +341,7 @@ const Page = () => {
                     console.log(error);
                     return;
                 }
-    
+
                 let role = User_Role.GUEST;
                 try {
                     const userRole = await getLoginUserRole();
@@ -361,9 +352,9 @@ const Page = () => {
                     console.log(error);
                     return;
                 }
-    
+
                 console.log("role:", role);
-    
+
                 if (status != Creation_Status.PUBLISHED) {
                     if (userId != loginUserId) {
                         if (role != User_Role.ADMIN && role != User_Role.SUPER_ADMIN) {
@@ -372,7 +363,7 @@ const Page = () => {
                         }
                     }
                 }
-    
+
                 const video = {
                     uploadTime: formatTimestamp(uploadTime),
                     authorId: authorId,
@@ -387,7 +378,7 @@ const Page = () => {
                     likes: likes,
                     publishTime: formatTimestamp(publishTime),
                 };
-    
+
                 setVideoInfo((prev) => ({ ...prev, ...video }));
                 setTag({ categoryId: categoryId, name: name, parent: parent });
                 setAuthor({
@@ -400,11 +391,11 @@ const Page = () => {
                 console.log(error);
             }
         };
-    
+
         fetchData();
         setReport((prev) => ({ ...prev, id: creationId }));
     }, [router, creationId, loginId, fetchCreation]);
-    
+
 
     // 获取交互
     useEffect(() => {

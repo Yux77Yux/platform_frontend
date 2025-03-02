@@ -3,12 +3,11 @@
     display: flex;
     flex-direction: row;
     position: relative;
+    margin-top: 30px;
     justify-content: center;
     align-items: center;
     height: 48px;
-    width: 1000px;
-
-
+    min-width: 1000px;
 
     & .page-item {
         margin: auto 10px;

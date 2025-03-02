@@ -3,8 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import "./pagination.scss"
 
-const PageItem = (props) => {
-  const { item, page, setPage } = props;
+const PageItem = ({ item, page, setPage }) => {
   const [show, setShow] = useState()
   const [number, setNumber] = useState()
 
@@ -21,8 +20,7 @@ const PageItem = (props) => {
   return <button className={`page-item ${page == show ? "focus" : ""}`} onClick={() => setPage(number)}>{show}</button>
 }
 
-const Pagination = (props) => {
-  const { count, page, setPage } = props
+const Pagination = ({ count, page, setPage }) => {
   const [jumpPage, setJumpPage] = useState(1);
   const [pages, setPages] = useState([]);
 

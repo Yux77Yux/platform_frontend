@@ -3,11 +3,144 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import './page.scss'
-import Link from 'next/link';
+
+import { useRouter } from 'next/navigation';
+import Pagination from '@/src/client-components/pagination/pagination';
+import TextPrompt from '@/src/client-components/prompt/TextPrompt';
+import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
 import { Creation_Status } from "@/src/tool/creation"
 import { getToken } from '@/src/tool/getLoginUser';
 import { Api_Status } from '@/src/tool/api-status';
+import { formatChineseDate, formatDuration } from '@/src/tool/formatTimestamp';
+
+const CreationInfoCard = ({ creationInfo }) => {
+    const router = useRouter()
+    const { creation, creationEngagement } = creationInfo
+    const { baseInfo, creationId, uploadTime } = creation
+    const { likes, saves, views } = creationEngagement
+    const { duration, thumbnail, title } = baseInfo
+
+    const time = formatChineseDate(uploadTime)
+    const durationTime = formatDuration(duration)
+
+    // 删除确认盒子
+    const [delOpen, setDelOpen] = useState(false)
+
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: "",
+    })
+    const setTextPromptOpen = (open) => setTextPrompt((prev) => ({ ...prev, isOpen: open }))
+
+    const deleteCreation = useCallback(async (body) => {
+        try {
+            const response = await fetch("http://localhost:8080/api/creation/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            })
+
+            if (!response.ok) {
+                alert("网络不通")
+                return false
+            }
+
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }, [])
+
+
+    const clickDelete = useCallback(async () => {
+        const token = await getToken()
+        const body = {
+            accessToken: {
+                value: token,
+            },
+            creationId: creationId,
+        }
+        const result = await deleteCreation(body)
+        if (result) {
+            setTextPrompt({ isOpen: true, text: "删除成功！即将回到首页" })
+            setTimeout(() => router.replace("/"), 1500)
+        } else {
+            setTextPrompt({ isOpen: true, text: "删除失败，请重试！或等待一段时间" })
+            setDelOpen(false)
+        }
+    }, [router, creationId, deleteCreation])
+
+    return <>
+        {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
+        {delOpen && <Modal setOpen={setDelOpen}>
+            <div className="report">
+                <h4 className="title">是否删除？</h4>
+                <div className="btns">
+                    <button className="btn cancel" onClick={() => setDelOpen(false)}>取消</button>
+                    <button className="btn confirm" onClick={clickDelete}>确定</button>
+                </div>
+            </div>
+        </Modal>}
+        <div className="content">
+            <div className="cover" onClick={() => window.open(`/creation/${creationId}`, "_blank", "noopener,noreferrer")}>
+                <Image src={thumbnail}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    quality={100}
+                    alt=""
+                />
+                <span className="duration">{durationTime}</span>
+            </div>
+            <div className="description">
+                <p className="title" onClick={() => window.open(`/creation/${creationId}`, "_blank", "noopener,noreferrer")}>{title}</p>
+                <p className="time">{time}</p>
+                <div className="statistics">
+                    <span className="count">
+                        <span className="icon">
+                            <Image src="/img/video-16px.png"
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                quality={100}
+                                alt=""
+                            />
+                        </span>
+                        <span className="value">{views}</span>
+                    </span>
+                    <span className="count">
+                        <span className="icon">
+                            <Image src="/img/like-16px.png"
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                quality={100}
+                                alt=""
+                            />
+                        </span>
+                        <span className="value">{likes}</span>
+                    </span>
+                    <span className="count">
+                        <span className="icon">
+                            <Image src="/img/star-16px.png"
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                quality={100}
+                                alt=""
+                            />
+                        </span>
+                        <span className="value">{saves}</span>
+                    </span>
+                </div>
+            </div>
+            <div className="btns">
+                <button className="btn" onClick={() => router.push(`/manager?id=${creationId}`)}>编辑</button>
+                <button className="btn" onClick={() => setDelOpen(true)}>删除</button>
+            </div>
+        </div>
+    </>
+}
 
 const ManagerCreations = ({ status }) => {
     const [page, setPage] = useState(1)
@@ -55,8 +188,8 @@ const ManagerCreations = ({ status }) => {
             const token = await getToken();
             const body = { accessToken: { value: token }, page, status };
             const result = await fetchCreations(body);
-            console.log(result);
             const { creationInfoGroup, count } = result;
+            console.log(creationInfoGroup);
             setCreationInfos(creationInfoGroup);
 
             // 如果当前请求的是第一页，我们更新 count，
@@ -66,16 +199,19 @@ const ManagerCreations = ({ status }) => {
                 setPageCount(count)
             }
         })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, status]);
+    }, [page, status, fetchCreations]);
 
-    return <>
-        <button onClick={() => setPage(5)}>1111111111</button>
-    </>
+    return <div className="manager-creations">
+        {creationInfos.map((creationInfo) =>
+            <CreationInfoCard creationInfo={creationInfo} key={creationInfo.creation.creationId}
+            />)
+        }
+        {pageCount > 1 && <Pagination count={pageCount} page={page} setPage={setPage} />}
+    </div>
 }
 
 const Page = () => {
-    const [status, setStatus] = useState(Creation_Status.DRAFT);
+    const [status, setStatus] = useState(Creation_Status.PUBLISHED);
 
     const handlerStatus = useCallback((status) => {
         setStatus(status)

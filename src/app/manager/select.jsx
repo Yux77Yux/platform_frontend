@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Category } from './category'; // 导入 Category 数据
 
-function CategoryMenu({ handleChange }) {
+function CategoryMenu({ categoryId, handleChange }) {
     const menuRef = useRef(null); // 创建一个 ref 来引用菜单
     const buttonRef = useRef(null); // 创建一个 ref 来引用按钮
     const [showMenu, setShowMenu] = useState(false);
@@ -44,6 +44,18 @@ function CategoryMenu({ handleChange }) {
         };
     }, []);
 
+    useEffect(() => {
+        const topCategory = Category.find(top =>
+            top.sub.some(second => second.id == categoryId)
+        );
+        const subCategory = topCategory?.sub.find(second => second.id == categoryId);
+
+        if (topCategory && subCategory) {
+            setSelectedTopCategory(topCategory);
+            setSelectedSubCategory(subCategory);
+        }
+
+    }, [categoryId])
 
     return (
         <div style={{ position: "relative" }}>

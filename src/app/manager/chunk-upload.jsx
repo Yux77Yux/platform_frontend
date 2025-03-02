@@ -10,6 +10,8 @@ import TextPrompt from "@/src/client-components/prompt/TextPrompt"
 
 import { client } from './oss';
 import { getCookie } from "cookies-next";
+import { Api_Status } from "@/src/tool/api-status";
+import { getToken } from "@/src/tool/getLoginUser";
 
 const ChunkUploadBox = () => {
     const router = useRouter()
@@ -72,7 +74,7 @@ const ChunkUploadBox = () => {
         if (file) {
             // 创建临时 URL 以显示图片
             const imageBlob = URL.createObjectURL(file);
-            handleChange("imageBlob", imageBlob);
+            setInfo((prev) => ({ ...prev, imageBlob: imageBlob, imageSrc: null }));
 
             // 读取文件字节
             const reader = new FileReader();
@@ -99,6 +101,33 @@ const ChunkUploadBox = () => {
             }
         }
     }, [handleChange, getMimeType]);
+
+    // id存在时使用的函数
+    const fetchCreation = useCallback(async (body) => {
+        try {
+            const response = await fetch("http://localhost:8080/api/creation/private", {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify(body)
+            })
+            if (!response.ok) {
+                alert("网络不通")
+                return false
+            }
+            const result = await response.json()
+            const { status } = result.msg
+            if (status != Api_Status.SUCCESS) {
+                console.log(result)
+                return false
+            }
+            return result
+        } catch (error) {
+            alert(error)
+            return false
+        }
+    }, [])
 
     // 前后端交互
     const uploadCreation = useCallback(async () => {
@@ -155,7 +184,8 @@ const ChunkUploadBox = () => {
         const status = info.submit === "PENDING" ? 1 : 0;
 
         const body = {
-            baseInfo: {
+            updateInfo: {
+                creationId: id,
                 src: info.fileSrc,
                 thumbnail: info.imageSrc,
                 title: info.title,
@@ -169,7 +199,7 @@ const ChunkUploadBox = () => {
         }
         try {
             const response = await fetch('http://localhost:8080/api/creation', {
-                method: "POST",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -187,7 +217,7 @@ const ChunkUploadBox = () => {
             console.log(error)
             return false
         }
-    }, [info.bio, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title])
+    }, [id, info.bio, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title])
 
     // 上传视频文件至oss
     const handleFileChange = async (event) => {
@@ -196,7 +226,11 @@ const ChunkUploadBox = () => {
             return;
         }
         const file = event.target.files[0];
-        handleChange("file", file);
+        setInfo((prev) => ({
+            ...prev,
+            file: file,
+            progress: 0,
+        }))
         // 创建一个 video 元素来获取视频时长
         const videoElement = document.createElement('video');
         const objectURL = URL.createObjectURL(file);
@@ -270,12 +304,19 @@ const ChunkUploadBox = () => {
         if (!ref) return;
         const [title, imageSrc, category] = [info.title, info.imageSrc, info.category];
         if (title == "" || !imageSrc || !category) {
-            if (!ref.current.draft || !ref.current.publish) return;
-            ref.current.draft.classList.add('disable')
-            ref.current.publish.classList.add('disable')
+            if (ref.current.draft) {
+                ref.current.draft.classList.add('disable')
+            }
+            if (ref.current.publish) {
+                ref.current.publish.classList.add('disable')
+            }
         } else {
-            ref.current.draft.classList.remove('disable')
-            ref.current.publish.classList.remove('disable')
+            if (ref.current.draft) {
+                ref.current.draft.classList.remove('disable')
+            }
+            if (ref.current.publish) {
+                ref.current.publish.classList.remove('disable')
+            }
         }
     }, [info.title, info.imageSrc, info.category])
 
@@ -284,9 +325,9 @@ const ChunkUploadBox = () => {
         // 未提交，视频源地址为空，正在上传则立即返回
         if (!submit || !fileSrc || uploading) return;
         // 上传事件
-        console.log("it's creating creation!")
+        console.log("it's creating creation!");
 
-        const handleSubmit = async () => {
+        (async () => {
             let result
             if (id) {
                 result = await updateCreation()
@@ -297,10 +338,42 @@ const ChunkUploadBox = () => {
                 setTextPrompt({ isOpen: true, text: "上传成功！发布需等待审核！" })
                 setTimeout(() => router.replace("/manager/creations"), 2000);
             }
-        };
-        handleSubmit()
+        })();
         console.log("success")
     }, [router, id, info.submit, info.fileSrc, info.uploading, uploadCreation, updateCreation])
+
+    useEffect(() => {
+        if (!id) return;
+        (async () => {
+            const token = await getToken()
+            const body = {
+                accessToken: {
+                    value: token
+                },
+                creationId: id,
+            };
+            const result = await fetchCreation(body)
+            if (!result) {
+                setTextPrompt({
+                    isOpen: true,
+                    text: "未通过验证",
+                })
+                setTimeout(() => router.replace("/"), 1500)
+                return;
+            }
+            const { bio, categoryId, src, thumbnail, title, duration } = result.creationInfo.creation.baseInfo
+            setInfo((prev) => ({
+                ...prev,
+                fileSrc: src,
+                title: title,
+                bio: bio,
+                category: categoryId,
+                imageSrc: thumbnail,
+                duration: duration,
+                progress: 100,
+            }))
+        })()
+    }, [id, router, fetchCreation])
 
     return (
         <>
@@ -332,9 +405,33 @@ const ChunkUploadBox = () => {
                     />
                 </label>
             </div>}
+
             {(info.file || id) && <div className="jichuxinxi">
+                {info.progress == 100 && <label style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '8px 12px',
+                    backgroundColor: 'rgb(222,222,222)',
+                    cursor: 'pointer',
+                    borderRadius: '6px',
+                }}>
+                    <span style={{
+                        fontSize: "14px",
+                        letterSpacing: "2px",
+                    }}>更换视频</span>
+                    <input type="file"
+                        name="video"
+                        style={{
+                            position: "absolute",
+                            visibility: "hidden",
+                        }}
+                        onChange={handleFileChange}
+                    />
+                </label>}
+
                 {/* 进度条 */}
-                {info.file && <div className="biaodan-option">
+                {(info.file || id) && <div className="biaodan-option">
                     <div className="progress-bar">
                         <div className="progress"
                             style={{ width: `${info.progress}%`, }}
@@ -357,13 +454,15 @@ const ChunkUploadBox = () => {
                             backgroundRepeat: 'no-repeat',
                             backgroundSize: '30px',
                         }}>
-                            {info.imageBlob && <Image
-                                src={info.imageBlob}
-                                alt="info"
-                                fill
-                                style={{ objectFit: 'cover' }}
-                                quality={100}
-                            />}
+                            {info && (info.imageBlob || info.imageSrc) && (
+                                <Image
+                                    src={info.imageBlob || info.imageSrc}
+                                    alt="info"
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    quality={100}
+                                />
+                            )}
                             <input type="file" style={{ position: 'absolute', visibility: 'hidden', opacity: 0, }} onChange={handleCoverImageChange} />
                         </label>
                     </div>
@@ -379,15 +478,18 @@ const ChunkUploadBox = () => {
                             onChange={(e) => handleChange('title', e.target.value)}
                             maxLength="80"
                         />
-                        <p>{info.title.length}/80</p>
+                        <p style={{ position: 'relative', marginLeft: '16px' }}>{info.title.length}/80</p>
                     </div>
                 </div>
 
                 {/* 分区 */}
                 <div className="biaodan-option">
                     <label className="biaodan-key">*分区:</label>
-                    <div className="biaodan-value" style={{ pointerEvents: !id ? 'auto' : 'none' }}>
-                        <CategorySelect handleChange={handleChange} />
+                    <div className="biaodan-value" style={{
+                        pointerEvents: id ? 'none' : 'auto',
+                        opacity: id ? 0.5 : 1, // 显示禁用效果
+                    }}>
+                        <CategorySelect categoryId={info.category} handleChange={handleChange} />
                     </div>
                 </div>
 

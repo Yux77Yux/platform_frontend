@@ -1,6 +1,8 @@
 import Link from "next/link";
 import "./laytout.scss";
 
+import AuthGuard from "@/src/client-components/auth-guard/auth-guard"
+
 interface Props {
     children: React.ReactNode
 }
@@ -14,6 +16,7 @@ const ManagerLayout = async ({ children }: Props) => {
     ]
     return (
         <>
+            <AuthGuard />
             <header className="manager-header"></header>
             <div className="manager-layout-fix">
                 {links.map((link, index) => (

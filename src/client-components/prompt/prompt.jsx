@@ -8,7 +8,7 @@ import "./prompt.scss"
 
 const Prompt = ({ children, setOpen }) => {
     useEffect(() => {
-        setTimeout(() => setOpen(false), 2000)
+        setTimeout(() => setOpen(false), 1500)
     }, [setOpen])
 
     return ReactDOM.createPortal(

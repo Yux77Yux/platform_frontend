@@ -14,10 +14,7 @@ export const cancelCollections = async (creationIds, token) => {
         accessToken: {
             value: token,
         },
-        operateInteraction: {
-            action: Operate.CANCEL_COLLECT,
-            anyInteraction: creationIds,
-        }
+        bases: creationIds,
     }
     try {
         const response = await fetch("http://localhost:8080/api/interaction/collection/cancel",
@@ -39,7 +36,7 @@ export const cancelCollections = async (creationIds, token) => {
             console.log(result);
             return false
         }
-        
+
         return true
     } catch (error) {
         console.log(error)
@@ -52,10 +49,7 @@ export const delHistories = async (creationIds, token) => {
         accessToken: {
             value: token,
         },
-        operateInteraction: {
-            action: Operate.DEL_VIEW,
-            anyInteraction: creationIds,
-        }
+        bases: creationIds,
     }
     try {
         const response = await fetch("http://localhost:8080/api/interaction/history/cancel",
@@ -77,7 +71,7 @@ export const delHistories = async (creationIds, token) => {
             console.log(result);
             return false
         }
-        
+
         return true
     } catch (error) {
         console.log(error)
