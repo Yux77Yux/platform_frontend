@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from "react";
-import { Category } from './category'; // 导入 Category 数据
+import { Category } from '@/src/tool/category'; // 导入 Category 数据
 
 function CategoryMenu({ categoryId, handleChange }) {
     const menuRef = useRef(null); // 创建一个 ref 来引用菜单
@@ -22,6 +22,7 @@ function CategoryMenu({ categoryId, handleChange }) {
     };
 
     useEffect(() => {
+        if (!handleChange) return;
         handleChange("category", selectedSubCategory.id)
     }, [handleChange, selectedSubCategory.id])
 

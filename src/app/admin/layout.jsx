@@ -28,7 +28,7 @@ const Layout = async ({ children,detail }) => {
                 color: 'white',
                 fontSize: '20px',
             }}>
-                管理界面
+                管理端
             </header>
             <div style={{
                 display: 'flex',

@@ -1,10 +1,14 @@
 .detail-slot {
     display: flex;
     flex-direction: row;
-    height: 70vh;
+    height: 75vh;
     width: 80vw;
 
     & .detail-left {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
         padding-top: 20px;
         width: 50vw;
         background-color: white;
@@ -55,8 +59,8 @@
                     color: rgb(163, 73, 164);
                 }
 
-                &:hover{
-                    background-color: rgb(101,196,66);
+                &:hover {
+                    background-color: rgb(101, 196, 66);
                     color: white;
                 }
             }
@@ -68,7 +72,8 @@
         flex-direction: column;
         position: relative;
         margin: 0 auto;
-        width: 26vw;
+        left: 30px;
+        width: 28vw;
         background-color: white;
         border-radius: 14px;
 
@@ -107,6 +112,90 @@
                 scrollbar-width: none;
                 background-color: rgb(248, 248, 248);
                 border-radius: 8px;
+            }
+        }
+    }
+}
+
+.confirm-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 38vh;
+    min-width: 28vw;
+    padding: 20px;
+    background-color: #fff;
+    gap: 12px;
+    border-radius: 6px;
+
+    & textarea {
+        height: 160px;
+        width: 600px;
+        position: relative;
+        margin: auto;
+        margin-top: 20px;
+        background-color: white;
+        padding: 10px 20px;
+        font-size: 15px;
+        resize: none;
+        border: 1px solid rgb(220, 223, 230);
+        border-radius: 4px;
+        outline: 0;
+        transition: border-color 0.2s ease;
+
+        &:hover {
+            border-color: rgb(192, 196, 204);
+        }
+
+        &:focus {
+            border-color: rgb(64, 158, 255);
+        }
+    }
+
+    & .btns {
+        display: flex;
+        position: relative;
+        margin: auto;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        height: 56px;
+        width: 100%;
+
+        & .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            margin: auto 14px;
+            height: 36px;
+            padding: 12px 74px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.2s linear;
+        }
+
+        & .cancel {
+            background-color: #fff;
+            border: 1px solid rgb(227, 229, 231);
+
+            &:hover {
+                background-color: rgb(227, 229, 231)
+            }
+        }
+
+        & .confirm {
+            color: #fff;
+            background-color: rgb(0, 174, 236);
+
+            &:hover {
+                background-color: rgb(64, 197, 241);
+            }
+
+            &.hide {
+                pointer-events: none;
+                opacity: 0.5;
             }
         }
     }

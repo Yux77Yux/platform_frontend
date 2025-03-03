@@ -7,7 +7,7 @@ import "./space-user.styles.scss";
 
 import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
-import { Status, reportInfo } from "@/src/tool/review"
+import { Type, reportInfo } from "@/src/tool/review"
 
 
 const SpaceUser = (props) => {
@@ -25,7 +25,7 @@ const SpaceUser = (props) => {
 
     const reportUser = useCallback(() => {
         if (!report.detail) return
-        reportInfo(Status.USER, report.id, report.detail)
+        reportInfo(Type.USER, report.id, report.detail)
     }, [report])
 
     useEffect(() => {

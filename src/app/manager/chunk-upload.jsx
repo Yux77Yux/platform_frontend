@@ -4,7 +4,7 @@ import Image from "next/image";
 import "./chunk-upload.scss"
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
-import CategorySelect from './select';
+import CategorySelect from '@/src/client-components/select/select';
 
 import TextPrompt from "@/src/client-components/prompt/TextPrompt"
 

@@ -4,8 +4,7 @@
 import "./page.scss";
 import { getAddress } from "@/src/tool/getIp"
 import { getLoginUserId, getToken, getLoginUserRole } from "@/src/tool/getLoginUser"
-import { Status, reportInfo } from "@/src/tool/review"
-import { Operate } from "@/src/tool/interaction"
+import { Type, reportInfo } from "@/src/tool/review"
 import { Api_Status } from "@/src/tool/api-status"
 import { Creation_Status } from "@/src/tool/creation"
 import { User_Role } from "@/src/tool/user"
@@ -304,7 +303,7 @@ const Page = () => {
     }, [token, videoInfo.saves, interaction.isCollection, creationId, clickCollect])
 
     const reportCreation = useCallback(async () => {
-        reportInfo(Status.CREATION, report.id, report.detail)
+        reportInfo(Type.CREATION, report.id, report.detail)
     }, [report])
 
     // 获取视频
@@ -329,14 +328,9 @@ const Page = () => {
                 const { userDefault, userAvatar, userBio } = creationUser;
                 const { userId, userName } = userDefault;
 
-                console.log("creationInfo");
-                console.log(creationInfo);
-
                 let loginUserId;
                 try {
                     loginUserId = await getLoginUserId();
-                    console.log("loginUserId:", loginUserId);
-                    console.log("userId:", userId);
                 } catch (error) {
                     console.log(error);
                     return;
@@ -352,8 +346,6 @@ const Page = () => {
                     console.log(error);
                     return;
                 }
-
-                console.log("role:", role);
 
                 if (status != Creation_Status.PUBLISHED) {
                     if (userId != loginUserId) {

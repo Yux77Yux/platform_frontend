@@ -9,7 +9,6 @@ import { getAddress } from "@/src/tool/getIp"
 
 import "./page.scss";
 
-
 export default function Page() {
     const [spaceCreations, setSpaceCreations] = useState({
         type: "PUBLISHED_TIME",

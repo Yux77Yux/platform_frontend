@@ -2,6 +2,7 @@
     display: block;
     position: relative;
     width: 100%;
+    min-height: 99vh;
 
     & .status {
         display: flex;
@@ -35,60 +36,74 @@
         width: 100%;
         min-height: 56px;
         max-height: 200px;
-        grid-template-columns: 160px 350px 400px 160px 160px 100px 80px;
+        grid-template-columns: 200px 380px 440px 150px 150px 60px;
         box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
 
         & .content-id {
             display: flex;
-            justify-content: start;
+            justify-content: center;
             align-items: center;
             grid-column: 1;
             letter-spacing: 1px;
         }
 
         & .content-cover {
-            display: flex;
-            justify-content: start;
-            align-items: center;
             grid-column: 2;
-            padding: 16px 0;
-        }
-
-        & .content-title {
-            display: flex;
-            justify-content: start;
-            align-items: center;
-            grid-column: 3;
-            text-wrap: wrap;
-        }
-
-        & .content-user {
             display: flex;
             justify-content: center;
             align-items: center;
-            grid-column: 4;
+            padding: 16px 0;
+            position: relative;
+
+            & .duration {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 42px;
+                padding: 4px;
+                font-size: 14px;
+                color: #fff;
+                border-top-left-radius: 7px;
+                background-color: rgba(50, 50, 50, 0.4);
+            }
+        }
+
+        & .content-detail {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 3;
+
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+            overflow: hidden;
         }
 
         & .content-created {
             display: flex;
             justify-content: center;
             align-items: center;
-            grid-column: 5;
+            grid-column: 4;
         }
 
         & .content-status {
             display: flex;
             justify-content: center;
             align-items: center;
-            grid-column: 6;
+            grid-column: 5;
         }
 
         & .content-addition {
             display: flex;
             justify-content: center;
             align-items: center;
-            grid-column: 7;
+            grid-column: 6;
             color: rgb(0, 181, 244);
+            background-color: inherit;
             cursor: pointer;
         }
     }

@@ -14,7 +14,7 @@ import { getCookie } from "cookies-next";
 
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
 import { getToken, getLoginUser, getLoginUserId } from "@/src/tool/getLoginUser"
-import { reportInfo, Status, } from "@/src/tool/review"
+import { reportInfo, Type, } from "@/src/tool/review"
 
 // 发表评论
 const publishComment = async (content, root, parent, dialog, creaitonId, createdAt, token) => {
@@ -413,7 +413,7 @@ const TopCommentList = ({ handleReplyField, commentTop, reply, updateSubCount })
 
     // 举报发送
     const reportComment = useCallback(() => {
-        reportInfo(Status.COMMENT, id, report.detail)
+        reportInfo(Type.COMMENT, id, report.detail)
     }, [id, report])
 
     // 删除评论
@@ -710,7 +710,7 @@ const SecondComment = ({ handleReplyField, commentSecond }) => {
 
     // 举报发送
     const reportComment = useCallback(() => {
-        reportInfo(Status.COMMENT, id, report.detail)
+        reportInfo(Type.COMMENT, id, report.detail)
     }, [id, report])
 
     // 删除评论
