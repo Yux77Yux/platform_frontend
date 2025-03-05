@@ -5,8 +5,6 @@ import { useSpace } from "./context";
 
 import VideoList from "@/src/client-components/video-slight-list/VideoList"
 
-import { getAddress } from "@/src/tool/getIp"
-
 import "./page.scss";
 
 export default function Page() {
@@ -14,6 +12,7 @@ export default function Page() {
         type: "PUBLISHED_TIME",
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [creations, setCreations] = useState({
         count: 0,
         creationInfoGroup: [],
@@ -207,13 +206,8 @@ export default function Page() {
 
     useEffect(() => {
         const type = spaceCreations.type
-        console.log(type)
 
         const exeCute = async () => {
-            console.log("getIP")
-            const ip = await getAddress()
-            console.log(ip)
-
             const result = await fetchCreationInfo(userId, type)
             setCreations(result)
         }

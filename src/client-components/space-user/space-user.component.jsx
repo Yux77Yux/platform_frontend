@@ -8,11 +8,11 @@ import "./space-user.styles.scss";
 import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
 import { Type, reportInfo } from "@/src/tool/review"
-
+import { User_Status } from "@/src/tool/user";
 
 const SpaceUser = (props) => {
     const { user, master } = props;
-    const { userAvatar, userDefault, userBio } = user;
+    const { userAvatar, userDefault, userBio, userStatus } = user;
     const { userName, userId } = userDefault;
 
     const avatar = userAvatar ? userAvatar : "/img/slience.jpg"
@@ -48,9 +48,15 @@ const SpaceUser = (props) => {
             </Link>
             <span className="space-name">{userName === "" ? "今州皇帝" : userName}</span>
             <span className="space-bio">{userBio === "" ? "userBio" : userBio}</span>
-            {!master && <button className="space-follow">关注</button>}
-            {!master && <button className="space-review-box">···</button>}
-            {!master && <button className="space-review" onClick={() => setOpen(true)}>举报</button >}
+            {(User_Status.LIMITED != userStatus && User_Status.DELETE != userStatus)
+                ? <>
+                    {!master && <button className="space-follow">关注</button>}
+                    {!master && <button className="space-review-box">···</button>}
+                    {!master && <button className="space-review" onClick={() => setOpen(true)}>举报</button >}
+                </>
+                : master && <div style={{ position: 'absolute', fontSize: '20px', color: 'black', bottom: '0px' }}>
+                    用户特殊状态
+                </div>}
             {isOpen && <Modal setOpen={setOpen}>
                 <div className="report-user">
                     <h4 className="title">个人信息举报</h4>
@@ -72,7 +78,6 @@ const SpaceUser = (props) => {
                                 <li><label><input type="checkbox" /><span></span> 赌博诈骗</label></li>
                             </ul>
                         </fieldset> */}
-
 
                     <div className="detail">
                         <textarea

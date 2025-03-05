@@ -1,14 +1,16 @@
-import { getLoginUserId } from "@/src/tool/getLoginUser";
+import { getLoginUserId, getLoginUserRole } from "@/src/tool/getLoginUser";
 import { redirect } from 'next/navigation'
 
 import { SpaceProvider } from "./context";
 
 import SpaceUser from "@/src/client-components/space-user/space-user.component";
 import SpaceOptions from "@/src/client-components/space-options/space-options.component";
+import { User_Status, User_Role } from "@/src/tool/user";
 import "./layout.scss"
 
 const fetchSpace = async (userIdInt64) => {
     const loginId = await getLoginUserId()
+    const role = await getLoginUserRole()
 
     const url = 'http://localhost:8080/api/user/' + userIdInt64;
     const response = await fetch(url, {
@@ -22,11 +24,12 @@ const fetchSpace = async (userIdInt64) => {
         return null;
     }
 
+
     const userResponse = await response.json()
 
     const result = {
         user: userResponse.user,
-        master: loginId == userIdInt64,
+        master: loginId == userIdInt64 || User_Role.ADMIN == role,
     }
     return result;
 }
@@ -41,6 +44,14 @@ export default async function SpaceLayout({
         redirect("/");
     }
     const { user, master } = data;
+    const { userStatus } = user;
+
+    const renderChildren = () => {
+        if (master) return children;
+        if (userStatus === User_Status.LIMITED) return <div>用户被封禁</div>;
+        if (userStatus === User_Status.DELETE) return <div>用户已注销</div>;
+        return children;
+    };
 
     return (
         <div className="space-layout">
@@ -54,7 +65,7 @@ export default async function SpaceLayout({
             </div>
             <div>
                 <SpaceProvider space={data}>
-                    {children}
+                    {renderChildren()}
                 </SpaceProvider>
             </div>
         </div>

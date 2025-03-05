@@ -1,7 +1,8 @@
-.review-video {
+.review-user {
     display: block;
     position: relative;
     width: 100%;
+    min-height: 99vh;
 
     & .status {
         display: flex;
@@ -27,6 +28,194 @@
         & .active {
             color: rgb(0, 181, 241);
             pointer-events: none;
+        }
+    }
+
+    & .content {
+        display: grid;
+        width: 100%;
+        min-height: 56px;
+        max-height: 200px;
+        grid-template-columns: 220px 80px 240px 240px 200px 120px 160px 100px 80px;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+
+        & .content-id{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 1;
+        }
+
+        & .content-avatar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 2;
+        }
+
+        & .content-name {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px 0;
+            position: relative;
+            grid-column: 3;
+            cursor: default;
+        }
+
+        & .content-bio {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 4;
+
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        & .content-detail {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 5;
+        }
+
+        & .content-created {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 6;
+        }
+
+        & .content-btns {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: 7;
+            gap: 14px;
+
+            & .btn {
+                font-size: 16px;
+                color: rgb(80, 80, 80);
+                transition: color 0.1s linear;
+                background-color: inherit;
+                cursor: pointer;
+                text-decoration: underline;
+
+                &:hover {
+                    color: rgb(0, 164, 214)
+                }
+            }
+        }
+
+        & .content-addition {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgb(0, 181, 214);
+            background-color: inherit;
+            cursor: pointer;
+            grid-column: 8;
+            font-size: 14px;
+        }
+
+        & .content-pass {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            color: rgb(0, 181, 214);
+            background-color: inherit;
+            cursor: pointer;
+
+            grid-column: 9;
+        }
+    }
+}
+
+.confirm-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 38vh;
+    min-width: 28vw;
+    padding: 20px;
+    background-color: #fff;
+    gap: 12px;
+    border-radius: 6px;
+
+    & textarea {
+        height: 160px;
+        width: 600px;
+        position: relative;
+        margin: auto;
+        margin-top: 20px;
+        background-color: white;
+        padding: 10px 20px;
+        font-size: 15px;
+        resize: none;
+        border: 1px solid rgb(220, 223, 230);
+        border-radius: 4px;
+        outline: 0;
+        transition: border-color 0.2s ease;
+
+        &:hover {
+            border-color: rgb(192, 196, 204);
+        }
+
+        &:focus {
+            border-color: rgb(64, 158, 255);
+        }
+    }
+
+    & .btns {
+        display: flex;
+        position: relative;
+        margin: auto;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        height: 56px;
+        width: 100%;
+
+        & .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            margin: auto 14px;
+            height: 36px;
+            padding: 12px 74px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.2s linear;
+        }
+
+        & .cancel {
+            background-color: #fff;
+            border: 1px solid rgb(227, 229, 231);
+
+            &:hover {
+                background-color: rgb(227, 229, 231)
+            }
+        }
+
+        & .confirm {
+            color: #fff;
+            background-color: rgb(0, 174, 236);
+
+            &:hover {
+                background-color: rgb(64, 197, 241);
+            }
+
+            &.hide {
+                pointer-events: none;
+                opacity: 0.5;
+            }
         }
     }
 }

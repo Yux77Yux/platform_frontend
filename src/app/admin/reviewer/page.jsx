@@ -8,6 +8,7 @@ import { getToken } from '@/src/tool/getLoginUser';
 import { formatTimestamp, formatDuration } from '@/src/tool/formatTimestamp';
 import Modal from '@/src/client-components/modal-no-redirect/modal.component';
 import AdminVideo from '@/src/client-components/admin-video/admin-video'
+import TextPrompt from "@/src/client-components/prompt/TextPrompt";
 
 const Page = () => {
     const [status, setStatus] = useState(Status.PENDING)
@@ -16,20 +17,34 @@ const Page = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [reviews, setReviews] = useState([])
     const statusChangedRef = useRef(false);
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: "",
+    })
+
+    const setTextPromptOpen = (open) => setTextPrompt((prev) => ({ ...prev, isOpen: open, }))
 
     const removeReview = useCallback((id) => {
+        setIsLoading(true)
         setReviews(reviews.filter(reviewInfo => reviewInfo.review.new.id != id));
+        setIsLoading(false)
     }, [reviews])
 
     const getNewReviews = useCallback(async () => {
+        if (isLoading) return;
+        setIsLoading(true)
+        
         const token = await getToken()
         const result = await getNewCreationReviews(token)
-        console.log(result)
         const { reviews } = result
-        setIsLoading(true)
-        setReviews((prev) => [...prev, ...reviews])
+        if (reviews.length <= 0) {
+            setTextPrompt({ isOpen: true, text: "无更多请求..." })
+        } else {
+            setReviews((prev) => [...prev, ...reviews])
+        }
+
         setIsLoading(false)
-    }, [])
+    }, [isLoading])
 
     const scrollAddPage = useCallback(() => {
         if (isLoading || page + 1 > pageCount) return;
@@ -39,8 +54,8 @@ const Page = () => {
 
     useEffect(() => {
         statusChangedRef.current = true;
-        setPage(1);
         setReviews([])
+        setPage(1);
     }, [status]);
 
     useEffect(() => {
@@ -57,6 +72,7 @@ const Page = () => {
             const { count, reviews } = result
             setReviews((prev) => [...prev, ...reviews])
             setIsLoading(false)
+            console.log(reviews)
 
             // 如果当前请求的是第一页，我们更新 count，
             // 并重置 statusChangedRef，这样后续翻页或切换状态时逻辑都正常
@@ -88,9 +104,8 @@ const Page = () => {
         };
     }, [isLoading, page, pageCount, scrollAddPage]);
 
-    if (isLoading) return null
-
-    return (
+    return <>
+        {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
         <div className='review-video'>
             <div className="status">
                 <button onClick={() => setStatus(Status.PENDING)} className={`set-status ${status === Status.PENDING && "active"}`}>未审核</button>
@@ -107,19 +122,20 @@ const Page = () => {
                 <div className="content-addition"> {reviews.length || 0} </div>
             </div>
             {reviews.map((reviewInfo) => <Content key={reviewInfo.review.new.id} reviewInfo={reviewInfo} removeReview={removeReview} />)}
-            <div className="content">
-                <div className="content-detail"
-                    onClick={getNewReviews}
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        color: 'rgb(114, 114, 231)',
-                        cursor: 'pointer',
-                    }}>尝试拉取新请求</div>
+            <div onClick={getNewReviews}
+                style={{
+                    display: 'flex',
+                    position: 'relative',
+                    width: '100%',
+                    height: '56px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: 'rgb(114, 114, 231)',
+                    cursor: 'pointer',
+                }}>尝试拉取新请求
             </div>
         </div >
-    );
+    </>
 }
 
 const Content = ({ reviewInfo, removeReview }) => {

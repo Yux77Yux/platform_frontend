@@ -5,13 +5,21 @@ import './admin-video.scss'
 import CategoryMenu from "@/src/client-components/select/select";
 import { getToken } from '@/src/tool/getLoginUser';
 import { updateReview, Status } from '@/src/tool/review';
+import { Creation_Status } from '@/src/tool/creation';
 import Modal from '@/src/client-components/modal-no-redirect/modal.component';
+import TextPrompt from "@/src/client-components/prompt/TextPrompt";
+import Link from "next/link"
 
 const AdminVideo = ({ reviewInfo, removeReview }) => {
     const { creation, review } = reviewInfo
     const { id } = review.new
-    const { baseInfo } = creation;
-    const { bio, src, title, category_id } = baseInfo
+    const { baseInfo, creationId } = creation;
+    const { bio, src, title, category_id, status } = baseInfo
+
+    const [textPrompt, setTextPrompt] = useState({
+        isOpen: false,
+        text: "",
+    })
 
     const [reject, setReject] = useState({
         isOpen: false,
@@ -23,6 +31,23 @@ const AdminVideo = ({ reviewInfo, removeReview }) => {
         reason: "",
     })
 
+    let statusText = "待审核"
+    switch (status) {
+        case Creation_Status.DELETE:
+            statusText = "已删除"
+            break;
+        case Creation_Status.DRAFT:
+            statusText = "草稿"
+            break;
+        case Creation_Status.PUBLISHED:
+            statusText = "已发布"
+            break;
+        case Creation_Status.REJECTED:
+            statusText = "已驳回"
+            break;
+    }
+
+    const setTextPromptOpen = (open) => setTextPrompt((prev) => ({ ...prev, isOpen: open, }))
     const setRejectOpen = (open) => setReject((prev) => ({ ...prev, isOpen: open }))
     const setDelOpen = (open) => setDel((prev) => ({ ...prev, isOpen: open }))
 
@@ -39,15 +64,16 @@ const AdminVideo = ({ reviewInfo, removeReview }) => {
             },
         }
         const result = await updateReview(body)
-        console.log(result)
         if (result) {
-            removeReview(id)
+            setTextPrompt({ text: "成功！", isOpen: true })
+            setTimeout(() => removeReview(id), 750)
         } else {
-
+            setTextPrompt({ text: "失败！请重试！", isOpen: false })
         }
     }, [id, removeReview])
 
-    return (<>
+    return <>
+        {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
         <div className="detail-slot">
             <div className="detail-left">
                 <div className="detail-player">
@@ -96,15 +122,22 @@ const AdminVideo = ({ reviewInfo, removeReview }) => {
                         </div>
                     </Modal>}
                 </div>
+                <Link href={`/creation/${creationId}`} target="_blank" className="transform">跳转观看</Link>
             </div>
             <div className="detail-right">
                 <div className="title">
                     <span className='label'>标题</span>
                     <span className='content'>{title}</span>
                 </div>
+                <div className="status">
+                    <span className='label'>状态</span>
+                    <span className='content'>{statusText}</span>
+                </div>
                 <div className="category">
                     <span className='label'>分区</span>
                     <span className='content' style={{
+                        position: 'relative',
+                        top: '-6px',
                         pointerEvents: id ? 'none' : 'auto',
                         opacity: id ? 0.5 : 1, // 显示禁用效果
                     }}>
@@ -117,7 +150,7 @@ const AdminVideo = ({ reviewInfo, removeReview }) => {
                 </div>
             </div>
         </div>
-    </>);
+    </>
 }
 
 export default AdminVideo;

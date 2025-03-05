@@ -54,11 +54,11 @@ export const reportInfo = async (target_type, target_id, detail) => {
             alert("网络不通")
             return null
         }
-
         const result = await response.json()
         const { status } = result.msg
         if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) {
             alert("请求失败")
+            console.log(result)
             return false
         }
 
@@ -290,7 +290,8 @@ export const updateReview = async (body) => {
         const { status } = result.msg
         if (status != Api_Status.SUCCESS && status != Api_Status.PENDING) {
             alert("未成功")
-            return result;
+            console.log(result)
+            return false;
         }
         return true;
     } catch (error) {
