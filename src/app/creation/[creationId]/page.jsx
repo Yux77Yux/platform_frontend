@@ -312,6 +312,7 @@ const Page = () => {
             try {
                 const result = await fetchCreation(creationId);
                 setPageLoading(false);
+                console.log(result)
                 if (!result) {
                     console.log(result)
                     return;

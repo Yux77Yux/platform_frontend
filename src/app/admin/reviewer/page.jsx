@@ -21,6 +21,7 @@ const Page = () => {
         isOpen: false,
         text: "",
     })
+    const isPending = status == Status.PENDING
 
     const setTextPromptOpen = (open) => setTextPrompt((prev) => ({ ...prev, isOpen: open, }))
 
@@ -33,7 +34,7 @@ const Page = () => {
     const getNewReviews = useCallback(async () => {
         if (isLoading) return;
         setIsLoading(true)
-        
+
         const token = await getToken()
         const result = await getNewCreationReviews(token)
         const { reviews } = result
@@ -108,7 +109,7 @@ const Page = () => {
         {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
         <div className='review-video'>
             <div className="status">
-                <button onClick={() => setStatus(Status.PENDING)} className={`set-status ${status === Status.PENDING && "active"}`}>未审核</button>
+                <button onClick={() => setStatus(Status.PENDING)} className={`set-status ${status === Status.PENDING && "active"}`}>待审核</button>
                 <button onClick={() => setStatus(Status.APPROVED)} className={`set-status ${status === Status.APPROVED && "active"}`}>已过审</button>
                 <button onClick={() => setStatus(Status.REJECTED)} className={`set-status ${status === Status.REJECTED && "active"}`}>未过审</button>
             </div>
@@ -117,12 +118,16 @@ const Page = () => {
                 <div className="content-id">审核信息 ID</div>
                 <div className="content-cover">封面</div>
                 <div className="content-detail">理由</div>
-                <div className="content-created">入审时间</div>
-                <div className="content-status">状态</div>
+                <div className="content-created">{isPending ? "入审时间" : "更新时间"}</div>
+                {isPending && <div className="content-status">状态</div>}
                 <div className="content-addition"> {reviews.length || 0} </div>
             </div>
-            {reviews.map((reviewInfo) => <Content key={reviewInfo.review.new.id} reviewInfo={reviewInfo} removeReview={removeReview} />)}
-            <div onClick={getNewReviews}
+            {reviews.map((reviewInfo) => <Content key={reviewInfo.review.new.id}
+                isPending={isPending}
+                reviewInfo={reviewInfo}
+                removeReview={removeReview}
+                status={status} />)}
+            {isPending && <div onClick={getNewReviews}
                 style={{
                     display: 'flex',
                     position: 'relative',
@@ -133,16 +138,20 @@ const Page = () => {
                     color: 'rgb(114, 114, 231)',
                     cursor: 'pointer',
                 }}>尝试拉取新请求
-            </div>
+            </div>}
         </div >
     </>
 }
 
-const Content = ({ reviewInfo, removeReview }) => {
+const Content = ({ reviewInfo, removeReview, isPending }) => {
     const { creation, review } = reviewInfo
+    const { updatedAt } = review
+
     const { createdAt, id, msg } = review.new
     const { thumbnail, duration } = creation.baseInfo
     const [isOpen, setIsOpen] = useState(false)
+
+    const time = isPending ? formatTimestamp(createdAt) : formatTimestamp(updatedAt)
 
     useEffect(() => {
         if (isOpen) {
@@ -158,7 +167,7 @@ const Content = ({ reviewInfo, removeReview }) => {
     }, [isOpen]);
 
     return <>
-        {isOpen && <Modal setOpen={setIsOpen}><AdminVideo reviewInfo={reviewInfo} removeReview={removeReview} /></Modal>}
+        {isOpen && <Modal setOpen={setIsOpen}><AdminVideo isPending={isPending} reviewInfo={reviewInfo} removeReview={removeReview} /></Modal>}
         <div className="content">
             <div className="content-id">{id}</div>
             <div className="content-cover">
@@ -174,8 +183,8 @@ const Content = ({ reviewInfo, removeReview }) => {
                 </div>
             </div>
             <div className="content-detail">{msg}</div>
-            <div className="content-created">{formatTimestamp(createdAt)}</div>
-            <div className="content-status">待审核</div>
+            <div className="content-created">{time}</div>
+            {isPending && <div className="content-status">待审核</div>}
             <button className="content-addition" onClick={() => setIsOpen(true)}> 详情 </button>
         </div>
     </>

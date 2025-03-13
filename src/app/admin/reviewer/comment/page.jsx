@@ -20,6 +20,7 @@ const Page = () => {
         isOpen: false,
         text: "",
     })
+    const isPending = status == Status.PENDING
 
     const setTextPromptOpen = (open) => setTextPrompt((prev) => ({ ...prev, isOpen: open, }))
 
@@ -107,7 +108,7 @@ const Page = () => {
         {textPrompt.isOpen && <TextPrompt text={textPrompt.text} setOpen={setTextPromptOpen} />}
         <div className='review-comment'>
             <div className="status">
-                <button onClick={() => setStatus(Status.PENDING)} className={`set-status ${status === Status.PENDING && "active"}`}>未审核</button>
+                <button onClick={() => setStatus(Status.PENDING)} className={`set-status ${status === Status.PENDING && "active"}`}>待审核</button>
                 <button onClick={() => setStatus(Status.APPROVED)} className={`set-status ${status === Status.APPROVED && "active"}`}>已过审</button>
                 <button onClick={() => setStatus(Status.REJECTED)} className={`set-status ${status === Status.REJECTED && "active"}`}>未过审</button>
             </div>
@@ -119,16 +120,17 @@ const Page = () => {
                 <div className="content-userId">用户 ID</div>
                 <div className="content-creationId">作品 ID</div>
                 <div className="content-detail" style={{ cursor: 'default' }}>理由</div>
-                <div className="content-created" style={{ cursor: 'default' }}>入审时间</div>
-                <div className="content-btns" style={{ cursor: 'default' }}>审核结果</div>
+                <div className="content-created" style={{ cursor: 'default' }}>{isPending ? "入审时间" : "更新时间"}</div>
+                {isPending&&<div className="content-btns" style={{ cursor: 'default' }}>审核结果</div>}
                 <div className="content-addition" style={{ cursor: 'default', color: '#000', fontSize: '15px' }}>{reviews.length || 0}</div>
             </div>
             {reviews.map((reviewInfo) => <Content key={reviewInfo.review.new.id}
+                isPending={isPending}
                 reviewInfo={reviewInfo}
                 removeReview={removeReview}
                 setTextPrompt={setTextPrompt}
             />)}
-            <div onClick={getNewReviews}
+            {isPending && <div onClick={getNewReviews}
                 style={{
                     display: 'flex',
                     position: 'relative',
@@ -139,13 +141,14 @@ const Page = () => {
                     color: 'rgb(114, 114, 231)',
                     cursor: 'pointer',
                 }}>尝试拉取新请求
-            </div>
+            </div>}
         </div >
     </>
 }
 
-const Content = ({ reviewInfo, removeReview, setTextPrompt }) => {
+const Content = ({ reviewInfo, removeReview, setTextPrompt, isPending }) => {
     const { comment, review } = reviewInfo
+    const { updatedAt } = review
     const { createdAt, id, msg } = review.new
     const { userId, content, commentId, creationId } = comment
     const [confirmBox, setConfirmBox] = useState({
@@ -153,6 +156,8 @@ const Content = ({ reviewInfo, removeReview, setTextPrompt }) => {
         reason: "",
         status: "",
     })
+
+    const time = isPending ? formatTimestamp(createdAt) : formatTimestamp(updatedAt)
 
     const setConfirmBoxOpen = (open) => setConfirmBox((prev) => ({ ...prev, isOpen: open }))
 
@@ -198,24 +203,26 @@ const Content = ({ reviewInfo, removeReview, setTextPrompt }) => {
             <Link href={`/space/${userId}`} title='查看空间' target='_blank' className="content-userId">{userId}</Link>
             <Link href={`/creation/${creationId}`} title='查看作品' target='_blank' className="content-creationId">{creationId}</Link>
             <div className="content-detail">{msg}</div>
-            <div className="content-created">{formatTimestamp(createdAt)}</div>
-            <div className="content-btns">
-                <button className="btn"
-                    onClick={() => setConfirmBox({ isOpen: true, reason: "", status: Status.APPROVED })}
+            <div className="content-created">{time}</div>
+            {isPending && <>
+                <div className="content-btns">
+                    <button className="btn"
+                        onClick={() => setConfirmBox({ isOpen: true, reason: "", status: Status.APPROVED })}
+                    >
+                        通过
+                    </button>
+                    <button className="btn"
+                        onClick={() => setConfirmBox({ isOpen: true, reason: "", status: Status.REJECTED })}
+                    >
+                        封禁
+                    </button>
+                </div>
+                <button className="content-addition"
+                    onClick={() => setConfirmBox({ isOpen: true, reason: "", status: Status.DELETED })}
                 >
-                    通过
+                    丢弃
                 </button>
-                <button className="btn"
-                    onClick={() => setConfirmBox({ isOpen: true, reason: "", status: Status.REJECTED })}
-                >
-                    封禁
-                </button>
-            </div>
-            <button className="content-addition"
-                onClick={() => setConfirmBox({ isOpen: true, reason: "", status: Status.DELETED })}
-            >
-                丢弃
-            </button>
+            </>}
         </div >
         {confirmBox.isOpen && <Modal setOpen={setConfirmBoxOpen}>
             <div className="confirm-box">

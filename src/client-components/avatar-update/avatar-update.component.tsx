@@ -7,12 +7,20 @@ import "./avatar-update.styles.scss";
 import { useSpace } from "@/src/app/space/[userId]/context";
 import { getCookie } from "cookies-next";
 
+interface AvatarState {
+    userAvatar: string;
+    imageSrc: string;
+    fileBytes: Uint8Array;
+    fileType: string;
+}
+
 const AvatarUpdate = () => {
     const data = useSpace();
-    const [avatar, setAvatar] = useState({
+    const [avatar, setAvatar] = useState<AvatarState>({
         userAvatar: "/img/slience.jpg",
         imageSrc: "",
         fileBytes: new Uint8Array(),
+        fileType: "",
     })
 
     // 更新字段的通用方法
@@ -38,11 +46,13 @@ const AvatarUpdate = () => {
             return;
         }
 
+        const fileType = avatar.fileType || "application/octet-stream"; // 确保有默认类型
         const base64Avatar = uint8ArrayToBase64(avatar.fileBytes);
+        const dataUrl = `data:${fileType};base64,${base64Avatar}`;
         const body = {
             userUpdateAvatar: {
                 userId: userId,
-                userAvatar: base64Avatar,
+                userAvatar: dataUrl,
             },
             accessToken: {
                 value: accessToken
@@ -77,7 +87,12 @@ const AvatarUpdate = () => {
                 if (reader.result) {
                     const bytes: Uint8Array = new Uint8Array(reader.result as ArrayBuffer);
                     // 调用 handleChange，将字节数据传递给它
-                    handleChange("fileBytes", bytes);
+                    setAvatar((prev) => ({
+                        ...prev,
+                        imageSrc: imageUrl,
+                        fileBytes: bytes,
+                        fileType: file.type, // 存文件类型，比如 "image/png"
+                    }));
                 }
             };
             reader.readAsArrayBuffer(file);

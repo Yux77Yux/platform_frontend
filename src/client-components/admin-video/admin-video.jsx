@@ -10,7 +10,7 @@ import Modal from '@/src/client-components/modal-no-redirect/modal.component';
 import TextPrompt from "@/src/client-components/prompt/TextPrompt";
 import Link from "next/link"
 
-const AdminVideo = ({ reviewInfo, removeReview }) => {
+const AdminVideo = ({ isPending, reviewInfo, removeReview }) => {
     const { creation, review } = reviewInfo
     const { id } = review.new
     const { baseInfo, creationId } = creation;
@@ -83,7 +83,7 @@ const AdminVideo = ({ reviewInfo, removeReview }) => {
                     </video>
                 </div>
 
-                <div className="buttons">
+                {isPending && <div className="buttons">
                     <button className="btn" onClick={() => updateReport(Status.APPROVED, void 0)}>通过审核</button>
                     <button className="btn" onClick={() => setRejectOpen(true)}>不予过审</button>
                     {reject.isOpen && <Modal setOpen={setRejectOpen}>
@@ -121,7 +121,7 @@ const AdminVideo = ({ reviewInfo, removeReview }) => {
                             </div>
                         </div>
                     </Modal>}
-                </div>
+                </div>}
                 <Link href={`/creation/${creationId}`} target="_blank" className="transform">跳转观看</Link>
             </div>
             <div className="detail-right">
