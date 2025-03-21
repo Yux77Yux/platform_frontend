@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSpace } from "../context";
 
-import VideoList from "@/src/client-components/video-slight-list/interaction-videoList"
+import VideoList from "@/src/client-components/video-slight-list/VideoList"
 import { fetchCollections } from "@/src/tool/get"
 import "./page.scss";
 
@@ -25,20 +25,19 @@ export default function Page() {
             const result = await fetchCollections(1)
             if (!result) return
             console.log(result)
-            const { cards } = result
-            let videos = cards.map((info) => {
-                const { creation, creationEngagement, timeAt } = info
-                const { baseInfo } = creation
-                return ({
-                    ...baseInfo,
-                    ...creationEngagement,
-                    timeAt: timeAt,
-                })
-            }, [])
+            // const creationInfos = result.creationInfoGroup
+            // let videos = creationInfos.map((info) => {
+            //     const { creation, creationEngagement } = info
+            //     const { baseInfo } = creation
+            //     return ({
+            //         ...baseInfo,
+            //         ...creationEngagement,
+            //     })
+            // }, [])
 
-            setCreationInfoGroup(() => ({
-                creations: videos
-            }))
+            // setCreationInfoGroup(() => ({
+            //     creations: videos
+            // }))
         }
         exeCute()
     }, [userId])
@@ -52,10 +51,10 @@ export default function Page() {
             <div className="creations-block">
                 <div className="title-box">
                     <h2 className="title">收藏夹</h2>
-
+                    
                 </div>
                 <div className="creation-list">
-                    <VideoList videos={creationInfoGroup.creations} />
+                    {/* <VideoList videos={vvideos} /> */}
                 </div>
             </div>
         </div>

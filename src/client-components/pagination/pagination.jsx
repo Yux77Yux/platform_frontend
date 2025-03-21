@@ -61,7 +61,6 @@ const Pagination = ({ count, page, setPage }) => {
   useEffect(() => {
     const pages = getPages(page, count)
     setPages(pages)
-    console.log(pages)
   }, [page, count, getPages])
 
   return <div className="pagination">

@@ -33,4 +33,37 @@
         border-radius: 2px;
         pointer-events: none;
     }
+
+    & .followBtn {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        font-size: 14px;
+        position: absolute;
+        right: 5vw;
+
+        & .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+            gap: 4px;
+            cursor: pointer;
+
+            & .name{
+                color: rgb(104,109,116);
+            }
+
+            & .count{
+                color: rgb(24,25,28);
+            }
+
+            &:hover {
+                & div {
+                    color: rgb(0, 174, 236);
+                }
+            }
+        }
+    }
 }

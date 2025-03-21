@@ -1,16 +1,15 @@
-import { getLoginUserId, getLoginUserRole } from "@/src/tool/getLoginUser";
+import { getLoginUserId } from "@/src/tool/getLoginUser";
 import { redirect } from 'next/navigation'
 
 import { SpaceProvider } from "./context";
 
 import SpaceUser from "@/src/client-components/space-user/space-user.component";
 import SpaceOptions from "@/src/client-components/space-options/space-options.component";
-import { User_Status, User_Role } from "@/src/tool/user";
+import { User_Status } from "@/src/tool/user";
 import "./layout.scss"
 
 const fetchSpace = async (userIdInt64) => {
     const loginId = await getLoginUserId()
-    const role = await getLoginUserRole()
 
     const url = 'http://localhost:8080/api/user/' + userIdInt64;
     const response = await fetch(url, {
@@ -24,12 +23,11 @@ const fetchSpace = async (userIdInt64) => {
         return null;
     }
 
-
     const userResponse = await response.json()
 
     const result = {
         user: userResponse.user,
-        master: loginId == userIdInt64 || User_Role.ADMIN == role,
+        master: loginId == userIdInt64,
     }
     return result;
 }
@@ -44,6 +42,9 @@ export default async function SpaceLayout({
         redirect("/");
     }
     const { user, master } = data;
+    if(!user) {
+        redirect("/");
+    }
     const { userStatus } = user;
 
     const renderChildren = () => {
@@ -60,7 +61,7 @@ export default async function SpaceLayout({
                     <SpaceUser user={user} master={master} />
                 </div>
                 <div className="space-options-box">
-                    <SpaceOptions master={master} id={userId} />
+                    <SpaceOptions user={user} master={master} id={userId} />
                 </div>
             </div>
             <div>

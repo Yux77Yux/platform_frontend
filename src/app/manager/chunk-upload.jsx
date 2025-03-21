@@ -12,6 +12,7 @@ import { client } from './oss';
 import { getCookie } from "cookies-next";
 import { Api_Status } from "@/src/tool/api-status";
 import { getToken } from "@/src/tool/getLoginUser";
+import { Creation_Status } from "@/src/tool/creation";
 
 const ChunkUploadBox = () => {
     const router = useRouter()
@@ -37,6 +38,7 @@ const ChunkUploadBox = () => {
         imageSrc: null,   // 前端上传返回的地址
         duration: 0,
         submit: '',
+        status: '',
     })
 
     const [textPrompt, setTextPrompt] = useState({
@@ -137,7 +139,7 @@ const ChunkUploadBox = () => {
             return;
         }
 
-        const status = info.submit === "PENDING" ? 1 : 0;
+        const status = info.submit === Creation_Status.PENDING ? 1 : 0;
 
         const body = {
             baseInfo: {
@@ -181,7 +183,12 @@ const ChunkUploadBox = () => {
             return;
         }
 
-        const status = info.submit === "PENDING" ? 1 : 0;
+        let status = info.submit === Creation_Status.PENDING
+            ? Creation_Status.PENDING : info.status;
+        if (info.status == Creation_Status.PENDING) {
+            // 已经被审核了，就不需要再审核
+            status = Creation_Status.PUBLISHED
+        }
 
         const body = {
             updateInfo: {
@@ -217,7 +224,7 @@ const ChunkUploadBox = () => {
             console.log(error)
             return false
         }
-    }, [id, info.bio, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title])
+    }, [id, info.bio, info.duration, info.fileSrc, info.imageSrc, info.submit, info.title, info.status])
 
     // 上传视频文件至oss
     const handleFileChange = async (event) => {
@@ -228,6 +235,7 @@ const ChunkUploadBox = () => {
         const file = event.target.files[0];
         setInfo((prev) => ({
             ...prev,
+            fileSrc: null,
             file: file,
             progress: 0,
         }))
@@ -302,8 +310,8 @@ const ChunkUploadBox = () => {
 
     useEffect(() => {
         if (!ref) return;
-        const [title, imageSrc, category] = [info.title, info.imageSrc, info.category];
-        if (title == "" || !imageSrc || !category) {
+        const [title, fileSrc, imageSrc, category] = [info.title, info.fileSrc, info.imageSrc, info.category];
+        if (title == "" || !fileSrc || !imageSrc || !category) {
             if (ref.current.draft) {
                 ref.current.draft.classList.add('disable')
             }
@@ -318,14 +326,12 @@ const ChunkUploadBox = () => {
                 ref.current.publish.classList.remove('disable')
             }
         }
-    }, [info.title, info.imageSrc, info.category])
+    }, [info.title, info.fileSrc, info.imageSrc, info.category])
 
     useEffect(() => {
         const [submit, fileSrc, uploading] = [info.submit, info.fileSrc, info.uploading];
         // 未提交，视频源地址为空，正在上传则立即返回
         if (!submit || !fileSrc || uploading) return;
-        // 上传事件
-        console.log("it's creating creation!");
 
         (async () => {
             let result
@@ -335,11 +341,14 @@ const ChunkUploadBox = () => {
                 result = await uploadCreation()
             }
             if (result) {
-                setTextPrompt({ isOpen: true, text: "上传成功！发布需等待审核！" })
+                let text = "可至草稿箱查看"
+                if (ref.current.publish) {
+                    text = "成功"
+                }
+                setTextPrompt({ isOpen: true, text: text })
                 setTimeout(() => router.replace("/manager/creations"), 2000);
             }
         })();
-        console.log("success")
     }, [router, id, info.submit, info.fileSrc, info.uploading, uploadCreation, updateCreation])
 
     useEffect(() => {
@@ -361,7 +370,8 @@ const ChunkUploadBox = () => {
                 setTimeout(() => router.replace("/"), 1500)
                 return;
             }
-            const { bio, categoryId, src, thumbnail, title, duration } = result.creationInfo.creation.baseInfo
+            console.log(result)
+            const { bio, categoryId, status, src, thumbnail, title, duration } = result.creationInfo.creation.baseInfo
             setInfo((prev) => ({
                 ...prev,
                 fileSrc: src,
@@ -371,6 +381,7 @@ const ChunkUploadBox = () => {
                 imageSrc: thumbnail,
                 duration: duration,
                 progress: 100,
+                status: status,
             }))
         })()
     }, [id, router, fetchCreation])
@@ -518,8 +529,22 @@ const ChunkUploadBox = () => {
                                 className="biaodan-button"
                                 onClick={() => handleChange("submit", "PENDING")}>发布</button>
                         </>
-                        : <button type="submit" ref={(el) => (ref.current.publish = el)} className="biaodan-button"
-                            onClick={() => handleChange("submit", "PENDING")}>更新</button>}
+                        : <>
+                            <button type="submit" ref={(el) => {
+                                if (info.status == 'DRAFT') {
+                                    return ref.current.draft = el
+                                }
+                                return ref.current.publish = el
+                            }}
+                                className="biaodan-button"
+                                onClick={() => handleChange("submit", info.status == 'DRAFT' ? 'DRAFT' : 'PENDING')}>更新</button>
+                            {info.status == 'DRAFT' && <button type="submit" ref={(el) => (ref.current.publish = el)}
+                                className="biaodan-button"
+                                onClick={() => handleChange("submit", "PENDING")}>发布</button>}
+                            <button className="biaodan-button"
+                                onClick={() => router.back()}>取消</button>
+                        </>
+                    }
                 </div>
             </div>}
         </>

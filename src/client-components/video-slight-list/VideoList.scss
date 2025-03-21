@@ -1,7 +1,7 @@
 .VideoList {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: start;
     gap: 6px;
 
     & .VideoCard {
@@ -17,6 +17,48 @@
             width: 240px;
             height: 130px;
             overflow: hidden;
+
+            & .showCount {
+                display: inline-block;
+                position: absolute;
+                min-width: 42px;
+                padding: 4px;
+                left: 0;
+                bottom: 0;
+                color: #fff;
+                border-top-right-radius: 2px;
+                background-color: rgba(50, 50, 50, 0.4);
+                font-size: 14px;
+
+                & .icon {
+                    display: inline-block;
+                    position: relative;
+                    margin-right: 6px;
+                    left: 2px;
+                    top: 2px;
+                    height: 14px;
+                    width: 14px;
+                    background-image: url(/img/video-16.png);
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    background-size: 14px;
+                }
+            }
+
+            & .duration {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 42px;
+                padding: 4px;
+                font-size: 14px;
+                color: #fff;
+                border-top-left-radius: 7px;
+                background-color: rgba(50, 50, 50, 0.4);
+            }
         }
 
         & .videoTitle {

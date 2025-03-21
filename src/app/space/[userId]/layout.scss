@@ -16,10 +16,12 @@
             display: block;
             position: relative;
             height: 195px;
-            background-image: url('/space-top.png');
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
+            background-image:
+                linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.1) 45%),
+                url('/space-top.png');
         }
 
         & .space-options-box {
@@ -29,7 +31,7 @@
             position: relative;
             height: 65px;
             background-color: rgb(247, 247, 247);
-            border-radius:  0 0 5px 5px;
+            border-radius: 0 0 5px 5px;
         }
     }
 }

@@ -9,6 +9,7 @@ import Modal from "@/src/client-components/modal-no-redirect/modal.component"
 
 import { Type, reportInfo } from "@/src/tool/review"
 import { User_Status } from "@/src/tool/user";
+import { followUser, cancelFollow, existFollowee } from "@/src/tool/space";
 
 const SpaceUser = (props) => {
     const { user, master } = props;
@@ -17,19 +18,41 @@ const SpaceUser = (props) => {
 
     const avatar = userAvatar ? userAvatar : "/img/slience.jpg"
 
+    const [exist, setExist] = useState(false)
     const [isOpen, setOpen] = useState(false)
     const [report, setReport] = useState({
         detail: "",
         id: userId,
     })
 
-    const reportUser = useCallback(() => {
+    const reportUser = useCallback(async() => {
         if (!report.detail) return
         reportInfo(Type.USER, report.id, report.detail)
     }, [report])
 
+    const followUserHandler = useCallback(async() => {
+        const ok = await followUser(userId)
+        if(ok){
+            setExist(!exist)
+        }
+    }, [userId,exist])
+
+    const cancelFollowUserHandler = useCallback(async() => {
+        const ok = await cancelFollow(userId)
+        if(ok){
+            setExist(!exist)
+        }
+    }, [userId,exist])
+
     useEffect(() => {
         setReport((prev) => ({ ...prev, id: userId }))
+    }, [userId])
+
+    useEffect(() => {
+        (async () => {
+            const exist = await existFollowee(userId)
+            setExist(exist)
+        })()
     }, [userId])
 
     return (
@@ -47,10 +70,14 @@ const SpaceUser = (props) => {
                 {master && <span className="hide">更换头像</span>}
             </Link>
             <span className="space-name">{userName === "" ? "今州皇帝" : userName}</span>
-            <span className="space-bio">{userBio === "" ? "userBio" : userBio}</span>
+            <span className="space-bio">{userBio === "" ? "" : userBio}</span>
             {(User_Status.LIMITED != userStatus && User_Status.DELETE != userStatus)
                 ? <>
-                    {!master && <button className="space-follow">关注</button>}
+                    {!master && <>
+                        {!exist
+                            ? <button className="space-follow" onClick={followUserHandler}>关注</button>
+                            : <button className="space-follow-cancel" onClick={cancelFollowUserHandler}>已关注</button>}
+                    </>}
                     {!master && <button className="space-review-box">···</button>}
                     {!master && <button className="space-review" onClick={() => setOpen(true)}>举报</button >}
                 </>
@@ -60,24 +87,6 @@ const SpaceUser = (props) => {
             {isOpen && <Modal setOpen={setOpen}>
                 <div className="report-user">
                     <h4 className="title">个人信息举报</h4>
-                    {/* <fieldset>
-                            <legend>举报内容</legend>
-                            <ul>
-                                <li><label><input type="checkbox" /><span></span> 头像违规</label></li>
-                                <li><label><input type="checkbox" /><span></span> 昵称违规</label></li>
-                                <li><label><input type="checkbox" /><span></span> 签名违规</label></li>
-                            </ul>
-                        </fieldset>
-
-                        <fieldset>
-                            <legend>举报理由</legend>
-                            <ul>
-                                <li><label><input type="checkbox" /><span></span> 色情低俗</label></li>
-                                <li><label><input type="checkbox" /><span></span> 不实信息</label></li>
-                                <li><label><input type="checkbox" /><span></span> 人身攻击</label></li>
-                                <li><label><input type="checkbox" /><span></span> 赌博诈骗</label></li>
-                            </ul>
-                        </fieldset> */}
 
                     <div className="detail">
                         <textarea

@@ -1,0 +1,95 @@
+.collections-page {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 4px;
+
+    & .creations-block {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+        min-height: 600px;
+        padding: 8px 16px;
+        width: 100%;
+        gap: 10px;
+
+        & .title-box {
+            display: flex;
+            position: relative;
+            flex-direction: row;
+            height: 56px;
+            width: 100%;
+            border-bottom: 1px solid rgb(227, 229, 231);
+
+            & .title {
+                padding: 12px 20px;
+            }
+
+            & .search {
+                display: flex;
+                position: absolute;
+                height: 40px;
+                width: 250px;
+                right: 90px;
+                bottom: 5px;
+
+                & input[type="text"] {
+                    background-color: rgb(222, 222, 222);
+                    width: 80%;
+                    border-radius: 9px;
+                    border-bottom-right-radius: 0;
+                    border-top-right-radius: 0;
+                    padding: 4px 12px;
+                }
+
+                & button {
+                    height: 100%;
+                    display: flex;
+                    position: relative;
+                    justify-content: center;
+                    align-items: center;
+                    min-width: 40px;
+                    border-radius: 9px;
+                    border-bottom-left-radius: 0;
+                    border-top-left-radius: 0;
+                    background-color: rgb(222, 222, 222);
+                    background-image: url('../../../../assets/magnifying-glass.png');
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    background-size: 26px;
+                    cursor: pointer;
+                }
+            }
+        }
+
+        & .creation-list {
+            display: block;
+            position: relative;
+            width: 100%;
+            min-height: 200px;
+        }
+    }
+
+    & .person-information {
+        display: flex;
+        flex-direction: column;
+        border-radius: 8px;
+
+        background-color: rgb(246, 247, 248);
+        padding: 14px;
+        width: 350px;
+        min-height: 120px;
+        position: absolute;
+        right: 10px;
+        top: 15px;
+        gap: 16px 10px;
+
+        & strong {
+            position: relative;
+            padding-right: 6px;
+        }
+    }
+}

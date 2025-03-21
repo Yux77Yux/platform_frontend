@@ -1,5 +1,8 @@
 import Lunbos from '../lunbo'
+
 import VideoList from "@/src/client-components/video-list/VideoList"
+
+import "./page.scss"
 
 const Home = () => {
     const lunbos = [
@@ -174,15 +177,14 @@ const Home = () => {
 
     return (
         <>
-            <div>
-                <Lunbos lunbos={lunbos} />
-            </div>
-            
             <div style={{
                 position: 'relative',
                 margin: '0 auto',
                 width: '1680px',
             }}>
+                <div className="lunbo">
+                <Lunbos lunbos={lunbos} />
+            </div>
                 <div className="video-component">
                     <VideoList videos={videos} />
                 </div>

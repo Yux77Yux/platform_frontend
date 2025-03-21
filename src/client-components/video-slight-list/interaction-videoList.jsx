@@ -4,7 +4,7 @@ import "./VideoList.scss"
 import Image from 'next/image';
 import Link from "next/link";
 import React, { useCallback, useRef, useState } from 'react';
-import { formatDay, formatDuration } from '@/src/tool/formatTimestamp';
+import { formatTimestamp, formatDuration } from '@/src/tool/formatTimestamp';
 import { formatCount } from '@/src/tool/formatNumber';
 
 const VideoCard = ({ video }) => {
@@ -80,8 +80,7 @@ const VideoCard = ({ video }) => {
         className="videoAuthor"
         target="_blank"
       >
-        {video.author && <span className="name">UP: &nbsp;&nbsp;{video.author}</span>}
-        <span className="timeAt">{formatDay(video.publishTime)}</span>
+        <span className="timeAt">{formatTimestamp(video.timeAt)}</span>
       </Link>
     </div>
   );
