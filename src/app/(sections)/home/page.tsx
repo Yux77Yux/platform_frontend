@@ -1,10 +1,16 @@
+'use client'
 import Lunbos from '../lunbo'
+import {  useEffect, useState } from 'react'
 
 import VideoList from "@/src/client-components/video-list/VideoList"
+import RecommendList from "@/src/client-components/home-list/interaction-videoList"
+
+import {fetchHome} from "@/src/tool/get"
 
 import "./page.scss"
 
 const Home = () => {
+    const [creations,setCreations] = useState([])
     const lunbos = [
         { src: '/img/lunbo/lunbo1.avif' },
         { src: '/img/lunbo/lunbo2.avif' },
@@ -175,19 +181,33 @@ const Home = () => {
         },
     ];
 
+    useEffect(()=>{
+        (async()=>{
+            const result = await fetchHome()
+            
+        })()
+    },[])
+
     return (
         <>
             <div style={{
+                display: 'flex',
+                flexDirection: 'row',
                 position: 'relative',
-                margin: '0 auto',
+                margin: '12px auto',
                 width: '1680px',
+                height: '460px',
+                overflow: 'hidden',
             }}>
                 <div className="lunbo">
-                <Lunbos lunbos={lunbos} />
-            </div>
-                <div className="video-component">
-                    <VideoList videos={videos} />
+                    <Lunbos lunbos={lunbos} />
                 </div>
+                <div className="recommend">
+                    <RecommendList videos={creations} />
+                </div>
+            </div>
+            <div className="video-component">
+                <VideoList videos={videos} />
             </div>
         </>
     );

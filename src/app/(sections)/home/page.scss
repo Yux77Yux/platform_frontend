@@ -1,7 +1,24 @@
 .lunbo{
     display: inline-block;
     position: relative;
-    height: auto;
-    width: 30vw;
-    margin-top: 12px;
+    height: 480px;
+    width: 39vw;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.recommend{
+    display: flex;
+    flex-wrap: wrap; /* 允许换行 */
+    justify-content: space-between; /* 让元素均匀分布 */
+    position: relative;
+    overflow: hidden;
+    width: 53vw;
+}
+
+.video-component{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: relative;
 }

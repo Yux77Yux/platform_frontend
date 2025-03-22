@@ -18,11 +18,17 @@ const Lunbos = ({ lunbos }) => {
     return (
         <Slider {...settings}>
             {lunbos?.map((lunbo, i) => (
-                <div key={i}>
+                <div key={i} style={{
+                    width:'inherit',
+                    borderRadius: '6px',
+                }}>
                     <img
                         src={lunbo.src}
                         alt={`Slide ${i}`}
-                        style={{ height: '360px', width: '30vw', objectFit: 'cover', objectPosition: 'center' }}  // 使图片填充容器
+                        style={{
+                            height: '420px', width: '39vw', objectFit: 'cover', objectPosition: 'center',
+                            borderRadius: '6px',
+                        }}  // 使图片填充容器
                     />
                 </div>
             ))}

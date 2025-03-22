@@ -184,7 +184,8 @@
                 cursor: text;
             }
 
-            & .followbtn {
+            & .followbtn,
+            & .followbtn-cancel {
                 width: 220px;
                 height: 28px;
                 border-radius: 6px;
@@ -200,6 +201,14 @@
 
                 &:hover {
                     background-color: rgb(0, 184, 246);
+                }
+            }
+
+            & .followbtn-cancel {
+                background-color: rgba(242, 93, 142, 0.36);
+
+                &:hover {
+                    background-color: rgb(242, 93, 142);
                 }
             }
         }

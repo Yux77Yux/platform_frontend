@@ -10,20 +10,23 @@ export default function SectionsLayout({
     <>
       <header>
         <SectionsHeader />
-        <div style={{
-          display: 'flex',
-          height: '50px',
-          width: '100%',
-          flexDirection: 'row',
-          justifyContent: 'space-evenly',
-          backgroundColor: 'rgb(226, 208, 208)',
-          alignItems: 'center',
-        }}>
+        <div className="category">
           <span className="section-header-span">科技</span>
           <span className="section-header-span">美食</span>
           <span className="section-header-span">知识</span>
-          <span className="section-header-span">电影片段</span>
-          <span className="section-header-span">动画片段</span>
+          <span className="section-header-span">电影</span>
+          <span className="section-header-span">动画</span>
+          <span className="section-header-span">鬼畜</span>
+          <span className="section-header-span">舞蹈</span>
+          <span className="section-header-span">娱乐</span>
+          <span className="section-header-span">没事</span>
+          <span className="section-header-span">汽车</span>
+          <span className="section-header-span">体育</span>
+          <span className="section-header-span">纪录片</span>
+          <span className="section-header-span">游戏</span>
+          <span className="section-header-span">音乐</span>
+          <span className="section-header-span">动物圈</span>
+          <span className="section-header-span">MMD</span>
         </div>
       </header>
       <main>{children}</main>

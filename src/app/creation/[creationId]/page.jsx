@@ -6,10 +6,12 @@ import { getAddress } from "@/src/tool/getIp"
 import { getLoginUserId, getToken, getLoginUserRole } from "@/src/tool/getLoginUser"
 import { Type, reportInfo } from "@/src/tool/review"
 import { Api_Status } from "@/src/tool/api-status"
+import { followUser, cancelFollow, existFollowee } from "@/src/tool/space";
 import { Creation_Status } from "@/src/tool/creation"
 import { User_Role } from "@/src/tool/user"
 import { cancelCollections } from "@/src/tool/interaction"
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
+import { formatCount } from "@/src/tool/formatNumber"
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
@@ -59,6 +61,7 @@ const Page = () => {
         userBio: "",
         userId: "",
         userAvatar: "/img/slience.jpg",
+        followers: 0,
     })
 
     // 举报
@@ -326,7 +329,7 @@ const Page = () => {
                 const { views, saves, likes, publishTime } = creationEngagement;
                 const { categoryId, name, parent } = category;
 
-                const { userDefault, userAvatar, userBio } = creationUser;
+                const { userDefault, userAvatar, userBio, followers } = creationUser;
                 const { userId, userName } = userDefault;
 
                 let loginUserId;
@@ -379,6 +382,7 @@ const Page = () => {
                     userBio: userBio,
                     userId: userId,
                     userAvatar: userAvatar,
+                    followers: followers,
                 });
             } catch (error) {
                 console.log(error);
@@ -495,7 +499,7 @@ const Page = () => {
                     <div className="user-name-box">
                         <span className="user-name" onClick={() => window.open(`/space/${author.userId}`)}>{author.userName}</span>
                         <div className="user-bio">{author.userBio}</div>
-                        <button className="followbtn">+&nbsp;关注 </button>
+                        <FollowBtns userId={author.userId} followers={author.followers} />
                     </div>
                 </div>
                 <ul className="creation-right-list-box">
@@ -519,6 +523,36 @@ const Page = () => {
             </div>
         </>
     );
+}
+
+const FollowBtns = ({ userId, followers }) => {
+    const [exist, setExist] = useState(false)
+    const followUserHandler = useCallback(async () => {
+        const ok = await followUser(userId)
+        if (ok) {
+            setExist(!exist)
+        }
+    }, [userId, exist])
+
+    const cancelFollowUserHandler = useCallback(async () => {
+        const ok = await cancelFollow(userId)
+        if (ok) {
+            setExist(!exist)
+        }
+    }, [userId, exist])
+
+    useEffect(() => {
+        (async () => {
+            const exist = await existFollowee(userId)
+            setExist(exist)
+        })()
+    }, [userId])
+
+    return <>
+        {!exist
+            ? <button className="followbtn" onClick={followUserHandler}>关注 {formatCount(followers)}</button>
+            : <button className="followbtn-cancel" onClick={cancelFollowUserHandler}>已关注 {formatCount(followers)}</button>}
+    </>
 }
 
 export default Page;

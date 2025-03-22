@@ -1,24 +1,24 @@
-.VideoList {
+.Video-List {
     display: flex;
     position: relative;
     width: inherit;
     overflow: hidden;
     flex-wrap: wrap;
     justify-content: start;
-    gap: 6px;
 
     & .VideoCard {
         display: flex;
         flex-direction: column;
-        width: 240px;
-        margin-right: 4px;
-        margin-top: 6px;
+        width: 280px;
+        margin-left: 38px;
+        margin-bottom: 12px;
         overflow: hidden;
 
         & .videoThumbnailWrapper {
             position: relative;
-            width: 240px;
-            height: 130px;
+            width: 280px;
+            height: 160px;
+            border-radius: 4px;
             overflow: hidden;
 
             & .showCount {
@@ -62,12 +62,15 @@
                 border-top-left-radius: 7px;
                 background-color: rgba(50, 50, 50, 0.4);
             }
+
+
         }
 
         & .videoTitle {
             display: -webkit-box;
-            height: 40px;
+            height: 36px;
             font-size: 14px;
+            line-clamp: 2;
             -webkit-line-clamp: 2;
             /* 限制为2行 */
             -webkit-box-orient: vertical;
@@ -76,7 +79,7 @@
             white-space: normal;
             cursor: pointer;
             transition: color 0.1s linear;
-            margin: 10px 0 12px 0;
+            margin: 2px 0 6px 0;
 
             &:hover {
                 color: rgb(88, 120, 222);
@@ -85,8 +88,7 @@
 
         & .videoAuthor {
             position: relative;
-            font-size: 13px;
-            cursor: pointer;
+            width: inherit;
 
             & .name {
                 display: inline-block;
@@ -102,7 +104,8 @@
 
             & .timeAt {
                 display: inline-block;
-                position: relative;
+                position: absolute;
+                right: 2px;
                 color: rgb(131, 122, 122);
                 transition: color 0.1s linear;
             }
