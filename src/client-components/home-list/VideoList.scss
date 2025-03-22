@@ -68,8 +68,8 @@
 
         & .videoTitle {
             display: -webkit-box;
-            height: 36px;
-            font-size: 14px;
+            height: 44px;
+            font-size: 15px;
             line-clamp: 2;
             -webkit-line-clamp: 2;
             /* 限制为2行 */
@@ -79,7 +79,7 @@
             white-space: normal;
             cursor: pointer;
             transition: color 0.1s linear;
-            margin: 2px 0 6px 0;
+            margin: 4px 0 2px 0;
 
             &:hover {
                 color: rgb(88, 120, 222);

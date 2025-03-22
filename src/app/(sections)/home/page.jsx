@@ -1,16 +1,16 @@
 'use client'
 import Lunbos from '../lunbo'
-import {  useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import VideoList from "@/src/client-components/video-list/VideoList"
 import RecommendList from "@/src/client-components/home-list/interaction-videoList"
 
-import {fetchHome} from "@/src/tool/get"
+import { fetchHome } from "@/src/tool/get"
 
 import "./page.scss"
 
 const Home = () => {
-    const [creations,setCreations] = useState([])
+    const [creations, setCreations] = useState([])
     const lunbos = [
         { src: '/img/lunbo/lunbo1.avif' },
         { src: '/img/lunbo/lunbo2.avif' },
@@ -181,12 +181,24 @@ const Home = () => {
         },
     ];
 
-    useEffect(()=>{
-        (async()=>{
+    useEffect(() => {
+        (async () => {
             const result = await fetchHome()
-            
+            const { cards } = result
+            let videos = cards.map((info) => {
+                const { creation, creationEngagement, user, timeAt } = info
+                const { baseInfo } = creation
+                return ({
+                    ...baseInfo,
+                    ...creationEngagement,
+                    user,
+                    timeAt: timeAt,
+                })
+            }, [])
+
+            setCreations(() => videos)
         })()
-    },[])
+    }, [])
 
     return (
         <>
@@ -196,7 +208,7 @@ const Home = () => {
                 position: 'relative',
                 margin: '12px auto',
                 width: '1680px',
-                height: '460px',
+                height: '480px',
                 overflow: 'hidden',
             }}>
                 <div className="lunbo">

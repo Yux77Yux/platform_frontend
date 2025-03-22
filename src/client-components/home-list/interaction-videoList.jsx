@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from "next/link";
 import React, { useCallback, useRef, useState } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { formatTimestamp, formatDuration } from '@/src/tool/formatTimestamp';
+import { formatSlightData, formatDuration } from '@/src/tool/formatTimestamp';
 import { formatCount } from '@/src/tool/formatNumber';
 
 const VideoCard = ({ video }) => {
@@ -81,8 +81,8 @@ const VideoCard = ({ video }) => {
         className="videoAuthor"
         target="_blank"
       >
-        <span className="name">123123</span>
-        <span className="timeAt">200-11-1</span>
+        <span className="name">{video.user.userName}</span>
+        <span className="timeAt">{formatSlightData(video.timeAt)}</span>
       </Link>
     </div>
   );

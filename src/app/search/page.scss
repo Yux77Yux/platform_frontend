@@ -1,0 +1,37 @@
+.search-page {
+    width: 100%;
+    position: relative;
+    min-height: 93vh;
+    padding-bottom: 36px;
+    background-color: #fff;
+
+    & .none{
+        width: 1px;
+        height: 1px;
+    }
+
+    & .search-input {
+        position: relative;
+        margin-top: 40px;
+        left: 50vw;
+        transform: translate(-50%);
+        width: 30vw;
+    }
+
+    & .search-content {
+        display: block;
+        position: relative;
+        width: 94%;
+        margin-top: 36px;
+        left: 54vw;
+        transform: translate(-50%);
+    }
+
+    & .pagination-box {
+        display: block;
+        position: relative;
+        height: 56px;
+        left: 50vw;
+        transform: translate(-50%);
+    }
+}

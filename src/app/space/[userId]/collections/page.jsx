@@ -24,7 +24,6 @@ export default function Page() {
         const exeCute = async () => {
             const result = await fetchCollections(1)
             if (!result) return
-            console.log(result)
             const { cards } = result
             let videos = cards.map((info) => {
                 const { creation, creationEngagement, timeAt } = info

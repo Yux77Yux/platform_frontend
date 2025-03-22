@@ -1,0 +1,96 @@
+.search-box {
+    display: flex;
+    position: relative;
+    height: 56px;
+    width: 600px;
+    margin: 0 50px;
+    border-radius: 5px;
+    background-color: rgb(246, 247, 248);
+    font-family: Arial, Helvetica, sans-serif;
+    border: 1px solid rgb(241, 242, 243);
+
+    & .type-in-box {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        margin: auto;
+        height: 48px;
+        width: 89%;
+        background-color: rgb(246, 247, 248);
+        border-radius: 6px;
+        color: black;
+
+        &:focus-within {
+            background-color: rgb(241, 242, 243);
+        }
+
+        & input {
+            display: block;
+            position: relative;
+            height: 100%;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 6px;
+            padding-left: 8px;
+            background-color: rgb(246, 247, 248);
+
+            &:not(:placeholder-shown) {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+
+                &+.cross-mark {
+                    display: block;
+                    border-top-right-radius: 6px;
+                    border-bottom-right-radius: 6px;
+                }
+            }
+
+            &:placeholder-shown {
+                background-color: rgb(241, 242, 243);
+            }
+        }
+
+        & .cross-mark {
+            display: none;
+            position: relative;
+            margin: auto;
+            cursor: pointer;
+            height: 48px;
+            width: 15px;
+            background-color: rgb(246, 247, 248);
+            background-image: url('../../assets/icons8-cross-mark-50.png');
+            background-repeat: no-repeat;
+            background-size: 15px;
+            background-position: center;
+            padding-right: 30px;
+
+            &:hover {
+                background-image: url('../../assets/icons8-cross-mark-51.png');
+            }
+        }
+    }
+
+    & .search-input-magnifying-glass {
+        display: block;
+        position: relative;
+        right: 0;
+        margin: auto;
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0);
+        background-image: url('../../assets/magnifying-glass.png');
+        background-size: 25px;
+        background-repeat: no-repeat;
+        background-position: center;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba(227, 229, 231, 0.6);
+        }
+    }
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 1);
+    }
+}

@@ -1,0 +1,26 @@
+.search-root-layout {
+    display: block;
+    position: relative;
+    width: 100vw;
+    min-height: 99vh;
+    background-color: rgb(232, 235, 235);
+
+    & .search-root-header {
+        display: block;
+        background-color: rgb(119, 119, 119);
+        border-bottom: 1px solid rgb(163, 161, 161);
+        height: 56px;
+        width: 100%;
+
+        & .shader {
+            position: absolute;
+            display: block;
+            top: 0;
+            z-index: 2000;
+            left: 36vw;
+            width: 30vw;
+            height: 56px;
+            background-color: rgb(119, 119, 119);
+        }
+    }
+}

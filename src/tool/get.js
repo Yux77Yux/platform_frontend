@@ -62,3 +62,45 @@ export const fetchHome = async () => {
     }
     return result
 }
+
+export const fetchSimilarCreaiton = async (creationId) => {
+    const response = await fetch(`http://localhost:8080/api/watch/similar/${creationId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        alert("玩略不提")
+        return null
+    }
+
+    const result = await response.json()
+    const msg = result.msg
+    if (msg.status != Api_Status.SUCCESS) {
+        return false
+    }
+    return result
+}
+
+export const searchCreaiton = async (title, page) => {
+    const response = await fetch(`http://localhost:8080/api/search/videos/${title}/${page}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        alert("玩略不提")
+        return null
+    }
+
+    const result = await response.json()
+    const msg = result.msg
+    if (msg.status != Api_Status.SUCCESS) {
+        return false
+    }
+    return result
+}

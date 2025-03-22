@@ -12,6 +12,7 @@ import { User_Role } from "@/src/tool/user"
 import { cancelCollections } from "@/src/tool/interaction"
 import { formatTimestamp } from "@/src/tool/formatTimestamp"
 import { formatCount } from "@/src/tool/formatNumber"
+import { fetchSimilarCreaiton } from "@/src/tool/get"
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
@@ -21,6 +22,7 @@ import CommentBox from "@/src/client-components/comment/comment"
 import TextPrompt from "@/src/client-components/prompt/TextPrompt"
 import MenuPortal from "@/src/client-components/menu-portal/menu-portal"
 import Modal from "@/src/client-components/modal-no-redirect/modal.component"
+import Link from "next/link";
 
 const Page = () => {
     const router = useRouter()
@@ -74,28 +76,7 @@ const Page = () => {
         setReport((prev) => ({ ...prev, isOpen: state }))
     }
 
-    const [recommends, setRecommends] = useState([
-        {
-            src: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5%2F%5B+%5D%2F1-CATACLYSM+-+%E6%9A%97%E5%BD%B1%E6%A0%BC%E6%96%97+2+%5BEdit+GMV%5D-480P+%E6%B8%85%E6%99%B0-AVC.Cover.jpg",
-            title: "暗影格斗 2 [Edit GMV]", views: 568, author: "小品漫剪"
-        },
-        {
-            src: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5%2F%E7%9A%87%E5%A5%B3%E5%8F%91%E7%8E%B0%E7%9C%9F%E6%83%B3%EF%BC%8C%E5%B8%8C%E5%BE%B7%E5%B0%B1%E6%98%AF%E6%9A%97%E5%BD%B1%E5%A4%A7%E4%BA%BA%EF%BC%8C%E5%BD%BB%E5%BA%95%E6%85%8C%E4%BA%86%E2%80%A6%2F1-%E7%9A%87%E5%A5%B3%E5%8F%91%E7%8E%B0%E7%9C%9F%E6%83%B3%EF%BC%8C%E5%B8%8C%E5%BE%B7%E5%B0%B1%E6%98%AF%E6%9A%97%E5%BD%B1%E5%A4%A7%E4%BA%BA%EF%BC%8C%E5%BD%BB%E5%BA%95%E6%85%8C%E4%BA%86%E2%80%A6-480P+%E6%B8%85%E6%99%B0-AVC.Cover.jpg",
-            title: "暗影的圣剑被嘲笑为小蚯蚓，起身后直接吓呆公主···", views: 5114, author: "日推动漫"
-        },
-        {
-            src: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5%2F%E4%BD%A0%E5%B0%8F%E6%97%B6%E5%80%99%E7%9A%84%E5%85%84%E5%BC%9F%E9%95%BF%E5%A4%A7%E4%BA%86...%E2%80%9D%2F11-%E2%80%9C%E9%98%BF%E5%B0%BC%E4%BA%9A%E8%A2%AB%E5%87%B6%E4%BA%86%EF%BC%8C%E8%A6%81%E7%A6%BB%E5%AE%B6%E5%87%BA%E8%B5%B0%E2%80%9D-480P+%E6%B8%85%E6%99%B0-AVC.Cover.jpg",
-            title: "阿尼亚被凶了，要离家出走", views: 875, author: "已将很"
-        },
-        {
-            src: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5%2F%E6%9A%97%E5%BD%B1%E5%A4%A7%E4%BA%BA%E7%9A%84%E9%80%80%E4%BC%91%E7%94%9F%E6%B4%BB%2F1-%E6%9A%97%E5%BD%B1%E5%A4%A7%E4%BA%BA%E7%9A%84%E9%80%80%E4%BC%91%E7%94%9F%E6%B4%BB-480P+%E6%B8%85%E6%99%B0-AVC.jpg",
-            title: "暗影大人的退休生活", views: 8335, author: "猫羽雫"
-        },
-        {
-            src: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E5%8A%A8%E6%BC%AB%E7%89%87%E6%AE%B5%2F%E5%86%8D%E6%AC%A1%E7%9B%B8%E9%81%87%EF%BC%8C%E7%B2%89%E6%AF%9B%E5%BE%97%E7%9F%A5%E7%9C%9F%E7%9B%B8%EF%BC%8C%E6%83%B3%E8%A6%81%E8%BF%BD%E9%9A%8F%E6%9A%97%E5%BD%B1%EF%BC%8C%E6%9A%97%E5%BD%B1%E5%8D%B4%E4%B8%8D%E8%BE%9E%E8%80%8C%E5%88%AB%EF%BC%8C%E7%B2%89%E6%AF%9B%E5%BD%BB%E5%BA%95%E7%A0%B4%E9%98%B2%2F1-%E5%86%8D%E6%AC%A1%E7%9B%B8%E9%81%87%EF%BC%8C%E7%B2%89%E6%AF%9B%E5%BE%97%E7%9F%A5%E7%9C%9F%E7%9B%B8%EF%BC%8C%E6%83%B3%E8%A6%81%E8%BF%BD%E9%9A%8F%E6%9A%97%E5%BD%B1%EF%BC%8C%E6%9A%97%E5%BD%B1%E5%8D%B4%E4%B8%8D%E8%BE%9E%E8%80%8C%E5%88%AB%EF%BC%8C%E7%B2%89%E6%AF%9B%E5%BD%BB%E5%BA%95%E7%A0%B4%E9%98%B2-480P+%E6%B8%85%E6%99%B0-AVC.jpg",
-            title: "再次相遇，粉毛得知真相，想要追随暗影，暗影却不辞而别，粉毛彻底破防", views: 5675, author: "仞之下_仞下"
-        },
-    ])
+    const [recommends, setRecommends] = useState()
 
     // 初始化相似视频
 
@@ -426,6 +407,25 @@ const Page = () => {
             .then((token) => setToken(token))
     }, [])
 
+    useEffect(() => {
+        (async () => {
+            const result = await fetchSimilarCreaiton(creationId)
+            const { cards } = result
+            if (!cards) return
+            let videos = cards.map((info) => {
+                const { creation, creationEngagement, timeAt, user } = info
+                const { baseInfo } = creation
+                return ({
+                    ...baseInfo,
+                    ...creationEngagement,
+                    user,
+                    timeAt: timeAt,
+                })
+            }, [])
+            setRecommends(() => videos)
+        })()
+    }, [creationId])
+
     if (isPageLoading) return null;
 
     return (
@@ -503,22 +503,21 @@ const Page = () => {
                     </div>
                 </div>
                 <ul className="creation-right-list-box">
-                    <h3 style={{ position: 'relative', marginBottom: '20px' }}>相似视频</h3>
-                    {recommends.map((value, i) => (
-                        <li className="creation-right-item" key={i}>
-                            <div className="item-cover">
-                                <Image src={value.src}
+                    <h3 style={{ position: 'relative', marginBottom: '20px' }}></h3>
+                    {recommends && recommends.map((video) => (
+                        <li className="creation-right-item" key={video.creationId}>
+                            <div className="item-cover" onClick={() => window.open(`/creation/${video.creationId}`, "_blank")}>
+                                <Image src={video.thumbnail}
                                     alt="" fill style={{ objectFit: 'cover' }}
                                 />
                             </div>
                             <div className="item-info-box">
-                                <div className="item-title">{value.title}</div>
-                                <div className="item-author-name">UP：{value.author}</div>
-                                <div className="item-views">播放数： {value.views}</div>
+                                <div className="item-title" onClick={() => window.open(`/creation/${video.creationId}`, "_blank")}>{video.title}</div>
+                                <Link className="item-author-name" target="_blank" href={`/space/${video.user.userId}`}>UP：{video.user.userName}</Link>
+                                <div className="item-views">播放数： {video.views}</div>
                             </div>
                         </li>
                     ))}
-
                 </ul>
             </div>
         </>
