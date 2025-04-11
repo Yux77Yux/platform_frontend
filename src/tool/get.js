@@ -50,7 +50,6 @@ export const fetchHome = async () => {
     });
 
     if (!response.ok) {
-        alert("玩略不提")
         return null
     }
 

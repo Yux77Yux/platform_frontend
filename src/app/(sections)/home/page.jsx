@@ -18,7 +18,7 @@ const Home = () => {
         { src: '/img/lunbo/lunbo4.avif' },
     ]
 
-    const videos = [
+    const videoss = [
         {
             thumbnail: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E7%9F%A5%E8%AF%86%2F%E6%9E%81%E5%BA%A6%E8%88%92%E9%80%82%EF%BC%81%E6%8B%BF%E6%9D%A5%E6%95%91%E5%91%BD%E7%9A%84%E8%8D%AF%EF%BC%8C%E5%8E%9F%E6%9D%A5%E6%98%AF%E8%BF%99%E6%A0%B7%E5%9C%A8%E8%BA%AB%E4%BD%93%E9%87%8C%E9%87%8A%E6%94%BE%E7%9A%84%2F1-%E8%89%BA%E6%9C%AF%E5%B0%B1%E6%98%AF%E7%88%86%E7%82%B8%EF%BC%9F%E6%89%8B%E6%90%93%E9%BB%91%E7%81%AB%E8%8D%AF%EF%BC%8C%E6%85%A2%E6%94%BE500%E5%80%8D%E7%9C%8B%E7%83%9F%E8%8A%B1%E7%9A%84%E5%8C%96%E5%AD%A6%E5%A5%A5%E7%A7%98%EF%BC%81-480P+%E6%B8%85%E6%99%B0-AVC.Cover.jpg",
             url: "https://platform-user.oss-cn-guangzhou.aliyuncs.com/Media%2F%E7%9F%A5%E8%AF%86%2F%E6%9E%81%E5%BA%A6%E8%88%92%E9%80%82%EF%BC%81%E6%8B%BF%E6%9D%A5%E6%95%91%E5%91%BD%E7%9A%84%E8%8D%AF%EF%BC%8C%E5%8E%9F%E6%9D%A5%E6%98%AF%E8%BF%99%E6%A0%B7%E5%9C%A8%E8%BA%AB%E4%BD%93%E9%87%8C%E9%87%8A%E6%94%BE%E7%9A%84%2F1-%E8%89%BA%E6%9C%AF%E5%B0%B1%E6%98%AF%E7%88%86%E7%82%B8%EF%BC%9F%E6%89%8B%E6%90%93%E9%BB%91%E7%81%AB%E8%8D%AF%EF%BC%8C%E6%85%A2%E6%94%BE500%E5%80%8D%E7%9C%8B%E7%83%9F%E8%8A%B1%E7%9A%84%E5%8C%96%E5%AD%A6%E5%A5%A5%E7%A7%98%EF%BC%81-480P+%E6%B8%85%E6%99%B0-AVC.mp4",
@@ -181,11 +181,13 @@ const Home = () => {
         },
     ];
 
+    const [videos,setVideos] = useState(videoss)
+
     useEffect(() => {
         (async () => {
             const result = await fetchHome()
             const { cards } = result
-            let videos = cards.map((info) => {
+            let creations = cards.map((info) => {
                 const { creation, creationEngagement, user, timeAt } = info
                 const { baseInfo } = creation
                 return ({
@@ -196,8 +198,10 @@ const Home = () => {
                 })
             }, [])
 
-            setCreations(() => videos)
+            setCreations(() => creations)
         })()
+
+        setVideos(() => [...videoss].sort(() => Math.random() - 0.5));
     }, [])
 
     return (

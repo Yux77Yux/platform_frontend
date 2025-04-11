@@ -1,38 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Archive from './Archive'
+import {
+    getArchivesExist,
+} from "@/src/tool/archive"
 import "./page.scss"
 
 const Page = () => {
     const [info, setInfo] = useState({
-        choose: "left",
+        choose: 0,
 
-        left: null,
+        // left为初始存档，即历史记录
+        left: 0,
         leftCover: void 0,
         leftBytes: void 0,
-        leftName: '存档一',
-        leftAble: false,
+        leftExist: true,
 
-        middle: null,
+        middle: 1,
+        middleArchive: void 0,
         middleCover: void 0,
         middleBytes: void 0,
         middleAble: false,
-        middleName: '存档二',
+        middleExist: false,
 
-        right: null,
+        right: 2,
+        rightArchive: void 0,
         rightCover: void 0,
         rightBytes: void 0,
         rightAble: false,
-        rightName: '存档三',
+        rightExist: false,
     });
-
-    const handleField = (key, value) => {
-        setInfo((prev) => ({
-            ...prev,
-            [key]: value
-        }))
-    };
 
     const fileHandler = (key, event) => {
         const file = event.target.files[0];
@@ -54,9 +52,22 @@ const Page = () => {
         }
     }
 
+    useEffect(() => {
+        (async () => {
+            const result = await getArchivesExist()
+            console.log(result)
+            setInfo((prev) => ({
+                ...prev,
+                choose: parseInt(result.order),
+                middleExist: result.exist[1],
+                rightExist: result.exist[2],
+            }))
+        })()
+    }, [])
+
     const props = {
         info: info,
-        handleField: handleField,
+        handleField: setInfo,
         fileHandler: fileHandler,
     }
 

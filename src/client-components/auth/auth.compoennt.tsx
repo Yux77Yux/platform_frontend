@@ -4,6 +4,7 @@ import { setCookie, getCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./auth.styles.scss";
+import { Api_Status } from '@/src/tool/api-status';
 
 const Auth = () => {
     const form = useRef<null | HTMLFormElement>(null)
@@ -40,7 +41,16 @@ const Auth = () => {
             if (response.ok) {
                 const result = await response.json();  // 解析 JSON 响应
                 console.log("Response:", result);
+                const { msg } = result;
+                const { status } = msg
+                if (status != Api_Status.PENDING && status != Api_Status.SUCCESS) {
+                    const details = msg.details
+                    alert(details)
+                }else{
+                    alert('注册成功！')
+                }
             } else {
+                alert("网络不通")
                 console.log("Error response:", response.status, response.statusText);
                 const error = await response.text();  // 你可以先尝试解析为文本来查看错误消息
                 console.log("Error message:", error);

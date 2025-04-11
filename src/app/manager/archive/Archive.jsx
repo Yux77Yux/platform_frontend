@@ -1,6 +1,11 @@
 'use client';
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
+import {
+    uploadArchive,
+    saveArchive,
+    chooseArchive,
+} from "@/src/tool/archive"
 
 const Archive = ({
     info,
@@ -8,20 +13,41 @@ const Archive = ({
     fileHandler,
     selected,
 }) => {
+    const archiveRef = useRef(null)
     const getValue = useCallback((key) => info[key], [info]);
+
+    const uploadArchiveHandler = useCallback(() => {
+        const archive = getValue(`${selected}Archive`)
+        const order = getValue(selected)
+        uploadArchive(order, archive)
+    }, [getValue, selected])
+
+    const chooseArchiveHandler = useCallback(async () => {
+        const order = getValue(selected)
+        const result = await chooseArchive(order)
+        if (!result) return
+        handleField((prev) => ({ ...prev, ["choose"]: getValue(selected) }))
+    }, [getValue, selected, handleField])
+
+    const saveArchiveHandler = useCallback(async () => {
+        const order = getValue(selected)
+        const result = await saveArchive(order)
+        console.log(result)
+    }, [getValue, selected])
 
     return (
         <div style={{ display: 'flex', position: 'relative', flexDirection: 'column', alignItems: 'center' }}>
-            {getValue('choose') === selected
+            {getValue('choose') == getValue(selected)
                 ? <div className="choosing">当前选择</div>
-                : getValue(selected)
-                    ? <div className="unchoose" onClick={() => handleField("choose", selected)}>选择</div>
+                : getValue(`${selected}Exist`) ? <div className="unchoose" onClick={chooseArchiveHandler}>选择</div>
                     : ""
             }
             <div className="archive">
-                {getValue(selected)
-                    ? <>
-                        <Image src={getValue(`${selected}Cover`) ? getValue(`${selected}Cover`) : "/img/default-cover.png"} alt='' fill style={{ objectFit: 'cover' }} />
+                {(getValue(`${selected}Exist`) || getValue(selected) == 0)
+                    && <>
+                        <Image src={getValue(`${selected}Cover`) ? getValue(`${selected}Cover`) : "/img/default-cover.png"}
+                            alt='' fill style={{ objectFit: 'cover' }}
+                        />
                         <label style={{
                             display: 'flex',
                             justifyContent: 'center',
@@ -43,68 +69,58 @@ const Archive = ({
                         </label>
 
                         <div className="buttons">
-                            <button type="button" className="archive-option"
-                                onClick={() => { handleField(`${selected}Able`, true) }}
+                            {selected != "left" && <button type="button" className="archive-option"
+                                onClick={() => archiveRef.current?.click()}
                             >
-                                更名
-                            </button>
+                                更换
+                            </button>}
                             <button type="button" className="archive-option"
                                 style={{
                                     visibility: getValue(`${selected}Able`)
                                         ? "visible" : "hidden",
                                 }}
-                                onClick={() => handleField(`${selected}Able`, true)}
+                                onClick={uploadArchiveHandler}
                             >
                                 确认
                             </button>
-                            <button type="button" className="archive-option"
-                            >
-                                删除
-                            </button>
-                            <button type="button" className="archive-option"
+                            <button type="button"
+                                className="archive-option"
+                                onClick={saveArchiveHandler}
                             >
                                 下载
                             </button>
                         </div>
                     </>
-                    : <>
-                        <label style={{
-                            position: 'relative',
-                            height: '100%',
-                            width: '100%',
-                            border: '1px solid rgb(50, 51, 50)',
-                            backgroundColor: 'rgb(61, 55, 55)',
-                            backgroundImage: 'url(/plus.svg)',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundSize: '50px',
-                            cursor: 'pointer',
-                        }}>
-                            <input type="file" name="" id=""
-                                onChange={e => handleField(selected, e.target.files[0])}
-                                style={{ position: 'absolute', visibility: 'hidden', opacity: 0 }}
-                            />
-                        </label>
-                    </>
                 }
-            </div>
-            {getValue(`${selected}`) &&
-                <>
-                    <input className="archive-option" type="text"
-                        disabled={!getValue(`${selected}Able`)}
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            color: "rgb(0, 0, 0)",
-                            textAlign: 'center',
-                            fontSize: '18px',
-                        }}
-                        maxLength="12"
-                        value={getValue(`${selected}Name`)} onChange={e => handleField(`${selected}Name`, e.target.value)}
+                <label ref={archiveRef}
+                    style={{
+                        zIndex: (selected != "left" && !getValue(`${selected}Exist`)) ? '1' : '-1',
+                        position: 'relative',
+                        height: '100%',
+                        width: '100%',
+                        border: '1px solid rgb(50, 51, 50)',
+                        backgroundColor: 'rgb(61, 55, 55)',
+                        backgroundImage: 'url(/plus.svg)',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '50px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    <input type="file"
+                        onChange={e => handleField(
+                            (prev) => ({
+                                ...prev,
+                                [`${selected}Archive`]: e.target.files[0],
+                                [`${selected}Able`]: true,
+                                [`${selected}Exist`]: true,
+                            })
+                        )}
+                        style={{ position: 'absolute', visibility: 'hidden', opacity: 0 }}
                     />
-                </>}
-        </div>
+                </label>
+            </div>
+        </div >
     );
 }
 
