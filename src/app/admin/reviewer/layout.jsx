@@ -6,7 +6,6 @@ const Layout = async ({ children }) => {
         <div className='reviewer-layout'>
             <Options />
             {children}
-            
         </div>
     );
 }

@@ -423,7 +423,7 @@ const TopCommentList = ({ handleReplyField, commentTop, reply, updateSubCount })
         if (result) {
             setTextPrompt({ isOpen: true, text: "删除成功" })
             setDelOpen(false)
-            setTimeout(() => window.location.reload(), 2000)
+            setTimeout(() => window.location.reload(), 4000)
         } else {
             setTextPrompt({ isOpen: true, text: "删除失败，请重试！" })
             setDelOpen(false)

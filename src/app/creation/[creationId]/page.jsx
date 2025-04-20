@@ -66,6 +66,8 @@ const Page = () => {
         followers: 0,
     })
 
+    const changeFollowerNum = useCallback((num) => setAuthor((prev) => ({ ...prev, "followers": num })), [])
+
     // 举报
     const [report, setReport] = useState({
         detail: "",
@@ -342,7 +344,7 @@ const Page = () => {
                 }
 
                 const video = {
-                    uploadTime: formatTimestamp(uploadTime),
+                    uploadTime:uploadTime,
                     authorId: authorId,
                     bio: bio,
                     src: src,
@@ -353,7 +355,7 @@ const Page = () => {
                     views: views,
                     saves: saves,
                     likes: likes,
-                    publishTime: formatTimestamp(publishTime),
+                    publishTime: publishTime,
                 };
 
                 setVideoInfo((prev) => ({ ...prev, ...video }));
@@ -499,7 +501,7 @@ const Page = () => {
                     <div className="user-name-box">
                         <span className="user-name" onClick={() => window.open(`/space/${author.userId}`)}>{author.userName}</span>
                         <div className="user-bio">{author.userBio}</div>
-                        <FollowBtns userId={author.userId} followers={author.followers} />
+                        <FollowBtns userId={author.userId} followers={author.followers} changeFollowerNum={changeFollowerNum} />
                     </div>
                 </div>
                 <ul className="creation-right-list-box">
@@ -524,21 +526,23 @@ const Page = () => {
     );
 }
 
-const FollowBtns = ({ userId, followers }) => {
+const FollowBtns = ({ userId, followers, changeFollowerNum }) => {
     const [exist, setExist] = useState(false)
     const followUserHandler = useCallback(async () => {
         const ok = await followUser(userId)
         if (ok) {
-            setExist(!exist)
+            setExist(true)
+            changeFollowerNum(followers + 1)
         }
-    }, [userId, exist])
+    }, [userId, followers, changeFollowerNum])
 
     const cancelFollowUserHandler = useCallback(async () => {
         const ok = await cancelFollow(userId)
         if (ok) {
-            setExist(!exist)
+            setExist(false)
+            changeFollowerNum(followers - 1)
         }
-    }, [userId, exist])
+    }, [userId, followers, changeFollowerNum])
 
     useEffect(() => {
         (async () => {

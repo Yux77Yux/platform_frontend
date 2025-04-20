@@ -37,7 +37,7 @@ const Page = () => {
         if (file) {
             // 创建临时 URL 以显示图片
             const imageUrl = URL.createObjectURL(file);
-            handleField(`${key}Cover`, imageUrl);
+            setInfo((prev) => ({ ...prev, [`${key}Cover`]: imageUrl }));
 
             // 读取文件字节
             const reader = new FileReader();
@@ -45,7 +45,7 @@ const Page = () => {
                 if (reader.result) {
                     const bytes = new Uint8Array(reader.result);
                     // 调用 handleChange，将字节数据传递给它
-                    handleField(`${key}Bytes`, bytes);
+                    setInfo((prev) => ({ ...prev, [`${key}Bytes`]: bytes }));
                 }
             };
             reader.readAsArrayBuffer(file);

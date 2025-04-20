@@ -12,7 +12,7 @@ const ManagerLayout = async ({ children }: Props) => {
         { tag: "投稿", href: "/manager" },
         { tag: "稿件管理", href: "/manager/creations" },
         { tag: "存档管理", href: "/manager/archive" },
-        { tag: "申诉管理", href: "#" },
+        // { tag: "申诉管理", href: "#" },
     ]
     return (
         <>

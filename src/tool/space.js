@@ -87,21 +87,25 @@ export const cancelFollow = async (userId) => {
 
 export const existFollowee = async (followee_id) => {
     const loginId = await getLoginUserId()
-    const response = await fetch(`http://localhost:8080/api/user/follow/get/${followee_id}/${loginId.toString()}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+    try {
+        const response = await fetch(`http://localhost:8080/api/user/follow/get/${followee_id}/${loginId.toString()}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
-    if (!response.ok) {
-        return null
-    }
-    const result = await response.json()
-    const msg = result.msg
-    if (msg.status != Api_Status.SUCCESS) {
-        return false
-    }
+        if (!response.ok) {
+            return null
+        }
+        const result = await response.json()
+        const msg = result.msg
+        if (msg.status != Api_Status.SUCCESS) {
+            return false
+        }
 
-    return result.exist
+        return result.exist
+    } catch (error) {
+        console.log(error)
+    }
 }

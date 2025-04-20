@@ -1,10 +1,10 @@
 'use client'
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSpace } from "../context";
 
-import VideoList from "@/src/client-components/video-slight-list/VideoList"
-import { fetchCollections } from "@/src/tool/get"
+import VideoList from "@/src/client-components/video-slight-list/interaction-videoList"
+import { fetchHistory } from "@/src/tool/get"
 import "./page.scss";
 
 export default function Page() {
@@ -22,22 +22,22 @@ export default function Page() {
 
     useEffect(() => {
         const exeCute = async () => {
-            const result = await fetchCollections(1)
+            const result = await fetchHistory(1)
             if (!result) return
-            console.log(result)
-            // const creationInfos = result.creationInfoGroup
-            // let videos = creationInfos.map((info) => {
-            //     const { creation, creationEngagement } = info
-            //     const { baseInfo } = creation
-            //     return ({
-            //         ...baseInfo,
-            //         ...creationEngagement,
-            //     })
-            // }, [])
+            const { cards } = result
+            let videos = cards.map((info) => {
+                const { creation, creationEngagement, timeAt } = info
+                const { baseInfo } = creation
+                return ({
+                    ...baseInfo,
+                    ...creationEngagement,
+                    timeAt: timeAt,
+                })
+            }, [])
 
-            // setCreationInfoGroup(() => ({
-            //     creations: videos
-            // }))
+            setCreationInfoGroup(() => ({
+                creations: videos
+            }))
         }
         exeCute()
     }, [userId])
@@ -50,11 +50,11 @@ export default function Page() {
         <div className="collections-page">
             <div className="creations-block">
                 <div className="title-box">
-                    <h2 className="title">收藏夹</h2>
-                    
+                    <h2 className="title">历史记录</h2>
+
                 </div>
                 <div className="creation-list">
-                    {/* <VideoList videos={vvideos} /> */}
+                    <VideoList videos={creationInfoGroup.creations} />
                 </div>
             </div>
         </div>

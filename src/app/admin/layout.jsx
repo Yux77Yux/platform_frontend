@@ -10,8 +10,8 @@ export const metadata = {
 const Layout = async ({ children,detail }) => {
     const links = [
         { tag: "审核信息", href: "/admin/reviewer" },
-        { tag: "公告管理", href: "/admin/super/announcement" },
-        { tag: "审核员管理", href: "/admin/super" },
+        // { tag: "公告管理", href: "/admin/super/announcement" },
+        // { tag: "审核员管理", href: "/admin/super" },
     ]
 
     return (

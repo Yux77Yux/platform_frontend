@@ -33,6 +33,38 @@ export const fetchCollections = async (page) => {
     return result
 }
 
+export const fetchHistory = async (page) => {
+    const token = await getToken()
+    const pageNum = page <= 0 ? 1 : page
+    const body = {
+        accessToken: {
+            value: token
+        },
+        page: pageNum,
+    }
+
+    const response = await fetch(`http://localhost:8080/api/history/fetch`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        alert("玩略过不提")
+        return null
+    }
+
+    const result = await response.json()
+    console.log(result)
+    const msg = result.msg
+    if (msg.status != Api_Status.SUCCESS) {
+        return false
+    }
+    return result
+}
+
 export const fetchHome = async () => {
     const token = await getToken()
     const body = {
