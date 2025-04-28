@@ -1,23 +1,20 @@
 
 <div align=center>
-<img src="https://img.shields.io/badge/envoy-1.34.0--dev-blue"/>
-<img src="https://img.shields.io/badge/rabbitmq-3.8.9-blue"/>
-<img src="https://img.shields.io/badge/meilisearch-1.13.0-blue"/>
-<img src="https://img.shields.io/badge/docker-28.0.1-blue"/>
-<img src="https://img.shields.io/badge/golang-1.22.5windows%2Famd64-blue"/>
+<img src="https://img.shields.io/badge/react-18.3.1-blue"/>
+<img src="https://img.shields.io/badge/next.js-15.0.3-blue"/>
+<img src="https://img.shields.io/badge/typeScript-5.6-blue"/>
+<img src="https://img.shields.io/badge/sass-1.81.0-blue"/>
 </div>
 
 
 
 # 一个用Next.js开发的仿B站项目前端
 
-> **前言**：React的。     ---- 2025/4/28 Yux
-
-
 ## 项目：随便取了platform_frontend
 
 - 使用 Next.js 框架 仿b站开发前端，实现了一个视频网站所具备的主要功能。
 - 采用前后端分离模式开发，与后端主要通过json/application方式交互。
+- <a href="https://github.com/Yux77Yux/platform_backend" rel="">后端项目</a>
 
 ### src内结构
 - **app 页面文件**
@@ -51,8 +48,8 @@
 
 ## 启动
 
-- 请先下载yarn
-- 再通过yarn install下载依赖
+- npm install -g yarn@4.5.3
+- yarn install
 - yarn dev 即可启动
 - 管理页面入口为localhost:3000/admin/reviewer (:3000为默认端口)
 
